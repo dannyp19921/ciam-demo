@@ -39,7 +39,7 @@ A Customer Identity and Access Management (CIAM) demonstration project showcasin
 ### Frontend
 - **React Native** - Cross-platform mobile framework
 - **Expo** - React Native toolchain
-- **TypeScript/JavaScript** - Programming language
+- **JavaScript** - Programming language
 
 ### Authentication & Authorization
 - **Auth0** - Identity-as-a-Service platform
@@ -50,6 +50,8 @@ A Customer Identity and Access Management (CIAM) demonstration project showcasin
 ### Cloud & DevOps
 - **Azure App Service** - Cloud hosting platform
 - **GitHub Actions** - CI/CD pipeline
+- **Docker** - Containerization
+- **Kubernetes** - Container orchestration (manifests included)
 - **HTTPS** - Secure communication
 
 ## Features Demonstrated
@@ -63,22 +65,29 @@ A Customer Identity and Access Management (CIAM) demonstration project showcasin
 | **Public Endpoints** | Open API endpoints for unauthenticated users |
 | **Cross-Platform** | Same backend serves web and mobile clients |
 | **Cloud Deployment** | Production-ready Azure hosting |
+| **Containerization** | Docker support for consistent environments |
+| **Orchestration Ready** | Kubernetes manifests for scalable deployment |
 
 ## Project Structure
 ```
 ciam-demo/
-├── backend-kotlin/          # Spring Boot API
+├── backend-kotlin/              # Spring Boot API
 │   ├── src/main/kotlin/
 │   │   └── no/gjensidige/ciam/
 │   │       ├── CiamDemoApplication.kt
 │   │       ├── ApiController.kt
 │   │       └── SecurityConfig.kt
-│   └── build.gradle.kts
-├── frontend/                 # React Native / Expo app
+│   ├── build.gradle.kts
+│   └── Dockerfile
+├── frontend/                    # React Native / Expo app
 │   ├── App.js
 │   ├── app.json
 │   └── package.json
-├── .github/workflows/        # CI/CD
+├── kubernetes/                  # Kubernetes manifests
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   └── secrets-template.yaml
+├── .github/workflows/           # CI/CD
 │   └── main_ciam-demo-dap.yml
 └── README.md
 ```
@@ -96,6 +105,7 @@ ciam-demo/
 
 - Java 21
 - Node.js 18+
+- Docker (optional)
 - Auth0 account
 - Azure account (optional, for cloud deployment)
 
@@ -118,22 +128,60 @@ npx expo start
 
 Press `w` for web or scan QR code with Expo Go app.
 
-### Environment Configuration
+### Docker
 
-#### Auth0 Setup
+#### Build the image
+```bash
+cd backend-kotlin
+docker build -t ciam-demo-backend .
+```
+
+#### Run the container
+```bash
+docker run -p 8080:8080 \
+  -e SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=https://YOUR-AUTH0-DOMAIN/ \
+  ciam-demo-backend
+```
+
+### Kubernetes
+
+#### Prerequisites
+
+- Kubernetes cluster (minikube, AKS, EKS, GKE, etc.)
+- kubectl configured
+
+#### Deploy
+```bash
+# Create secrets (edit with your values first)
+kubectl apply -f kubernetes/secrets-template.yaml
+
+# Deploy application
+kubectl apply -f kubernetes/deployment.yaml
+kubectl apply -f kubernetes/service.yaml
+```
+
+#### Verify deployment
+```bash
+kubectl get pods
+kubectl get services
+```
+
+## Environment Configuration
+
+### Auth0 Setup
 
 1. Create an API in Auth0 Dashboard
 2. Create a Single Page Application
 3. Configure callback URLs for your environment
 
-#### Backend Configuration
+### Backend Configuration
 
 Update `application.properties`:
 ```properties
 spring.security.oauth2.resourceserver.jwt.issuer-uri=https://YOUR-AUTH0-DOMAIN/
 ```
 
-#### Frontend Configuration
+### Frontend Configuration
 
 Update `App.js`:
 ```javascript
@@ -174,6 +222,29 @@ The backend validates every request to protected endpoints:
 - CORS configuration for allowed origins
 - No secrets in code (environment variables)
 - Token-based authentication (stateless)
+- Multi-stage Docker build (minimal attack surface)
+
+## IAM Platform Portability
+
+This project uses Auth0, but the concepts transfer directly to other IAM platforms:
+
+| Platform | Difference |
+|----------|------------|
+| **Okta** | Different dashboard, same OAuth 2.0/OIDC protocols |
+| **Azure AD** | Microsoft ecosystem, identical token flow |
+| **Ping Identity** | Enterprise-focused, same standards |
+| **AWS Cognito** | AWS ecosystem, same JWT validation |
+
+Switching platforms requires only configuration changes – the architecture remains the same.
+
+## Future Enhancements
+
+- [ ] Add SAML 2.0 support for legacy system integration
+- [ ] Implement refresh token rotation
+- [ ] Add role-based access control (RBAC)
+- [ ] Deploy Kubernetes to Azure AKS
+- [ ] Add monitoring with Azure Application Insights
+- [ ] Implement rate limiting
 
 ## Author
 

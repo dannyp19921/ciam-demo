@@ -1,3 +1,4 @@
+// backend-kotlin/src/main/kotlin/no/gjensidige/ciam/SecurityConfig.kt
 package no.gjensidige.ciam
 
 import org.springframework.context.annotation.Bean
@@ -31,13 +32,15 @@ class SecurityConfig {
     }
 
     @Bean
-    fun corsConfigurationSource(): CorsConfigurationSource {
+    fun corsConfigurationSource(): CorsConfigurationSource {    // CORS (in backend)
         val configuration = CorsConfiguration()
         configuration.allowedOrigins = listOf(
             "http://localhost:5500", 
             "http://127.0.0.1:5500", 
             "http://192.168.1.7:5500",
-            "http://localhost:8081"
+            "http://localhost:8081",
+            "https://t7zby4w-dannyp19921-8081.exp.direct",
+            "exp://172.18.248.121:8081"
         )
         configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
         configuration.allowedHeaders = listOf("*")

@@ -10,7 +10,7 @@ WebBrowser.maybeCompleteAuthSession();
 const AUTH0_DOMAIN = 'dev-feccaeq8qwpicehq.eu.auth0.com';
 const AUTH0_CLIENT_ID = 'Mp1DLIhUPWbTELgiO0C1GiuGnD3rdv2M';
 const AUTH0_AUDIENCE = 'https://ciam-demo-api';
-const API_URL = 'http://192.168.1.7:8080';
+const API_URL = 'https://ciam-demo-dap-cdbcc5debgfgbaf5.westeurope-01.azurewebsites.net';
 
 const redirectUri = AuthSession.makeRedirectUri();
 console.log('Redirect URI:', redirectUri); 

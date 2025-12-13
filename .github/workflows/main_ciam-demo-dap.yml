@@ -57,4 +57,5 @@ jobs:
         with:
           app-name: 'ciam-demo-dap'
           slot-name: 'Production'
-          package: '*.jar'
+          package: '*-SNAPSHOT.jar'
+

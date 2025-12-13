@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIAM Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-md">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-800">CIAM Demo</h1>
+            <p class="text-gray-600 mt-2">Customer Identity & Access Management</p>
+        </div>
+
+        <!-- Login/Logout knapp -->
+        <div id="auth-section" class="bg-white rounded-lg shadow p-6 mb-4">
+            <button id="login-btn" onclick="login()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition">
+                Logg inn
+            </button>
+            <button id="logout-btn" onclick="logout()" class="w-full bg-red-600 text-white py-3 rounded-lg font-medium hover:bg-red-700 transition hidden">
+                Logg ut
+            </button>
+        </div>
+
+        <!-- Brukerinfo -->
+        <div id="user-section" class="bg-white rounded-lg shadow p-6 mb-4 hidden">
+            <h2 class="font-semibold text-gray-700 mb-3">Innlogget bruker</h2>
+            <div id="user-info" class="text-sm text-gray-600 space-y-1"></div>
+        </div>
+
+        <!-- API-testing -->
+        <div class="bg-white rounded-lg shadow p-6 mb-4">
+            <h2 class="font-semibold text-gray-700 mb-3">Test API-endepunkter</h2>
+            <div class="space-y-3">
+                <button onclick="callPublicApi()" class="w-full bg-green-600 text-white py-2 rounded-lg font-medium hover:bg-green-700 transition">
+                    Kall /public (åpen)
+                </button>
+                <button onclick="callProtectedApi()" class="w-full bg-purple-600 text-white py-2 rounded-lg font-medium hover:bg-purple-700 transition">
+                    Kall /protected (krever innlogging)
+                </button>
+            </div>
+        </div>
+
+        <!-- Resultat -->
+        <div id="result-section" class="bg-white rounded-lg shadow p-6">
+            <h2 class="font-semibold text-gray-700 mb-3">Resultat</h2>
+            <pre id="result" class="bg-gray-50 p-3 rounded text-xs overflow-x-auto text-gray-700">Klikk en knapp for å teste...</pre>
+        </div>
+    </div>
+
+    <script>
+        // ===== KONFIGURERING =====
+        // Erstatt disse med dine Auth0-verdier:
+        const AUTH0_DOMAIN = 'dev-feccaeq8qwpicehq.eu.auth0.com';  // Your domain
+        const AUTH0_CLIENT_ID = 'Mp1DLIhUPWbTELgiO0C1GiuGnD3rdv2M';  // From the SPA-application
+        const AUTH0_AUDIENCE = 'https://ciam-demo-api';
+        const API_URL = 'http://localhost:8080';
+
+        // ===== AUTH0 SETUP =====
+        let auth0Client = null;
+
+        async function initAuth0() {
+            auth0Client = await auth0.createAuth0Client({
+                domain: AUTH0_DOMAIN,
+                clientId: AUTH0_CLIENT_ID,
+                authorizationParams: {
+                    redirect_uri: window.location.origin,
+                    audience: AUTH0_AUDIENCE
+                }
+            });
+
+            // Håndter callback etter innlogging
+            if (window.location.search.includes('code=')) {
+                await auth0Client.handleRedirectCallback();
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            await updateUI();
+        }
+
+        async function updateUI() {
+            const isAuthenticated = await auth0Client.isAuthenticated();
+            
+            document.getElementById('login-btn').classList.toggle('hidden', isAuthenticated);
+            document.getElementById('logout-btn').classList.toggle('hidden', !isAuthenticated);
+            document.getElementById('user-section').classList.toggle('hidden', !isAuthenticated);
+
+            if (isAuthenticated) {
+                const user = await auth0Client.getUser();
+                document.getElementById('user-info').innerHTML = `
+                    <p><strong>Navn:</strong> ${user.name || 'Ikke oppgitt'}</p>
+                    <p><strong>E-post:</strong> ${user.email || 'Ikke oppgitt'}</p>
+                `;
+            }
+        }
+
+        // ===== AUTH FUNKSJONER =====
+        async function login() {
+            await auth0Client.loginWithRedirect();
+        }
+
+        async function logout() {
+            await auth0Client.logout({
+                logoutParams: {
+                    returnTo: window.location.origin
+                }
+            });
+        }
+
+        // ===== API FUNKSJONER =====
+        async function callPublicApi() {
+            try {
+                const response = await fetch(`${API_URL}/public`);
+                const data = await response.json();
+                showResult(data);
+            } catch (error) {
+                showResult({ error: error.message });
+            }
+        }
+
+        async function callProtectedApi() {
+            try {
+                const token = await auth0Client.getTokenSilently();
+                const response = await fetch(`${API_URL}/protected`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+                showResult(data);
+            } catch (error) {
+                showResult({ error: 'Ikke innlogget eller ingen tilgang: ' + error.message });
+            }
+        }
+
+        function showResult(data) {
+            document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+        }
+
+        // ===== START =====
+        initAuth0();
+    </script>
+</body>
+</html>

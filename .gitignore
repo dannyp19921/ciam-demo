@@ -1,0 +1,27 @@
+# Kotlin/Java/Gradle
+backend-kotlin/build/
+backend-kotlin/.gradle/
+*.class
+*.jar
+*.war
+
+# Python
+backend-python/venv/
+__pycache__/
+*.pyc
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Miljøvariabler (viktig for sikkerhet!)
+.env
+*.env.local
+
+# Node (for fremtidig frontend)
+node_modules/

@@ -71,7 +71,7 @@ A Customer Identity and Access Management (CIAM) demonstration project showcasin
 ## Project Structure
 ```
 ciam-demo/
-├── backend-kotlin/              # Spring Boot API
+├── backend-kotlin/              # Spring Boot API (active)
 │   ├── src/main/kotlin/
 │   │   └── no/gjensidige/ciam/
 │   │       ├── CiamDemoApplication.kt
@@ -79,6 +79,11 @@ ciam-demo/
 │   │       └── SecurityConfig.kt
 │   ├── build.gradle.kts
 │   └── Dockerfile
+├── backend-java/                # Java implementation (placeholder)
+│   └── README.md
+├── backend-python/              # Python implementation (placeholder)
+│   ├── README.md
+│   └── requirements.txt
 ├── frontend/                    # React Native / Expo app
 │   ├── App.js
 │   ├── app.json

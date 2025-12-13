@@ -13,7 +13,7 @@ const AUTH0_AUDIENCE = 'https://ciam-demo-api';
 const API_URL = 'https://ciam-demo-dap-cdbcc5debgfgbaf5.westeurope-01.azurewebsites.net';
 
 const redirectUri = AuthSession.makeRedirectUri();
-console.log('Redirect URI:', redirectUri); 
+// console.log('Redirect URI:', redirectUri); // Debug only   
 
 export default function App() {
   // ===== STATE =====

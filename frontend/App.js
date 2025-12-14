@@ -1,239 +1,174 @@
-// frontend/App.js
+// App.js
+
 import { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Pressable, ScrollView } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import * as AuthSession from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import { 
+  LoginScreen, 
+  HomeScreen, 
+  ProfileScreen, 
+  ApiTestScreen,
+  ConsentScreen,
+  SecurityInfoScreen 
+} from './src/screens';
+import { BottomNav } from './src/components';
+import { AUTH0_CONFIG } from './src/constants/config';
+import { COLORS } from './src/styles/theme';
 
 WebBrowser.maybeCompleteAuthSession();
 
-// ===== CONFIGURATION =====
-const AUTH0_DOMAIN = 'dev-feccaeq8qwpicehq.eu.auth0.com';
-const AUTH0_CLIENT_ID = 'Mp1DLIhUPWbTELgiO0C1GiuGnD3rdv2M';
-const AUTH0_AUDIENCE = 'https://ciam-demo-api';
-const API_URL = 'https://ciam-demo-dap-cdbcc5debgfgbaf5.westeurope-01.azurewebsites.net';
-
 const redirectUri = AuthSession.makeRedirectUri();
-// console.log('Redirect URI:', redirectUri); // Debug only   
 
 export default function App() {
-  // ===== STATE =====
   const [user, setUser] = useState(null);
   const [accessToken, setAccessToken] = useState(null);
-  const [result, setResult] = useState('Click a button to test...');
+  const [activeTab, setActiveTab] = useState('home');
+  const [loading, setLoading] = useState(false);
+  const [hasConsented, setHasConsented] = useState(false);
+  const [consents, setConsents] = useState(null);
 
-  // ===== AUTH0 SETUP =====
-  const discovery = AuthSession.useAutoDiscovery(`https://${AUTH0_DOMAIN}`);
+  const discovery = AuthSession.useAutoDiscovery(`https://${AUTH0_CONFIG.domain}`);
 
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
     {
-      clientId: AUTH0_CLIENT_ID,
+      clientId: AUTH0_CONFIG.clientId,
       redirectUri,
       responseType: 'code',
       scopes: ['openid', 'profile', 'email'],
-      extraParams: {
-        audience: AUTH0_AUDIENCE,
-      },
+      prompt: 'login',
+      extraParams: { audience: AUTH0_CONFIG.audience },
     },
     discovery
   );
 
-  // Handle authentication response
+  // Check for existing consent on app load
+  useEffect(() => {
+    checkExistingConsent();
+  }, []);
+
   useEffect(() => {
     if (response?.type === 'success') {
-      const { code } = response.params;
-      exchangeCodeForToken(code);
+      exchangeCodeForToken(response.params.code);
     }
   }, [response]);
 
-  // ===== AUTH FUNCTIONS =====
+  const checkExistingConsent = async () => {
+    try {
+      const storedConsent = await AsyncStorage.getItem('userConsent');
+      if (storedConsent) {
+        setConsents(JSON.parse(storedConsent));
+        setHasConsented(true);
+      }
+    } catch (error) {
+      console.log('No existing consent found');
+    }
+  };
 
-  // Exchange authorization code for access token (PKCE flow)
   const exchangeCodeForToken = async (code) => {
+    setLoading(true);
     try {
       const tokenResponse = await AuthSession.exchangeCodeAsync(
         {
-          clientId: AUTH0_CLIENT_ID,
+          clientId: AUTH0_CONFIG.clientId,
           code,
           redirectUri,
-          extraParams: {
-            code_verifier: request?.codeVerifier,
-          },
+          extraParams: { code_verifier: request?.codeVerifier },
         },
         discovery
       );
 
       setAccessToken(tokenResponse.accessToken);
 
-      // Fetch user info from Auth0
-      const userResponse = await fetch(`https://${AUTH0_DOMAIN}/userinfo`, {
+      const userResponse = await fetch(`https://${AUTH0_CONFIG.domain}/userinfo`, {
         headers: { Authorization: `Bearer ${tokenResponse.accessToken}` },
       });
-      const userData = await userResponse.json();
-      setUser(userData);
-      setResult('Login successful!');
+      setUser(await userResponse.json());
     } catch (error) {
-      setResult('Login error: ' + error.message);
+      console.error('Login failed:', error);
     }
+    setLoading(false);
   };
 
-  // Clear user session
-  const logout = () => {
+  const handleLogin = () => promptAsync();
+
+  const handleLogout = async () => {
     setUser(null);
     setAccessToken(null);
-    setResult('Logged out');
-  };
-
-  // ===== API FUNCTIONS =====
-
-  // Call public endpoint (no authentication required)
-  const callPublicApi = async () => {
+    setActiveTab('home');
+    setHasConsented(false);
+    setConsents(null);
     try {
-      const response = await fetch(`${API_URL}/public`);
-      const data = await response.json();
-      setResult(JSON.stringify(data, null, 2));
+      await AsyncStorage.removeItem('userConsent');
     } catch (error) {
-      setResult('Error: ' + error.message);
+      console.log('Error clearing consent');
     }
   };
 
-  // Call protected endpoint (requires valid JWT token)
-  const callProtectedApi = async () => {
-    if (!accessToken) {
-      setResult('You must log in first!');
-      return;
-    }
+  const handleConsent = async (userConsents) => {
     try {
-      const response = await fetch(`${API_URL}/protected`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      const data = await response.json();
-      setResult(JSON.stringify(data, null, 2));
+      await AsyncStorage.setItem('userConsent', JSON.stringify(userConsents));
+      setConsents(userConsents);
+      setHasConsented(true);
     } catch (error) {
-      setResult('Error: ' + error.message);
+      console.log('Error saving consent');
+      setHasConsented(true); // Continue anyway
     }
   };
 
-  // ===== RENDER =====
+  const handleDeleteAccount = async () => {
+    // In production, this would call your backend to delete user data
+    await handleLogout();
+  };
+
+  const handleConsentChange = async (key) => {
+    const updatedConsents = {
+      ...consents,
+      [key]: !consents[key],
+    };
+    try {
+      await AsyncStorage.setItem('userConsent', JSON.stringify(updatedConsents));
+      setConsents(updatedConsents);
+    } catch (error) {
+      console.log('Error updating consent');
+    }
+  };
+
+  // Not logged in
+  if (!user) {
+    return <LoginScreen onLogin={handleLogin} loading={loading} />;
+  }
+
+  // Logged in but hasn't consented
+  if (!hasConsented) {
+    return <ConsentScreen user={user} onAccept={handleConsent} />;
+  }
+
+  // Fully logged in and consented
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>CIAM Demo</Text>
-      <Text style={styles.subtitle}>Customer Identity & Access Management</Text>
-
-      {/* Authentication Section */}
-      <View style={styles.card}>
-        {!user ? (
-          <Pressable style={styles.buttonBlue} onPress={() => promptAsync()}>
-            <Text style={styles.buttonText}>Log in</Text>
-          </Pressable>
-        ) : (
-          <>
-            <Text style={styles.label}>Logged in as:</Text>
-            <Text style={styles.info}>{user.name || user.email}</Text>
-            <Pressable style={styles.buttonRed} onPress={logout}>
-              <Text style={styles.buttonText}>Log out</Text>
-            </Pressable>
-          </>
-        )}
-      </View>
-
-      {/* API Testing Section */}
-      <View style={styles.card}>
-        <Text style={styles.label}>Test API Endpoints</Text>
-        <Pressable style={styles.buttonGreen} onPress={callPublicApi}>
-          <Text style={styles.buttonText}>Call /public (open)</Text>
-        </Pressable>
-        <Pressable style={styles.buttonPurple} onPress={callProtectedApi}>
-          <Text style={styles.buttonText}>Call /protected (requires login)</Text>
-        </Pressable>
-      </View>
-
-      {/* Result Section */}
-      <View style={styles.card}>
-        <Text style={styles.label}>Result</Text>
-        <Text style={styles.result}>{result}</Text>
-      </View>
-    </ScrollView>
+    <View style={styles.container}>
+      {activeTab === 'home' && <HomeScreen user={user} />}
+      {activeTab === 'profile' && (
+        <ProfileScreen 
+          user={user} 
+          consents={consents}
+          onLogout={handleLogout} 
+          onDeleteAccount={handleDeleteAccount}
+          onConsentChange={handleConsentChange}
+        />
+      )}
+      {activeTab === 'api' && <ApiTestScreen accessToken={accessToken} />}
+      {activeTab === 'security' && <SecurityInfoScreen />}
+      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+    </View>
   );
 }
 
-// ===== STYLES =====
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    backgroundColor: '#f3f4f6',
-    padding: 20,
-    paddingTop: 60,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: '#1f2937',
-  },
-  subtitle: {
-    fontSize: 14,
-    textAlign: 'center',
-    color: '#6b7280',
-    marginBottom: 20,
-  },
-  card: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 8,
-  },
-  info: {
-    fontSize: 14,
-    color: '#6b7280',
-    marginBottom: 12,
-  },
-  result: {
-    fontFamily: 'monospace',
-    fontSize: 12,
-    color: '#374151',
-    backgroundColor: '#f9fafb',
-    padding: 12,
-    borderRadius: 8,
-  },
-  buttonBlue: {
-    backgroundColor: '#2563eb',
-    padding: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  buttonRed: {
-    backgroundColor: '#dc2626',
-    padding: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  buttonGreen: {
-    backgroundColor: '#16a34a',
-    padding: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  buttonPurple: {
-    backgroundColor: '#7c3aed',
-    padding: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: '600',
-    fontSize: 16,
+    flex: 1,
+    backgroundColor: COLORS.gray100,
   },
 });

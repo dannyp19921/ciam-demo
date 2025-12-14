@@ -144,69 +144,6 @@ README.md
 <files>
 This section contains the contents of the repository's files.
 
-<file path="frontend/.env.example">
-# frontend/.env.example
-# Copy this file to .env and fill in your values
-# NEVER commit .env to git!
-
-# Auth0 Configuration
-AUTH0_DOMAIN=your-tenant.eu.auth0.com
-AUTH0_CLIENT_ID=your-client-id
-AUTH0_AUDIENCE=https://your-api
-
-# API Configuration
-API_BASE_URL=https://your-api.azurewebsites.net
-</file>
-
-<file path="frontend/app.config.js">
-// frontend/app.config.js
-// Dynamic Expo configuration with environment variable support
-// Reads from .env file in development
-
-import 'dotenv/config';
-
-export default {
-  expo: {
-    name: "CIAM Demo",
-    slug: "ciam-demo",
-    version: "1.0.0",
-    orientation: "portrait",
-    icon: "./assets/icon.png",
-    userInterfaceStyle: "light",
-    splash: {
-      image: "./assets/splash.png",
-      resizeMode: "contain",
-      backgroundColor: "#ffffff"
-    },
-    assetBundlePatterns: [
-      "**/*"
-    ],
-    ios: {
-      supportsTablet: true,
-      bundleIdentifier: "no.gjensidige.ciam.demo"
-    },
-    android: {
-      adaptiveIcon: {
-        foregroundImage: "./assets/adaptive-icon.png",
-        backgroundColor: "#ffffff"
-      },
-      package: "no.gjensidige.ciam.demo"
-    },
-    web: {
-      favicon: "./assets/favicon.png",
-      bundler: "metro"
-    },
-    // Environment variables exposed to the app
-    extra: {
-      AUTH0_DOMAIN: process.env.AUTH0_DOMAIN,
-      AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
-      AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE,
-      API_BASE_URL: process.env.API_BASE_URL,
-    },
-  }
-};
-</file>
-
 <file path="backend-java/README.md">
 # Backend - Java (Placeholder)
 
@@ -595,63 +532,6 @@ const styles = StyleSheet.create({
     fontFamily: 'monospace',
     fontSize: FONT_SIZES.xs,
     color: COLORS.gray700,
-  },
-});
-</file>
-
-<file path="frontend/src/components/DetailRow.js">
-// frontend/src/components/DetailRow.js
-// Reusable component for displaying label-value pairs
-
-import PropTypes from 'prop-types';
-import { View, Text, StyleSheet } from 'react-native';
-import { COLORS, SPACING, FONT_SIZES } from '../styles/theme';
-
-/**
- * DetailRow component for displaying a label-value pair
- */
-export function DetailRow({ label, value, valueColor, noBorder }) {
-  return (
-    <View style={[styles.row, !noBorder && styles.border]}>
-      <Text style={styles.label}>{label}</Text>
-      <Text style={[styles.value, valueColor && { color: valueColor }]}>
-        {value}
-      </Text>
-    </View>
-  );
-}
-
-DetailRow.propTypes = {
-  label: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired,
-  valueColor: PropTypes.string,
-  noBorder: PropTypes.bool,
-};
-
-DetailRow.defaultProps = {
-  valueColor: null,
-  noBorder: false,
-};
-
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: SPACING.sm,
-  },
-  border: {
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.gray100,
-  },
-  label: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.gray500,
-  },
-  value: {
-    fontSize: FONT_SIZES.sm,
-    fontWeight: '500',
-    color: COLORS.gray900,
   },
 });
 </file>
@@ -2372,6 +2252,20 @@ export function hashInRange(seed, min, max, offset = 0) {
 export { hashCode, pickFromArray, hashInRange } from './hash';
 </file>
 
+<file path="frontend/.env.example">
+# frontend/.env.example
+# Copy this file to .env and fill in your values
+# NEVER commit .env to git!
+
+# Auth0 Configuration
+AUTH0_DOMAIN=your-tenant.eu.auth0.com
+AUTH0_CLIENT_ID=your-client-id
+AUTH0_AUDIENCE=https://your-api
+
+# API Configuration
+API_BASE_URL=https://your-api.azurewebsites.net
+</file>
+
 <file path="frontend/.gitignore">
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
@@ -2414,6 +2308,55 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+</file>
+
+<file path="frontend/app.config.js">
+// frontend/app.config.js
+// Dynamic Expo configuration with environment variable support
+// Reads from .env file in development
+
+import 'dotenv/config';
+
+export default {
+  expo: {
+    name: "CIAM Demo",
+    slug: "ciam-demo",
+    version: "1.0.0",
+    orientation: "portrait",
+    icon: "./assets/icon.png",
+    userInterfaceStyle: "light",
+    splash: {
+      image: "./assets/splash.png",
+      resizeMode: "contain",
+      backgroundColor: "#ffffff"
+    },
+    assetBundlePatterns: [
+      "**/*"
+    ],
+    ios: {
+      supportsTablet: true,
+      bundleIdentifier: "no.gjensidige.ciam.demo"
+    },
+    android: {
+      adaptiveIcon: {
+        foregroundImage: "./assets/adaptive-icon.png",
+        backgroundColor: "#ffffff"
+      },
+      package: "no.gjensidige.ciam.demo"
+    },
+    web: {
+      favicon: "./assets/favicon.png",
+      bundler: "metro"
+    },
+    // Environment variables exposed to the app
+    extra: {
+      AUTH0_DOMAIN: process.env.AUTH0_DOMAIN,
+      AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
+      AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE,
+      API_BASE_URL: process.env.API_BASE_URL,
+    },
+  }
+};
 </file>
 
 <file path="frontend/app.json">
@@ -2536,43 +2479,6 @@ spec:
       targetPort: 8080
 </file>
 
-<file path=".gitignore">
-# Kotlin/Java/Gradle
-backend-kotlin/build/
-backend-kotlin/.gradle/
-*.class
-*.jar
-*.war
-
-# Python
-backend-python/venv/
-__pycache__/
-*.pyc
-
-# IDE
-.idea/
-*.iml
-.vscode/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Miljøvariabler (viktig for sikkerhet!)
-.env
-.env.*
-!.env.example
-
-# Node (for frontend)
-node_modules/
-.expo/
-
-# Kubernetes secrets (ALDRI commit faktiske secrets!)
-kubernetes/secrets.yaml
-kubernetes/*-secrets.yaml
-!kubernetes/secrets-template.yaml
-</file>
-
 <file path=".repomixignore">
 # Node
 **/node_modules/**
@@ -2616,244 +2522,59 @@ kubernetes/*-secrets.yaml
 **/Thumbs.db
 </file>
 
-<file path="frontend/src/components/Button.js">
-// frontend/src/components/Button.js
-
-import PropTypes from 'prop-types';
-import { Pressable, Text, StyleSheet, useWindowDimensions } from 'react-native';
-import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES } from '../styles/theme';
-
-export function Button({ title, onPress, variant, disabled }) {
-  const { width } = useWindowDimensions();
-  const isDesktop = width > 768;
-
-  const buttonStyle = [
-    styles.base,
-    styles[variant],
-    disabled && styles.disabled,
-    isDesktop && styles.desktop,
-  ];
-
-  return (
-    <Pressable style={buttonStyle} onPress={onPress} disabled={disabled}>
-      <Text style={styles.text}>{title}</Text>
-    </Pressable>
-  );
-}
-
-Button.propTypes = {
-  title: PropTypes.string.isRequired,
-  onPress: PropTypes.func.isRequired,
-  variant: PropTypes.oneOf(['primary', 'success', 'danger', 'secondary']),
-  disabled: PropTypes.bool,
-};
-
-Button.defaultProps = {
-  variant: 'primary',
-  disabled: false,
-};
-
-const styles = StyleSheet.create({
-  base: {
-    paddingVertical: SPACING.md,
-    paddingHorizontal: SPACING.xl,
-    borderRadius: BORDER_RADIUS.md,
-    alignItems: 'center',
-  },
-  primary: {
-    backgroundColor: COLORS.primary,
-  },
-  success: {
-    backgroundColor: COLORS.success,
-  },
-  danger: {
-    backgroundColor: COLORS.danger,
-  },
-  secondary: {
-    backgroundColor: COLORS.gray200,
-  },
-  disabled: {
-    backgroundColor: COLORS.gray300,
-    opacity: 0.6,
-  },
-  desktop: {
-    paddingVertical: SPACING.lg,
-  },
-  text: {
-    color: COLORS.white,
-    fontSize: FONT_SIZES.md,
-    fontWeight: '600',
-  },
-});
-</file>
-
-<file path="frontend/src/components/Card.js">
-// frontend/src/components/Card.js
+<file path="frontend/src/components/DetailRow.js">
+// frontend/src/components/DetailRow.js
+// Reusable component for displaying label-value pairs
 
 import PropTypes from 'prop-types';
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../styles/theme';
+import { COLORS, SPACING, FONT_SIZES } from '../styles/theme';
 
-export function Card({ title, description, children, style }) {
+/**
+ * DetailRow component for displaying a label-value pair
+ */
+export function DetailRow({ label, value, valueColor, noBorder }) {
   return (
-    <View style={[styles.card, style]}>
-      {title && <Text style={styles.title}>{title}</Text>}
-      {description && <Text style={styles.description}>{description}</Text>}
-      {children}
+    <View style={[styles.row, !noBorder && styles.border]}>
+      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.value, valueColor && { color: valueColor }]}>
+        {value}
+      </Text>
     </View>
   );
 }
 
-Card.propTypes = {
-  title: PropTypes.string,
-  description: PropTypes.string,
-  children: PropTypes.node,
-  style: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+DetailRow.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
+  valueColor: PropTypes.string,
+  noBorder: PropTypes.bool,
 };
 
-Card.defaultProps = {
-  title: null,
-  description: null,
-  children: null,
-  style: null,
-};
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: COLORS.white,
-    borderRadius: BORDER_RADIUS.xl,
-    padding: SPACING.xl,
-    marginBottom: SPACING.lg,
-    ...SHADOWS.md,
-  },
-  title: {
-    fontSize: FONT_SIZES.lg,
-    fontWeight: '600',
-    color: COLORS.gray900,
-    marginBottom: SPACING.md,
-  },
-  description: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.gray500,
-    marginBottom: SPACING.md,
-    lineHeight: 20,
-  },
-});
-</file>
-
-<file path="frontend/src/components/InsuranceCard.js">
-// frontend/src/components/InsuranceCard.js
-
-import PropTypes from 'prop-types';
-import { View, Text, StyleSheet } from 'react-native';
-import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES } from '../styles/theme';
-
-export function InsuranceCard({ insurance }) {
-  return (
-    <View style={styles.card}>
-      <View style={styles.header}>
-        <Text style={styles.icon}>{insurance.icon}</Text>
-        <View style={styles.headerText}>
-          <Text style={styles.type}>{insurance.type}</Text>
-          <Text style={styles.policyNumber}>{insurance.policyNumber}</Text>
-        </View>
-        <View style={[styles.statusBadge, insurance.status === 'Aktiv' && styles.statusActive]}>
-          <Text style={[styles.statusText, insurance.status === 'Aktiv' && styles.statusTextActive]}>
-            {insurance.status}
-          </Text>
-        </View>
-      </View>
-      <View style={styles.details}>
-        <View style={styles.detailItem}>
-          <Text style={styles.detailLabel}>Gyldig til</Text>
-          <Text style={styles.detailValue}>{insurance.validUntil}</Text>
-        </View>
-        <View style={styles.detailItem}>
-          <Text style={styles.detailLabel}>Premie</Text>
-          <Text style={styles.detailValue}>{insurance.premium}</Text>
-        </View>
-      </View>
-    </View>
-  );
-}
-
-InsuranceCard.propTypes = {
-  insurance: PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    type: PropTypes.string.isRequired,
-    icon: PropTypes.string.isRequired,
-    policyNumber: PropTypes.string.isRequired,
-    status: PropTypes.string.isRequired,
-    validUntil: PropTypes.string.isRequired,
-    premium: PropTypes.string.isRequired,
-    category: PropTypes.string,
-  }).isRequired,
+DetailRow.defaultProps = {
+  valueColor: null,
+  noBorder: false,
 };
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: COLORS.white,
-    borderRadius: BORDER_RADIUS.lg,
-    padding: SPACING.lg,
-    marginBottom: SPACING.md,
-  },
-  header: {
+  row: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: SPACING.md,
+    paddingVertical: SPACING.sm,
   },
-  icon: {
-    fontSize: 28,
-    marginRight: SPACING.md,
+  border: {
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.gray100,
   },
-  headerText: {
-    flex: 1,
-  },
-  type: {
-    fontSize: FONT_SIZES.md,
-    fontWeight: '600',
-    color: COLORS.gray900,
-  },
-  policyNumber: {
-    fontSize: FONT_SIZES.xs,
-    color: COLORS.gray500,
-    marginTop: 2,
-  },
-  statusBadge: {
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: SPACING.xs,
-    backgroundColor: COLORS.gray100,
-    borderRadius: BORDER_RADIUS.full,
-  },
-  statusActive: {
-    backgroundColor: COLORS.successBg,
-  },
-  statusText: {
-    fontSize: FONT_SIZES.xs,
-    fontWeight: '500',
-    color: COLORS.gray600,
-  },
-  statusTextActive: {
-    color: COLORS.success,
-  },
-  details: {
-    flexDirection: 'row',
-    borderTopWidth: 1,
-    borderTopColor: COLORS.gray100,
-    paddingTop: SPACING.md,
-  },
-  detailItem: {
-    flex: 1,
-  },
-  detailLabel: {
-    fontSize: FONT_SIZES.xs,
-    color: COLORS.gray500,
-  },
-  detailValue: {
+  label: {
     fontSize: FONT_SIZES.sm,
-    color: COLORS.gray900,
+    color: COLORS.gray500,
+  },
+  value: {
+    fontSize: FONT_SIZES.sm,
     fontWeight: '500',
-    marginTop: 2,
+    color: COLORS.gray900,
   },
 });
 </file>
@@ -3359,82 +3080,6 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
 });
-</file>
-
-<file path="frontend/src/constants/config.js">
-// frontend/src/constants/config.js
-// Configuration with environment variable support
-// For local development, create a .env file based on .env.example
-
-import Constants from 'expo-constants';
-
-// ---------------------
-// ENVIRONMENT VARIABLES
-// ---------------------
-
-// Get environment variables from Expo config or process.env
-const getEnvVar = (key, fallback) => {
-  // Try Expo Constants first (for app.config.js extra)
-  const expoExtra = Constants.expoConfig?.extra;
-  if (expoExtra?.[key]) {
-    return expoExtra[key];
-  }
-  
-  // Try process.env (for web builds)
-  if (typeof process !== 'undefined' && process.env?.[key]) {
-    return process.env[key];
-  }
-  
-  // Return fallback (development defaults)
-  return fallback;
-};
-
-// ---------------------
-// AUTH0 CONFIGURATION
-// ---------------------
-
-export const AUTH0_CONFIG = {
-  domain: getEnvVar('AUTH0_DOMAIN', 'dev-feccaeq8qwpicehq.eu.auth0.com'),
-  clientId: getEnvVar('AUTH0_CLIENT_ID', 'Mp1DLIhUPWbTELgiO0C1GiuGnD3rdv2M'),
-  audience: getEnvVar('AUTH0_AUDIENCE', 'https://ciam-demo-api'),
-};
-
-// ---------------------
-// API CONFIGURATION
-// ---------------------
-
-export const API_CONFIG = {
-  baseUrl: getEnvVar('API_BASE_URL', 'https://ciam-demo-dap-cdbcc5debgfgbaf5.westeurope-01.azurewebsites.net'),
-};
-
-// Backwards compatibility
-export const API_BASE_URL = API_CONFIG.baseUrl;
-
-// ---------------------
-// FEATURE FLAGS
-// ---------------------
-
-export const FEATURES = {
-  // Enable/disable features for testing
-  enableMockData: true,
-  enableStepUpDemo: true,
-  enableDelegationDemo: true,
-};
-
-// ---------------------
-// VALIDATION
-// ---------------------
-
-// Log warning in development if using fallback values
-if (__DEV__) {
-  const isUsingDefaults = 
-    AUTH0_CONFIG.domain.includes('dev-feccaeq8qwpicehq') &&
-    !getEnvVar('AUTH0_DOMAIN', null);
-  
-  if (isUsingDefaults) {
-    console.log('ℹ️ Using default Auth0 config. Create .env for custom values.');
-  }
-}
 </file>
 
 <file path="frontend/src/contexts/AuthContext.js">
@@ -4778,6 +4423,43 @@ export * from './business';
 export { getAvailableProfiles } from './userData';
 </file>
 
+<file path=".gitignore">
+# Kotlin/Java/Gradle
+backend-kotlin/build/
+backend-kotlin/.gradle/
+*.class
+*.jar
+*.war
+
+# Python
+backend-python/venv/
+__pycache__/
+*.pyc
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Miljøvariabler (viktig for sikkerhet!)
+.env
+.env.*
+!.env.example
+
+# Node (for frontend)
+node_modules/
+.expo/
+
+# Kubernetes secrets (ALDRI commit faktiske secrets!)
+kubernetes/secrets.yaml
+kubernetes/*-secrets.yaml
+!kubernetes/secrets-template.yaml
+</file>
+
 <file path="frontend/src/components/BottomNav.js">
 // frontend/src/components/BottomNav.js
 // Bottom navigation with SafeArea support and responsive web layout
@@ -4905,6 +4587,961 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.sm,
   },
 });
+</file>
+
+<file path="frontend/src/components/Button.js">
+// frontend/src/components/Button.js
+
+import PropTypes from 'prop-types';
+import { Pressable, Text, StyleSheet, useWindowDimensions } from 'react-native';
+import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES } from '../styles/theme';
+
+export function Button({ title, onPress, variant, disabled }) {
+  const { width } = useWindowDimensions();
+  const isDesktop = width > 768;
+
+  const buttonStyle = [
+    styles.base,
+    styles[variant],
+    disabled && styles.disabled,
+    isDesktop && styles.desktop,
+  ];
+
+  return (
+    <Pressable style={buttonStyle} onPress={onPress} disabled={disabled}>
+      <Text style={styles.text}>{title}</Text>
+    </Pressable>
+  );
+}
+
+Button.propTypes = {
+  title: PropTypes.string.isRequired,
+  onPress: PropTypes.func.isRequired,
+  variant: PropTypes.oneOf(['primary', 'success', 'danger', 'secondary']),
+  disabled: PropTypes.bool,
+};
+
+Button.defaultProps = {
+  variant: 'primary',
+  disabled: false,
+};
+
+const styles = StyleSheet.create({
+  base: {
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.xl,
+    borderRadius: BORDER_RADIUS.md,
+    alignItems: 'center',
+  },
+  primary: {
+    backgroundColor: COLORS.primary,
+  },
+  success: {
+    backgroundColor: COLORS.success,
+  },
+  danger: {
+    backgroundColor: COLORS.danger,
+  },
+  secondary: {
+    backgroundColor: COLORS.gray200,
+  },
+  disabled: {
+    backgroundColor: COLORS.gray300,
+    opacity: 0.6,
+  },
+  desktop: {
+    paddingVertical: SPACING.lg,
+  },
+  text: {
+    color: COLORS.white,
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
+  },
+});
+</file>
+
+<file path="frontend/src/components/Card.js">
+// frontend/src/components/Card.js
+
+import PropTypes from 'prop-types';
+import { View, Text, StyleSheet } from 'react-native';
+import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../styles/theme';
+
+export function Card({ title, description, children, style }) {
+  return (
+    <View style={[styles.card, style]}>
+      {title && <Text style={styles.title}>{title}</Text>}
+      {description && <Text style={styles.description}>{description}</Text>}
+      {children}
+    </View>
+  );
+}
+
+Card.propTypes = {
+  title: PropTypes.string,
+  description: PropTypes.string,
+  children: PropTypes.node,
+  style: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+};
+
+Card.defaultProps = {
+  title: null,
+  description: null,
+  children: null,
+  style: null,
+};
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: COLORS.white,
+    borderRadius: BORDER_RADIUS.xl,
+    padding: SPACING.xl,
+    marginBottom: SPACING.lg,
+    ...SHADOWS.md,
+  },
+  title: {
+    fontSize: FONT_SIZES.lg,
+    fontWeight: '600',
+    color: COLORS.gray900,
+    marginBottom: SPACING.md,
+  },
+  description: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray500,
+    marginBottom: SPACING.md,
+    lineHeight: 20,
+  },
+});
+</file>
+
+<file path="frontend/src/components/InsuranceCard.js">
+// frontend/src/components/InsuranceCard.js
+
+import PropTypes from 'prop-types';
+import { View, Text, StyleSheet } from 'react-native';
+import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES } from '../styles/theme';
+
+export function InsuranceCard({ insurance }) {
+  return (
+    <View style={styles.card}>
+      <View style={styles.header}>
+        <Text style={styles.icon}>{insurance.icon}</Text>
+        <View style={styles.headerText}>
+          <Text style={styles.type}>{insurance.type}</Text>
+          <Text style={styles.policyNumber}>{insurance.policyNumber}</Text>
+        </View>
+        <View style={[styles.statusBadge, insurance.status === 'Aktiv' && styles.statusActive]}>
+          <Text style={[styles.statusText, insurance.status === 'Aktiv' && styles.statusTextActive]}>
+            {insurance.status}
+          </Text>
+        </View>
+      </View>
+      <View style={styles.details}>
+        <View style={styles.detailItem}>
+          <Text style={styles.detailLabel}>Gyldig til</Text>
+          <Text style={styles.detailValue}>{insurance.validUntil}</Text>
+        </View>
+        <View style={styles.detailItem}>
+          <Text style={styles.detailLabel}>Premie</Text>
+          <Text style={styles.detailValue}>{insurance.premium}</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+InsuranceCard.propTypes = {
+  insurance: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    type: PropTypes.string.isRequired,
+    icon: PropTypes.string.isRequired,
+    policyNumber: PropTypes.string.isRequired,
+    status: PropTypes.string.isRequired,
+    validUntil: PropTypes.string.isRequired,
+    premium: PropTypes.string.isRequired,
+    category: PropTypes.string,
+  }).isRequired,
+};
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: COLORS.white,
+    borderRadius: BORDER_RADIUS.lg,
+    padding: SPACING.lg,
+    marginBottom: SPACING.md,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: SPACING.md,
+  },
+  icon: {
+    fontSize: 28,
+    marginRight: SPACING.md,
+  },
+  headerText: {
+    flex: 1,
+  },
+  type: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
+    color: COLORS.gray900,
+  },
+  policyNumber: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.gray500,
+    marginTop: 2,
+  },
+  statusBadge: {
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: SPACING.xs,
+    backgroundColor: COLORS.gray100,
+    borderRadius: BORDER_RADIUS.full,
+  },
+  statusActive: {
+    backgroundColor: COLORS.successBg,
+  },
+  statusText: {
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '500',
+    color: COLORS.gray600,
+  },
+  statusTextActive: {
+    color: COLORS.success,
+  },
+  details: {
+    flexDirection: 'row',
+    borderTopWidth: 1,
+    borderTopColor: COLORS.gray100,
+    paddingTop: SPACING.md,
+  },
+  detailItem: {
+    flex: 1,
+  },
+  detailLabel: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.gray500,
+  },
+  detailValue: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray900,
+    fontWeight: '500',
+    marginTop: 2,
+  },
+});
+</file>
+
+<file path="frontend/src/constants/config.js">
+// frontend/src/constants/config.js
+// Configuration with environment variable support
+// For local development, create a .env file based on .env.example
+
+import Constants from 'expo-constants';
+
+// ---------------------
+// ENVIRONMENT VARIABLES
+// ---------------------
+
+// Get environment variables from Expo config or process.env
+const getEnvVar = (key, fallback) => {
+  // Try Expo Constants first (for app.config.js extra)
+  const expoExtra = Constants.expoConfig?.extra;
+  if (expoExtra?.[key]) {
+    return expoExtra[key];
+  }
+  
+  // Try process.env (for web builds)
+  if (typeof process !== 'undefined' && process.env?.[key]) {
+    return process.env[key];
+  }
+  
+  // Return fallback (development defaults)
+  return fallback;
+};
+
+// ---------------------
+// AUTH0 CONFIGURATION
+// ---------------------
+
+export const AUTH0_CONFIG = {
+  domain: getEnvVar('AUTH0_DOMAIN', 'dev-feccaeq8qwpicehq.eu.auth0.com'),
+  clientId: getEnvVar('AUTH0_CLIENT_ID', 'Mp1DLIhUPWbTELgiO0C1GiuGnD3rdv2M'),
+  audience: getEnvVar('AUTH0_AUDIENCE', 'https://ciam-demo-api'),
+};
+
+// ---------------------
+// API CONFIGURATION
+// ---------------------
+
+export const API_CONFIG = {
+  baseUrl: getEnvVar('API_BASE_URL', 'https://ciam-demo-dap-cdbcc5debgfgbaf5.westeurope-01.azurewebsites.net'),
+};
+
+// Backwards compatibility
+export const API_BASE_URL = API_CONFIG.baseUrl;
+
+// ---------------------
+// FEATURE FLAGS
+// ---------------------
+
+export const FEATURES = {
+  // Enable/disable features for testing
+  enableMockData: true,
+  enableStepUpDemo: true,
+  enableDelegationDemo: true,
+};
+
+// ---------------------
+// VALIDATION
+// ---------------------
+
+// Log warning in development if using fallback values
+if (__DEV__) {
+  const isUsingDefaults = 
+    AUTH0_CONFIG.domain.includes('dev-feccaeq8qwpicehq') &&
+    !getEnvVar('AUTH0_DOMAIN', null);
+  
+  if (isUsingDefaults) {
+    console.log('ℹ️ Using default Auth0 config. Create .env for custom values.');
+  }
+}
+</file>
+
+<file path="frontend/src/screens/index.js">
+// frontend/src/screens/index.js
+// Barrel export for all screens
+
+export { LoginScreen } from './LoginScreen';
+export { HomeScreen } from './HomeScreen';
+export { ProfileScreen } from './ProfileScreen';
+export { ApiTestScreen } from './ApiTestScreen';
+export { ConsentScreen } from './ConsentScreen';
+export { DelegationScreen } from './DelegationScreen';
+export { SecurityInfoScreen } from './SecurityInfoScreen';
+</file>
+
+<file path="frontend/src/screens/SecurityInfoScreen.js">
+// frontend/src/screens/SecurityInfoScreen.js
+// Educational screen explaining security concepts
+
+import { View, Text, StyleSheet } from 'react-native';
+import { Card, InfoBox, ScreenContainer } from '../components';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../styles/theme';
+
+/**
+ * Security info screen
+ */
+export function SecurityInfoScreen() {
+  return (
+    <ScreenContainer
+      title="🔐 Sikkerhet i denne appen"
+      subtitle="Lær hvordan vi beskytter dine data"
+    >
+      <SecurityCard
+        title="🔑 OAuth 2.0 og OpenID Connect"
+        description="OAuth 2.0 er en standard for autorisasjon som lar deg logge inn uten å dele passordet ditt med appen. OpenID Connect legger til autentisering – hvem du er."
+        diagram="Du → Auth0 → Verifisering → Token → App"
+        benefits={[
+          'Passordet ditt sendes aldri til appen',
+          'Du kan bruke samme konto på flere tjenester',
+          'Enkelt å trekke tilbake tilgang',
+        ]}
+      />
+
+      <SecurityCard
+        title="🎫 JWT (JSON Web Tokens)"
+        description="En JWT er som et digitalt ID-kort. Den inneholder informasjon om deg og er signert slik at ingen kan forfalske den."
+        code={`{
+  "sub": "bruker-id",
+  "name": "Ola Nordmann",
+  "exp": 1234567890
+}`}
+        benefits={[
+          'Stateless – serveren trenger ikke lagre sesjoner',
+          'Signert med kryptografiske nøkler',
+          'Utløper automatisk (exp = expiration)',
+        ]}
+      />
+
+      <SecurityCard
+        title="🔐 MFA (Multi-Factor Authentication)"
+        description="MFA krever at du beviser identiteten din på flere måter – noe du vet (passord) og noe du har (telefon)."
+        diagram={`Faktor 1: Passord (noe du vet)
+Faktor 2: Engangskode (noe du har)`}
+        benefits={[
+          'Selv om passordet lekker, er kontoen trygg',
+          'TOTP-koder er tidsbaserte og utløper etter 30 sek',
+          'Google Authenticator lagrer hemmeligheten lokalt',
+        ]}
+      />
+
+      <SecurityCard
+        title="🔒 TLS/HTTPS og kryptering"
+        description="TLS (Transport Layer Security) krypterer all kommunikasjon mellom din enhet og serveren."
+        diagram={`Din enhet ←🔒→ Azure server
+(All trafikk er kryptert)`}
+        benefits={[
+          'Ingen kan avlytte kommunikasjonen',
+          'Sertifikater bekrefter serverens identitet',
+          'Diffie-Hellman utveksler nøkler sikkert',
+        ]}
+      />
+
+      <SecurityCard
+        title="🧂 Hashing og Salting"
+        description={'Passordet ditt lagres aldri i klartekst. Det "hashes" – en enveisfunksjon som ikke kan reverseres.'}
+        code={`Passord: "hemmelig123"
+Salt: "x7$kL9"
+Hash: "a4f2c8e1b3d5..."`}
+        benefits={[
+          'Selv Auth0 vet ikke passordet ditt',
+          'Salt gjør hvert hash unikt',
+          'Beskytter mot rainbow table-angrep',
+        ]}
+      />
+
+      <SecurityCard
+        title="🔑 Public/Private Key"
+        description="Asymmetrisk kryptering bruker to nøkler – en offentlig for kryptering/verifisering og en privat for dekryptering/signering."
+        diagram={`Auth0: Signerer JWT med privat nøkkel
+Backend: Verifiserer med offentlig nøkkel`}
+        benefits={[
+          'Privat nøkkel forlater aldri Auth0',
+          'Hvem som helst kan verifisere, bare Auth0 kan signere',
+          'RS256-algoritmen brukes for JWT',
+        ]}
+      />
+
+      <SecurityCard
+        title="🤝 Delegert tilgang (Fullmakt)"
+        description="Delegert tilgang lar en person handle på vegne av en annen. Vanlig i forsikring når familie hjelper hverandre."
+        diagram={`Mor (gir fullmakt) → Datter (mottar)
+Datter kan nå se mors forsikringer`}
+        benefits={[
+          'Familiemedlemmer kan hjelpe hverandre',
+          'Regnskapsførere kan se bedriftsforsikringer',
+          'Fullmakt kan trekkes tilbake når som helst',
+        ]}
+      />
+
+      <SecurityCard
+        title="🔐 Step-up Authentication"
+        description={'Noen handlinger krever sterkere autentisering enn vanlig navigering. Dette kalles "step-up" – du må bevise identiteten din på nytt for sensitive operasjoner.'}
+        diagram={`Vanlig: Se forsikringer ✓
+Step-up: Signere avtale → Krever BankID`}
+        benefits={[
+          'Beskytter mot uautoriserte endringer',
+          'Balanserer sikkerhet og brukervennlighet',
+          'Gjensidige bruker BankID for dette',
+        ]}
+      />
+
+      <SecurityCard
+        title="🔄 SSO (Single Sign-On)"
+        description="Med SSO logger du inn én gang og får tilgang til flere tjenester uten å logge inn på nytt."
+        diagram={`Login → Gjensidige.no
+      → Gjensidige App
+      → Min Pensjon
+(Samme sesjon for alle)`}
+        benefits={[
+          'Bedre brukeropplevelse',
+          'Færre passord å huske',
+          'Sentralisert tilgangskontroll',
+        ]}
+      />
+
+      <SecurityCard
+        title="🏦 BankID i Norge"
+        description="BankID er Norges nasjonale eID-løsning, brukt av banker, forsikringsselskaper og offentlige tjenester."
+        diagram={`BankID = Autentisering + Signering
+Sikkerhetsnivå: Høyt (juridisk bindende)`}
+        benefits={[
+          'Over 4,5 millioner brukere i Norge',
+          'Juridisk gyldig signatur',
+          'Gjensidige bruker BankID for login og signering',
+        ]}
+      />
+
+      <Card title="📜 GDPR og personvern">
+        <Text style={styles.conceptText}>
+          <Text style={styles.bold}>Dine rettigheter:</Text>
+        </Text>
+        <Text style={styles.benefitText}>
+          ✓ Rett til innsyn – se alle data vi har om deg{'\n'}
+          ✓ Rett til retting – korrigere feil informasjon{'\n'}
+          ✓ Rett til sletting – "retten til å bli glemt"{'\n'}
+          ✓ Rett til dataportabilitet – få ut dine data{'\n'}
+          ✓ Rett til å trekke samtykke – når som helst
+        </Text>
+      </Card>
+
+      <InfoBox>
+        Denne appen demonstrerer moderne sikkerhetspraksis for
+        Customer Identity and Access Management (CIAM).
+      </InfoBox>
+    </ScreenContainer>
+  );
+}
+
+function SecurityCard({ title, description, diagram, code, benefits }) {
+  return (
+    <Card title={title}>
+      <Text style={styles.conceptText}>
+        <Text style={styles.bold}>Hva er det?</Text>
+        {'\n'}
+        {description}
+      </Text>
+
+      {diagram && (
+        <View style={styles.diagram}>
+          <Text style={styles.diagramText}>{diagram}</Text>
+        </View>
+      )}
+
+      {code && (
+        <View style={styles.codeBlock}>
+          <Text style={styles.codeText}>{code}</Text>
+        </View>
+      )}
+
+      {benefits && (
+        <Text style={styles.benefitText}>
+          {benefits.map((b) => `✓ ${b}`).join('\n')}
+        </Text>
+      )}
+    </Card>
+  );
+}
+
+const styles = StyleSheet.create({
+  conceptText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray700,
+    lineHeight: 22,
+    marginBottom: SPACING.md,
+  },
+  bold: {
+    fontWeight: '600',
+    color: COLORS.gray900,
+  },
+  diagram: {
+    backgroundColor: COLORS.primaryBg,
+    borderRadius: BORDER_RADIUS.md,
+    padding: SPACING.md,
+    marginBottom: SPACING.md,
+  },
+  diagramText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.primary,
+    fontFamily: 'monospace',
+    textAlign: 'center',
+  },
+  codeBlock: {
+    backgroundColor: COLORS.gray900,
+    borderRadius: BORDER_RADIUS.md,
+    padding: SPACING.md,
+    marginBottom: SPACING.md,
+  },
+  codeText: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.successBg,
+    fontFamily: 'monospace',
+  },
+  benefitText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.success,
+    lineHeight: 22,
+  },
+});
+</file>
+
+<file path="frontend/src/styles/theme.js">
+// frontend/src/styles/theme.js
+// Mobile-first design system for CIAM Demo
+
+// ---------------------
+// COLOR PALETTE
+// ---------------------
+export const COLORS = {
+  // Primary brand colors
+  primary: '#2563eb',
+  primaryDark: '#1d4ed8',
+  primaryLight: '#93c5fd',
+  primaryBg: '#eff6ff',
+
+  // Semantic colors
+  success: '#16a34a',
+  successLight: '#22c55e',
+  successBg: '#dcfce7',
+
+  warning: '#d97706',
+  warningLight: '#f59e0b',
+  warningBg: '#fef3c7',
+
+  danger: '#dc2626',
+  dangerLight: '#ef4444',
+  dangerBg: '#fee2e2',
+
+  info: '#0891b2',
+  infoBg: '#cffafe',
+
+  // Neutral palette
+  white: '#ffffff',
+  black: '#000000',
+  gray50: '#f9fafb',
+  gray100: '#f3f4f6',
+  gray200: '#e5e7eb',
+  gray300: '#d1d5db',
+  gray400: '#9ca3af',
+  gray500: '#6b7280',
+  gray600: '#4b5563',
+  gray700: '#374151',
+  gray800: '#1f2937',
+  gray900: '#111827',
+
+  // Transparent overlays
+  overlay: 'rgba(0, 0, 0, 0.5)',
+  overlayLight: 'rgba(0, 0, 0, 0.3)',
+};
+
+// ---------------------
+// SPACING SCALE
+// ---------------------
+// Base unit: 4px (mobile-first)
+export const SPACING = {
+  xxs: 2,
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  xxl: 24,
+  xxxl: 32,
+  xxxxl: 40,
+  section: 48,
+};
+
+// ---------------------
+// TYPOGRAPHY
+// ---------------------
+export const FONT_SIZES = {
+  xs: 12,
+  sm: 14,
+  md: 16,
+  lg: 18,
+  xl: 20,
+  xxl: 24,
+  xxxl: 32,
+  display: 40,
+};
+
+export const FONT_WEIGHTS = {
+  regular: '400',
+  medium: '500',
+  semibold: '600',
+  bold: '700',
+};
+
+export const LINE_HEIGHTS = {
+  tight: 1.2,
+  normal: 1.5,
+  relaxed: 1.75,
+};
+
+// ---------------------
+// BORDER RADIUS
+// ---------------------
+export const BORDER_RADIUS = {
+  xs: 4,
+  sm: 8,
+  md: 10,
+  lg: 12,
+  xl: 16,
+  xxl: 20,
+  full: 9999,
+};
+
+// ---------------------
+// SHADOWS (Elevation)
+// ---------------------
+export const SHADOWS = {
+  none: {
+    shadowColor: 'transparent',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
+  },
+  sm: {
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  md: {
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  lg: {
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  xl: {
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+};
+
+// ---------------------
+// TOUCH TARGETS
+// ---------------------
+// Apple HIG: minimum 44pt, Material Design: minimum 48dp
+export const TOUCH_TARGETS = {
+  minimum: 44,
+  comfortable: 48,
+  large: 56,
+};
+
+// ---------------------
+// LAYOUT
+// ---------------------
+export const LAYOUT = {
+  screenPaddingHorizontal: SPACING.lg,
+  screenPaddingVertical: SPACING.xl,
+  cardPadding: SPACING.lg,
+  sectionGap: SPACING.xxl,
+  itemGap: SPACING.md,
+};
+
+// ---------------------
+// ANIMATION
+// ---------------------
+export const ANIMATION = {
+  fast: 150,
+  normal: 250,
+  slow: 350,
+};
+
+// ---------------------
+// COMMON STYLES
+// ---------------------
+// Reusable style objects to reduce duplication across components
+
+export const COMMON_STYLES = {
+  screenContainer: {
+    flex: 1,
+    backgroundColor: COLORS.gray100,
+  },
+
+  screenContent: {
+    flex: 1,
+    paddingHorizontal: LAYOUT.screenPaddingHorizontal,
+  },
+
+  card: {
+    backgroundColor: COLORS.white,
+    borderRadius: BORDER_RADIUS.lg,
+    padding: LAYOUT.cardPadding,
+    ...SHADOWS.md,
+  },
+
+  sectionTitle: {
+    fontSize: FONT_SIZES.lg,
+    fontWeight: FONT_WEIGHTS.semibold,
+    color: COLORS.gray900,
+    marginBottom: SPACING.md,
+  },
+
+  bodyText: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: FONT_WEIGHTS.regular,
+    color: COLORS.gray700,
+    lineHeight: FONT_SIZES.md * LINE_HEIGHTS.normal,
+  },
+
+  caption: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: FONT_WEIGHTS.regular,
+    color: COLORS.gray500,
+  },
+
+  centered: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  rowBetween: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  rowCenter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  divider: {
+    height: 1,
+    backgroundColor: COLORS.gray200,
+    marginVertical: SPACING.md,
+  },
+};
+</file>
+
+<file path=".github/workflows/main_ciam-demo-dap.yml">
+name: Build and deploy JAR app to Azure Web App - ciam-demo-dap
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java version
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'microsoft'
+
+      - name: Build with Gradle
+        working-directory: ./backend-kotlin
+        run: ./gradlew build -x test
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-app
+          path: backend-kotlin/build/libs/*.jar
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      id-token: write
+      contents: read
+  
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: java-app
+      
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_E07DF7D35F1244B4A237BBFCBC0931CA }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_A42CAB002562450FB75CBC62349CF7A7 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_BF853D255E35483DA12F0FFDF3DCED0C }}
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'ciam-demo-dap'
+          slot-name: 'Production'
+          package: '*-SNAPSHOT.jar'
+</file>
+
+<file path="backend-kotlin/src/main/kotlin/no/gjensidige/ciam/SecurityConfig.kt">
+// backend-kotlin/src/main/kotlin/no/gjensidige/ciam/SecurityConfig.kt
+package no.gjensidige.ciam
+
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.web.SecurityFilterChain
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+
+@Configuration
+@EnableWebSecurity
+class SecurityConfig {
+
+    @Bean
+    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+        http
+            .cors { }
+            .csrf { it.disable() }
+            .authorizeHttpRequests { authorize ->
+                authorize
+                    .requestMatchers("/public").permitAll()
+                    .anyRequest().authenticated()
+            }
+            .oauth2ResourceServer { oauth2 ->
+                oauth2.jwt { }
+            }
+
+        return http.build()
+    }
+
+    @Bean
+    fun corsConfigurationSource(): CorsConfigurationSource {    // CORS (in backend)
+        val configuration = CorsConfiguration()
+        configuration.allowedOrigins = listOf(
+            "http://localhost:5500", 
+            "http://127.0.0.1:5500", 
+            "http://192.168.1.7:5500",
+            "http://localhost:8081",
+            "https://t7zby4w-dannyp19921-8081.exp.direct",
+            "exp://172.18.248.121:8081"
+        )
+        configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
+        configuration.allowedHeaders = listOf("*")
+        configuration.allowCredentials = true
+
+        val source = UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration("/**", configuration)
+        return source
+    }
+}
+</file>
+
+<file path="frontend/src/components/index.js">
+// frontend/src/components/index.js
+// Barrel export for all components
+
+// Core UI
+export { Button } from './Button';
+export { Card } from './Card';
+
+// Data display
+export { DetailRow } from './DetailRow';
+export { InsuranceCard } from './InsuranceCard';
+export { PermissionBadge } from './PermissionBadge';
+export { ApiResultBox } from './ApiResultBox';
+
+// Layout
+export { ScreenContainer } from './ScreenContainer';
+export { InfoBox } from './InfoBox';
+
+// Navigation
+export { BottomNav } from './BottomNav';
+
+// Modals
+export { StepUpModal } from './StepUpModal';
+export { ProfileSwitcher } from './ProfileSwitcher';
 </file>
 
 <file path="frontend/src/screens/HomeScreen.js">
@@ -5410,19 +6047,6 @@ const styles = StyleSheet.create({
 });
 </file>
 
-<file path="frontend/src/screens/index.js">
-// frontend/src/screens/index.js
-// Barrel export for all screens
-
-export { LoginScreen } from './LoginScreen';
-export { HomeScreen } from './HomeScreen';
-export { ProfileScreen } from './ProfileScreen';
-export { ApiTestScreen } from './ApiTestScreen';
-export { ConsentScreen } from './ConsentScreen';
-export { DelegationScreen } from './DelegationScreen';
-export { SecurityInfoScreen } from './SecurityInfoScreen';
-</file>
-
 <file path="frontend/src/screens/LoginScreen.js">
 // frontend/src/screens/LoginScreen.js
 // Pre-authentication screen with customer type selection and API testing
@@ -5797,660 +6421,6 @@ const styles = StyleSheet.create({
 });
 </file>
 
-<file path="frontend/src/screens/SecurityInfoScreen.js">
-// frontend/src/screens/SecurityInfoScreen.js
-// Educational screen explaining security concepts
-
-import { View, Text, StyleSheet } from 'react-native';
-import { Card, InfoBox, ScreenContainer } from '../components';
-import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../styles/theme';
-
-/**
- * Security info screen
- */
-export function SecurityInfoScreen() {
-  return (
-    <ScreenContainer
-      title="🔐 Sikkerhet i denne appen"
-      subtitle="Lær hvordan vi beskytter dine data"
-    >
-      <SecurityCard
-        title="🔑 OAuth 2.0 og OpenID Connect"
-        description="OAuth 2.0 er en standard for autorisasjon som lar deg logge inn uten å dele passordet ditt med appen. OpenID Connect legger til autentisering – hvem du er."
-        diagram="Du → Auth0 → Verifisering → Token → App"
-        benefits={[
-          'Passordet ditt sendes aldri til appen',
-          'Du kan bruke samme konto på flere tjenester',
-          'Enkelt å trekke tilbake tilgang',
-        ]}
-      />
-
-      <SecurityCard
-        title="🎫 JWT (JSON Web Tokens)"
-        description="En JWT er som et digitalt ID-kort. Den inneholder informasjon om deg og er signert slik at ingen kan forfalske den."
-        code={`{
-  "sub": "bruker-id",
-  "name": "Ola Nordmann",
-  "exp": 1234567890
-}`}
-        benefits={[
-          'Stateless – serveren trenger ikke lagre sesjoner',
-          'Signert med kryptografiske nøkler',
-          'Utløper automatisk (exp = expiration)',
-        ]}
-      />
-
-      <SecurityCard
-        title="🔐 MFA (Multi-Factor Authentication)"
-        description="MFA krever at du beviser identiteten din på flere måter – noe du vet (passord) og noe du har (telefon)."
-        diagram={`Faktor 1: Passord (noe du vet)
-Faktor 2: Engangskode (noe du har)`}
-        benefits={[
-          'Selv om passordet lekker, er kontoen trygg',
-          'TOTP-koder er tidsbaserte og utløper etter 30 sek',
-          'Google Authenticator lagrer hemmeligheten lokalt',
-        ]}
-      />
-
-      <SecurityCard
-        title="🔒 TLS/HTTPS og kryptering"
-        description="TLS (Transport Layer Security) krypterer all kommunikasjon mellom din enhet og serveren."
-        diagram={`Din enhet ←🔒→ Azure server
-(All trafikk er kryptert)`}
-        benefits={[
-          'Ingen kan avlytte kommunikasjonen',
-          'Sertifikater bekrefter serverens identitet',
-          'Diffie-Hellman utveksler nøkler sikkert',
-        ]}
-      />
-
-      <SecurityCard
-        title="🧂 Hashing og Salting"
-        description={'Passordet ditt lagres aldri i klartekst. Det "hashes" – en enveisfunksjon som ikke kan reverseres.'}
-        code={`Passord: "hemmelig123"
-Salt: "x7$kL9"
-Hash: "a4f2c8e1b3d5..."`}
-        benefits={[
-          'Selv Auth0 vet ikke passordet ditt',
-          'Salt gjør hvert hash unikt',
-          'Beskytter mot rainbow table-angrep',
-        ]}
-      />
-
-      <SecurityCard
-        title="🔑 Public/Private Key"
-        description="Asymmetrisk kryptering bruker to nøkler – en offentlig for kryptering/verifisering og en privat for dekryptering/signering."
-        diagram={`Auth0: Signerer JWT med privat nøkkel
-Backend: Verifiserer med offentlig nøkkel`}
-        benefits={[
-          'Privat nøkkel forlater aldri Auth0',
-          'Hvem som helst kan verifisere, bare Auth0 kan signere',
-          'RS256-algoritmen brukes for JWT',
-        ]}
-      />
-
-      <SecurityCard
-        title="🤝 Delegert tilgang (Fullmakt)"
-        description="Delegert tilgang lar en person handle på vegne av en annen. Vanlig i forsikring når familie hjelper hverandre."
-        diagram={`Mor (gir fullmakt) → Datter (mottar)
-Datter kan nå se mors forsikringer`}
-        benefits={[
-          'Familiemedlemmer kan hjelpe hverandre',
-          'Regnskapsførere kan se bedriftsforsikringer',
-          'Fullmakt kan trekkes tilbake når som helst',
-        ]}
-      />
-
-      <SecurityCard
-        title="🔐 Step-up Authentication"
-        description={'Noen handlinger krever sterkere autentisering enn vanlig navigering. Dette kalles "step-up" – du må bevise identiteten din på nytt for sensitive operasjoner.'}
-        diagram={`Vanlig: Se forsikringer ✓
-Step-up: Signere avtale → Krever BankID`}
-        benefits={[
-          'Beskytter mot uautoriserte endringer',
-          'Balanserer sikkerhet og brukervennlighet',
-          'Gjensidige bruker BankID for dette',
-        ]}
-      />
-
-      <SecurityCard
-        title="🔄 SSO (Single Sign-On)"
-        description="Med SSO logger du inn én gang og får tilgang til flere tjenester uten å logge inn på nytt."
-        diagram={`Login → Gjensidige.no
-      → Gjensidige App
-      → Min Pensjon
-(Samme sesjon for alle)`}
-        benefits={[
-          'Bedre brukeropplevelse',
-          'Færre passord å huske',
-          'Sentralisert tilgangskontroll',
-        ]}
-      />
-
-      <SecurityCard
-        title="🏦 BankID i Norge"
-        description="BankID er Norges nasjonale eID-løsning, brukt av banker, forsikringsselskaper og offentlige tjenester."
-        diagram={`BankID = Autentisering + Signering
-Sikkerhetsnivå: Høyt (juridisk bindende)`}
-        benefits={[
-          'Over 4,5 millioner brukere i Norge',
-          'Juridisk gyldig signatur',
-          'Gjensidige bruker BankID for login og signering',
-        ]}
-      />
-
-      <Card title="📜 GDPR og personvern">
-        <Text style={styles.conceptText}>
-          <Text style={styles.bold}>Dine rettigheter:</Text>
-        </Text>
-        <Text style={styles.benefitText}>
-          ✓ Rett til innsyn – se alle data vi har om deg{'\n'}
-          ✓ Rett til retting – korrigere feil informasjon{'\n'}
-          ✓ Rett til sletting – "retten til å bli glemt"{'\n'}
-          ✓ Rett til dataportabilitet – få ut dine data{'\n'}
-          ✓ Rett til å trekke samtykke – når som helst
-        </Text>
-      </Card>
-
-      <InfoBox>
-        Denne appen demonstrerer moderne sikkerhetspraksis for
-        Customer Identity and Access Management (CIAM).
-      </InfoBox>
-    </ScreenContainer>
-  );
-}
-
-function SecurityCard({ title, description, diagram, code, benefits }) {
-  return (
-    <Card title={title}>
-      <Text style={styles.conceptText}>
-        <Text style={styles.bold}>Hva er det?</Text>
-        {'\n'}
-        {description}
-      </Text>
-
-      {diagram && (
-        <View style={styles.diagram}>
-          <Text style={styles.diagramText}>{diagram}</Text>
-        </View>
-      )}
-
-      {code && (
-        <View style={styles.codeBlock}>
-          <Text style={styles.codeText}>{code}</Text>
-        </View>
-      )}
-
-      {benefits && (
-        <Text style={styles.benefitText}>
-          {benefits.map((b) => `✓ ${b}`).join('\n')}
-        </Text>
-      )}
-    </Card>
-  );
-}
-
-const styles = StyleSheet.create({
-  conceptText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.gray700,
-    lineHeight: 22,
-    marginBottom: SPACING.md,
-  },
-  bold: {
-    fontWeight: '600',
-    color: COLORS.gray900,
-  },
-  diagram: {
-    backgroundColor: COLORS.primaryBg,
-    borderRadius: BORDER_RADIUS.md,
-    padding: SPACING.md,
-    marginBottom: SPACING.md,
-  },
-  diagramText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.primary,
-    fontFamily: 'monospace',
-    textAlign: 'center',
-  },
-  codeBlock: {
-    backgroundColor: COLORS.gray900,
-    borderRadius: BORDER_RADIUS.md,
-    padding: SPACING.md,
-    marginBottom: SPACING.md,
-  },
-  codeText: {
-    fontSize: FONT_SIZES.xs,
-    color: COLORS.successBg,
-    fontFamily: 'monospace',
-  },
-  benefitText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.success,
-    lineHeight: 22,
-  },
-});
-</file>
-
-<file path="frontend/src/styles/theme.js">
-// frontend/src/styles/theme.js
-// Mobile-first design system for CIAM Demo
-
-// ---------------------
-// COLOR PALETTE
-// ---------------------
-export const COLORS = {
-  // Primary brand colors
-  primary: '#2563eb',
-  primaryDark: '#1d4ed8',
-  primaryLight: '#93c5fd',
-  primaryBg: '#eff6ff',
-
-  // Semantic colors
-  success: '#16a34a',
-  successLight: '#22c55e',
-  successBg: '#dcfce7',
-
-  warning: '#d97706',
-  warningLight: '#f59e0b',
-  warningBg: '#fef3c7',
-
-  danger: '#dc2626',
-  dangerLight: '#ef4444',
-  dangerBg: '#fee2e2',
-
-  info: '#0891b2',
-  infoBg: '#cffafe',
-
-  // Neutral palette
-  white: '#ffffff',
-  black: '#000000',
-  gray50: '#f9fafb',
-  gray100: '#f3f4f6',
-  gray200: '#e5e7eb',
-  gray300: '#d1d5db',
-  gray400: '#9ca3af',
-  gray500: '#6b7280',
-  gray600: '#4b5563',
-  gray700: '#374151',
-  gray800: '#1f2937',
-  gray900: '#111827',
-
-  // Transparent overlays
-  overlay: 'rgba(0, 0, 0, 0.5)',
-  overlayLight: 'rgba(0, 0, 0, 0.3)',
-};
-
-// ---------------------
-// SPACING SCALE
-// ---------------------
-// Base unit: 4px (mobile-first)
-export const SPACING = {
-  xxs: 2,
-  xs: 4,
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 20,
-  xxl: 24,
-  xxxl: 32,
-  xxxxl: 40,
-  section: 48,
-};
-
-// ---------------------
-// TYPOGRAPHY
-// ---------------------
-export const FONT_SIZES = {
-  xs: 12,
-  sm: 14,
-  md: 16,
-  lg: 18,
-  xl: 20,
-  xxl: 24,
-  xxxl: 32,
-  display: 40,
-};
-
-export const FONT_WEIGHTS = {
-  regular: '400',
-  medium: '500',
-  semibold: '600',
-  bold: '700',
-};
-
-export const LINE_HEIGHTS = {
-  tight: 1.2,
-  normal: 1.5,
-  relaxed: 1.75,
-};
-
-// ---------------------
-// BORDER RADIUS
-// ---------------------
-export const BORDER_RADIUS = {
-  xs: 4,
-  sm: 8,
-  md: 10,
-  lg: 12,
-  xl: 16,
-  xxl: 20,
-  full: 9999,
-};
-
-// ---------------------
-// SHADOWS (Elevation)
-// ---------------------
-export const SHADOWS = {
-  none: {
-    shadowColor: 'transparent',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0,
-    shadowRadius: 0,
-    elevation: 0,
-  },
-  sm: {
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  md: {
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  lg: {
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  xl: {
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-    elevation: 8,
-  },
-};
-
-// ---------------------
-// TOUCH TARGETS
-// ---------------------
-// Apple HIG: minimum 44pt, Material Design: minimum 48dp
-export const TOUCH_TARGETS = {
-  minimum: 44,
-  comfortable: 48,
-  large: 56,
-};
-
-// ---------------------
-// LAYOUT
-// ---------------------
-export const LAYOUT = {
-  screenPaddingHorizontal: SPACING.lg,
-  screenPaddingVertical: SPACING.xl,
-  cardPadding: SPACING.lg,
-  sectionGap: SPACING.xxl,
-  itemGap: SPACING.md,
-};
-
-// ---------------------
-// ANIMATION
-// ---------------------
-export const ANIMATION = {
-  fast: 150,
-  normal: 250,
-  slow: 350,
-};
-
-// ---------------------
-// COMMON STYLES
-// ---------------------
-// Reusable style objects to reduce duplication across components
-
-export const COMMON_STYLES = {
-  screenContainer: {
-    flex: 1,
-    backgroundColor: COLORS.gray100,
-  },
-
-  screenContent: {
-    flex: 1,
-    paddingHorizontal: LAYOUT.screenPaddingHorizontal,
-  },
-
-  card: {
-    backgroundColor: COLORS.white,
-    borderRadius: BORDER_RADIUS.lg,
-    padding: LAYOUT.cardPadding,
-    ...SHADOWS.md,
-  },
-
-  sectionTitle: {
-    fontSize: FONT_SIZES.lg,
-    fontWeight: FONT_WEIGHTS.semibold,
-    color: COLORS.gray900,
-    marginBottom: SPACING.md,
-  },
-
-  bodyText: {
-    fontSize: FONT_SIZES.md,
-    fontWeight: FONT_WEIGHTS.regular,
-    color: COLORS.gray700,
-    lineHeight: FONT_SIZES.md * LINE_HEIGHTS.normal,
-  },
-
-  caption: {
-    fontSize: FONT_SIZES.sm,
-    fontWeight: FONT_WEIGHTS.regular,
-    color: COLORS.gray500,
-  },
-
-  centered: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  rowBetween: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-
-  rowCenter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
-  divider: {
-    height: 1,
-    backgroundColor: COLORS.gray200,
-    marginVertical: SPACING.md,
-  },
-};
-</file>
-
-<file path="frontend/package.json">
-{
-  "name": "frontend",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web"
-  },
-  "dependencies": {
-    "@react-native-async-storage/async-storage": "2.2.0",
-    "dotenv": "^17.2.3",
-    "expo": "~54.0.29",
-    "expo-auth-session": "~7.0.10",
-    "expo-crypto": "~15.0.8",
-    "expo-status-bar": "~3.0.9",
-    "expo-web-browser": "~15.0.10",
-    "prop-types": "^15.8.1",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "react-native": "0.81.5",
-    "react-native-safe-area-context": "~5.6.0",
-    "react-native-web": "^0.21.0"
-  },
-  "private": true
-}
-</file>
-
-<file path=".github/workflows/main_ciam-demo-dap.yml">
-name: Build and deploy JAR app to Azure Web App - ciam-demo-dap
-
-on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Java version
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'microsoft'
-
-      - name: Build with Gradle
-        working-directory: ./backend-kotlin
-        run: ./gradlew build -x test
-
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v4
-        with:
-          name: java-app
-          path: backend-kotlin/build/libs/*.jar
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    permissions:
-      id-token: write
-      contents: read
-  
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: java-app
-      
-      - name: Login to Azure
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_E07DF7D35F1244B4A237BBFCBC0931CA }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_A42CAB002562450FB75CBC62349CF7A7 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_BF853D255E35483DA12F0FFDF3DCED0C }}
-
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: 'ciam-demo-dap'
-          slot-name: 'Production'
-          package: '*-SNAPSHOT.jar'
-</file>
-
-<file path="backend-kotlin/src/main/kotlin/no/gjensidige/ciam/SecurityConfig.kt">
-// backend-kotlin/src/main/kotlin/no/gjensidige/ciam/SecurityConfig.kt
-package no.gjensidige.ciam
-
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.web.SecurityFilterChain
-import org.springframework.web.cors.CorsConfiguration
-import org.springframework.web.cors.CorsConfigurationSource
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource
-
-@Configuration
-@EnableWebSecurity
-class SecurityConfig {
-
-    @Bean
-    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-        http
-            .cors { }
-            .csrf { it.disable() }
-            .authorizeHttpRequests { authorize ->
-                authorize
-                    .requestMatchers("/public").permitAll()
-                    .anyRequest().authenticated()
-            }
-            .oauth2ResourceServer { oauth2 ->
-                oauth2.jwt { }
-            }
-
-        return http.build()
-    }
-
-    @Bean
-    fun corsConfigurationSource(): CorsConfigurationSource {    // CORS (in backend)
-        val configuration = CorsConfiguration()
-        configuration.allowedOrigins = listOf(
-            "http://localhost:5500", 
-            "http://127.0.0.1:5500", 
-            "http://192.168.1.7:5500",
-            "http://localhost:8081",
-            "https://t7zby4w-dannyp19921-8081.exp.direct",
-            "exp://172.18.248.121:8081"
-        )
-        configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
-        configuration.allowedHeaders = listOf("*")
-        configuration.allowCredentials = true
-
-        val source = UrlBasedCorsConfigurationSource()
-        source.registerCorsConfiguration("/**", configuration)
-        return source
-    }
-}
-</file>
-
-<file path="frontend/src/components/index.js">
-// frontend/src/components/index.js
-// Barrel export for all components
-
-// Core UI
-export { Button } from './Button';
-export { Card } from './Card';
-
-// Data display
-export { DetailRow } from './DetailRow';
-export { InsuranceCard } from './InsuranceCard';
-export { PermissionBadge } from './PermissionBadge';
-export { ApiResultBox } from './ApiResultBox';
-
-// Layout
-export { ScreenContainer } from './ScreenContainer';
-export { InfoBox } from './InfoBox';
-
-// Navigation
-export { BottomNav } from './BottomNav';
-
-// Modals
-export { StepUpModal } from './StepUpModal';
-export { ProfileSwitcher } from './ProfileSwitcher';
-</file>
-
 <file path="frontend/src/services/userData.js">
 // frontend/src/services/userData.js
 // User data aggregator
@@ -6570,6 +6540,36 @@ export function getAvailableProfiles(userId, customerType) {
   }
 
   return profiles;
+}
+</file>
+
+<file path="frontend/package.json">
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "dotenv": "^17.2.3",
+    "expo": "~54.0.29",
+    "expo-auth-session": "~7.0.10",
+    "expo-crypto": "~15.0.8",
+    "expo-status-bar": "~3.0.9",
+    "expo-web-browser": "~15.0.10",
+    "prop-types": "^15.8.1",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-safe-area-context": "~5.6.0",
+    "react-native-web": "^0.21.0"
+  },
+  "private": true
 }
 </file>
 

@@ -21,7 +21,14 @@ Thumbs.db
 
 # Miljøvariabler (viktig for sikkerhet!)
 .env
-*.env.local
+.env.*
+!.env.example
 
-# Node (for fremtidig frontend)
+# Node (for frontend)
 node_modules/
+.expo/
+
+# Kubernetes secrets (ALDRI commit faktiske secrets!)
+kubernetes/secrets.yaml
+kubernetes/*-secrets.yaml
+!kubernetes/secrets-template.yaml

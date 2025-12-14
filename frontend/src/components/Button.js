@@ -1,9 +1,10 @@
 // frontend/src/components/Button.js
 
+import PropTypes from 'prop-types';
 import { Pressable, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES } from '../styles/theme';
 
-export function Button({ title, onPress, variant = 'primary', disabled = false }) {
+export function Button({ title, onPress, variant, disabled }) {
   const { width } = useWindowDimensions();
   const isDesktop = width > 768;
 
@@ -21,17 +22,24 @@ export function Button({ title, onPress, variant = 'primary', disabled = false }
   );
 }
 
+Button.propTypes = {
+  title: PropTypes.string.isRequired,
+  onPress: PropTypes.func.isRequired,
+  variant: PropTypes.oneOf(['primary', 'success', 'danger', 'secondary']),
+  disabled: PropTypes.bool,
+};
+
+Button.defaultProps = {
+  variant: 'primary',
+  disabled: false,
+};
+
 const styles = StyleSheet.create({
   base: {
-    paddingVertical: SPACING.lg,
-    paddingHorizontal: SPACING.xxl,
-    borderRadius: BORDER_RADIUS.lg,
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.xl,
+    borderRadius: BORDER_RADIUS.md,
     alignItems: 'center',
-    width: '100%',
-  },
-  desktop: {
-    maxWidth: 320,
-    alignSelf: 'center',
   },
   primary: {
     backgroundColor: COLORS.primary,
@@ -42,8 +50,15 @@ const styles = StyleSheet.create({
   danger: {
     backgroundColor: COLORS.danger,
   },
+  secondary: {
+    backgroundColor: COLORS.gray200,
+  },
   disabled: {
+    backgroundColor: COLORS.gray300,
     opacity: 0.6,
+  },
+  desktop: {
+    paddingVertical: SPACING.lg,
   },
   text: {
     color: COLORS.white,

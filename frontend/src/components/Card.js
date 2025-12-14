@@ -1,16 +1,9 @@
 // frontend/src/components/Card.js
-// Reusable card component with consistent styling
 
+import PropTypes from 'prop-types';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../styles/theme';
 
-/**
- * Card container component
- * @param {string} title - Optional card title
- * @param {string} description - Optional description below title
- * @param {React.ReactNode} children - Card content
- * @param {Object} style - Optional additional styles
- */
 export function Card({ title, description, children, style }) {
   return (
     <View style={[styles.card, style]}>
@@ -21,23 +14,38 @@ export function Card({ title, description, children, style }) {
   );
 }
 
+Card.propTypes = {
+  title: PropTypes.string,
+  description: PropTypes.string,
+  children: PropTypes.node,
+  style: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+};
+
+Card.defaultProps = {
+  title: null,
+  description: null,
+  children: null,
+  style: null,
+};
+
 const styles = StyleSheet.create({
   card: {
     backgroundColor: COLORS.white,
-    borderRadius: BORDER_RADIUS.lg,
-    padding: SPACING.lg,
+    borderRadius: BORDER_RADIUS.xl,
+    padding: SPACING.xl,
     marginBottom: SPACING.lg,
     ...SHADOWS.md,
   },
   title: {
-    fontSize: FONT_SIZES.md,
+    fontSize: FONT_SIZES.lg,
     fontWeight: '600',
     color: COLORS.gray900,
-    marginBottom: SPACING.sm,
+    marginBottom: SPACING.md,
   },
   description: {
     fontSize: FONT_SIZES.sm,
     color: COLORS.gray500,
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.md,
+    lineHeight: 20,
   },
 });

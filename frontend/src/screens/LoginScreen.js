@@ -1,12 +1,12 @@
 // frontend/src/screens/LoginScreen.js
 // Pre-authentication screen with customer type selection and API testing
 
-import { useState } from 'react';
+import PropTypes from 'prop-types';
 import { View, Text, StyleSheet, ScrollView, Pressable, Platform, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card, Button, InfoBox, ApiResultBox } from '../components';
 import { useApiTest } from '../hooks';
-import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS, SHADOWS } from '../styles/theme';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../styles/theme';
 
 /**
  * Login screen with customer type selection
@@ -18,6 +18,16 @@ export function LoginScreen({ onLogin, loading, selectedCustomerType, onSelectCu
 
   const isWeb = Platform.OS === 'web';
   const isWideScreen = width > 768;
+
+  // Login is disabled if loading OR no customer type selected
+  const isLoginDisabled = loading || !selectedCustomerType;
+
+  // Dynamic button text
+  const getButtonText = () => {
+    if (loading) return 'Laster...';
+    if (!selectedCustomerType) return 'Velg kundetype først';
+    return 'Logg inn med Auth0';
+  };
 
   return (
     <ScrollView
@@ -38,7 +48,7 @@ export function LoginScreen({ onLogin, loading, selectedCustomerType, onSelectCu
       </View>
 
       {/* Customer Type Selection */}
-      <Card title="Velg kundetype">
+      <Card title="1️⃣ Velg kundetype">
         <Text style={styles.customerTypeDescription}>
           Velg hvilken type kunde du vil simulere for å se forskjellig funksjonalitet.
         </Text>
@@ -50,14 +60,31 @@ export function LoginScreen({ onLogin, loading, selectedCustomerType, onSelectCu
       </Card>
 
       {/* Login Button */}
-      <View style={styles.loginSection}>
+      <Card title="2️⃣ Logg inn">
+        {!selectedCustomerType && (
+          <View style={styles.loginHint}>
+            <Text style={styles.loginHintIcon}>☝️</Text>
+            <Text style={styles.loginHintText}>
+              Velg kundetype ovenfor før du logger inn
+            </Text>
+          </View>
+        )}
+        
+        {selectedCustomerType && (
+          <Text style={styles.selectedTypeInfo}>
+            Du logger inn som: <Text style={styles.selectedTypeBold}>
+              {selectedCustomerType === 'private' ? '👤 Privatkunde' : '🏢 Bedriftskunde'}
+            </Text>
+          </Text>
+        )}
+
         <Button
-          title={loading ? 'Laster...' : 'Logg inn med Auth0'}
+          title={getButtonText()}
           onPress={onLogin}
-          disabled={loading}
-          variant="primary"
+          disabled={isLoginDisabled}
+          variant={selectedCustomerType ? 'primary' : 'secondary'}
         />
-      </View>
+      </Card>
 
       {/* API Test Section */}
       <Card
@@ -110,6 +137,26 @@ export function LoginScreen({ onLogin, loading, selectedCustomerType, onSelectCu
   );
 }
 
+// ---------------------
+// PROP TYPES
+// ---------------------
+
+LoginScreen.propTypes = {
+  onLogin: PropTypes.func.isRequired,
+  loading: PropTypes.bool,
+  selectedCustomerType: PropTypes.oneOf(['private', 'business', null]),
+  onSelectCustomerType: PropTypes.func.isRequired,
+};
+
+LoginScreen.defaultProps = {
+  loading: false,
+  selectedCustomerType: null,
+};
+
+// ---------------------
+// SUB-COMPONENTS
+// ---------------------
+
 function CustomerTypeSelector({ selectedType, onSelect }) {
   return (
     <View style={styles.customerTypeGrid}>
@@ -133,6 +180,11 @@ function CustomerTypeSelector({ selectedType, onSelect }) {
   );
 }
 
+CustomerTypeSelector.propTypes = {
+  selectedType: PropTypes.oneOf(['private', 'business', null]),
+  onSelect: PropTypes.func.isRequired,
+};
+
 function CustomerTypeOption({ icon, title, description, isSelected, onPress }) {
   return (
     <Pressable
@@ -153,6 +205,14 @@ function CustomerTypeOption({ icon, title, description, isSelected, onPress }) {
   );
 }
 
+CustomerTypeOption.propTypes = {
+  icon: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
+  isSelected: PropTypes.bool,
+  onPress: PropTypes.func.isRequired,
+};
+
 function FeatureItem({ icon, text }) {
   return (
     <View style={styles.featureItem}>
@@ -161,6 +221,15 @@ function FeatureItem({ icon, text }) {
     </View>
   );
 }
+
+FeatureItem.propTypes = {
+  icon: PropTypes.string.isRequired,
+  text: PropTypes.string.isRequired,
+};
+
+// ---------------------
+// STYLES
+// ---------------------
 
 const styles = StyleSheet.create({
   container: {
@@ -248,8 +317,32 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
-  loginSection: {
-    marginBottom: SPACING.lg,
+  loginHint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.warningBg,
+    padding: SPACING.md,
+    borderRadius: BORDER_RADIUS.md,
+    marginBottom: SPACING.md,
+  },
+  loginHintIcon: {
+    fontSize: 20,
+    marginRight: SPACING.sm,
+  },
+  loginHintText: {
+    fontSize: FONT_SIZES.sm,
+    color: '#92400e',
+    flex: 1,
+  },
+  selectedTypeInfo: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray600,
+    marginBottom: SPACING.md,
+    textAlign: 'center',
+  },
+  selectedTypeBold: {
+    fontWeight: '600',
+    color: COLORS.primary,
   },
   buttonRow: {
     flexDirection: 'row',

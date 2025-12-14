@@ -1,58 +1,50 @@
 // frontend/src/components/InsuranceCard.js
-// Card component for displaying insurance information
 
+import PropTypes from 'prop-types';
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../styles/theme';
+import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES } from '../styles/theme';
 
-/**
- * Card displaying insurance details
- * @param {Object} insurance - Insurance data object
- * @param {string} insurance.type - Insurance type name
- * @param {string} insurance.icon - Emoji icon
- * @param {string} insurance.status - Status (e.g., 'Aktiv')
- * @param {string} insurance.policyNumber - Policy number
- * @param {string} insurance.validUntil - Expiration date
- * @param {string} insurance.premium - Monthly premium
- */
 export function InsuranceCard({ insurance }) {
-  const isActive = insurance.status === 'Aktiv';
-
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <View style={styles.titleRow}>
-          <Text style={styles.icon}>{insurance.icon || '📋'}</Text>
+        <Text style={styles.icon}>{insurance.icon}</Text>
+        <View style={styles.headerText}>
           <Text style={styles.type}>{insurance.type}</Text>
+          <Text style={styles.policyNumber}>{insurance.policyNumber}</Text>
         </View>
-        <View style={[styles.badge, isActive && styles.badgeActive]}>
-          <Text style={[styles.badgeText, isActive && styles.badgeTextActive]}>
+        <View style={[styles.statusBadge, insurance.status === 'Aktiv' && styles.statusActive]}>
+          <Text style={[styles.statusText, insurance.status === 'Aktiv' && styles.statusTextActive]}>
             {insurance.status}
           </Text>
         </View>
       </View>
-
       <View style={styles.details}>
-        <DetailItem label="Polisenummer" value={insurance.policyNumber} />
-        <DetailItem label="Gyldig til" value={insurance.validUntil} />
-        {insurance.premium && (
-          <DetailItem label="Premie" value={insurance.premium} />
-        )}
+        <View style={styles.detailItem}>
+          <Text style={styles.detailLabel}>Gyldig til</Text>
+          <Text style={styles.detailValue}>{insurance.validUntil}</Text>
+        </View>
+        <View style={styles.detailItem}>
+          <Text style={styles.detailLabel}>Premie</Text>
+          <Text style={styles.detailValue}>{insurance.premium}</Text>
+        </View>
       </View>
     </View>
   );
 }
 
-/**
- * Internal detail item component
- */
-function DetailItem({ label, value }) {
-  return (
-    <View style={styles.detailRow}>
-      <Text style={styles.detailLabel}>{label}</Text>
-      <Text style={styles.detailValue}>{value}</Text>
-    </View>
-  );
-}
+InsuranceCard.propTypes = {
+  insurance: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    type: PropTypes.string.isRequired,
+    icon: PropTypes.string.isRequired,
+    policyNumber: PropTypes.string.isRequired,
+    status: PropTypes.string.isRequired,
+    validUntil: PropTypes.string.isRequired,
+    premium: PropTypes.string.isRequired,
+    category: PropTypes.string,
+  }).isRequired,
+};
 
 const styles = StyleSheet.create({
   card: {
@@ -60,61 +52,63 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.lg,
     padding: SPACING.lg,
     marginBottom: SPACING.md,
-    ...SHADOWS.md,
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: SPACING.md,
-    paddingBottom: SPACING.md,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.gray100,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
   },
   icon: {
-    fontSize: 24,
-    marginRight: SPACING.sm,
+    fontSize: 28,
+    marginRight: SPACING.md,
+  },
+  headerText: {
+    flex: 1,
   },
   type: {
     fontSize: FONT_SIZES.md,
     fontWeight: '600',
     color: COLORS.gray900,
   },
-  badge: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.xs,
-    borderRadius: BORDER_RADIUS.full,
-    backgroundColor: COLORS.gray200,
+  policyNumber: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.gray500,
+    marginTop: 2,
   },
-  badgeActive: {
+  statusBadge: {
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: SPACING.xs,
+    backgroundColor: COLORS.gray100,
+    borderRadius: BORDER_RADIUS.full,
+  },
+  statusActive: {
     backgroundColor: COLORS.successBg,
   },
-  badgeText: {
+  statusText: {
     fontSize: FONT_SIZES.xs,
     fontWeight: '500',
     color: COLORS.gray600,
   },
-  badgeTextActive: {
+  statusTextActive: {
     color: COLORS.success,
   },
   details: {
-    gap: SPACING.sm,
-  },
-  detailRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    borderTopWidth: 1,
+    borderTopColor: COLORS.gray100,
+    paddingTop: SPACING.md,
+  },
+  detailItem: {
+    flex: 1,
   },
   detailLabel: {
-    fontSize: FONT_SIZES.sm,
+    fontSize: FONT_SIZES.xs,
     color: COLORS.gray500,
   },
   detailValue: {
     fontSize: FONT_SIZES.sm,
-    fontWeight: '500',
     color: COLORS.gray900,
+    fontWeight: '500',
+    marginTop: 2,
   },
 });

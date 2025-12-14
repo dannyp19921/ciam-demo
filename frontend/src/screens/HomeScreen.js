@@ -1,6 +1,7 @@
 // frontend/src/screens/HomeScreen.js
 // Main dashboard screen showing user insurances and profile info
 
+import PropTypes from 'prop-types';
 import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
 import { Card, InsuranceCard, DetailRow, PermissionBadge, ScreenContainer } from '../components';
 import {
@@ -85,6 +86,39 @@ export function HomeScreen({ user, customerType, activeProfile, onOpenProfileSwi
   );
 }
 
+// ---------------------
+// PROP TYPES
+// ---------------------
+
+HomeScreen.propTypes = {
+  user: PropTypes.shape({
+    sub: PropTypes.string,
+    email: PropTypes.string,
+    name: PropTypes.string,
+    picture: PropTypes.string,
+  }),
+  customerType: PropTypes.oneOf(['private', 'business']),
+  activeProfile: PropTypes.shape({
+    id: PropTypes.string,
+    type: PropTypes.oneOf(['self', 'delegation', 'business']),
+    name: PropTypes.string,
+    subtitle: PropTypes.string,
+    role: PropTypes.object,
+  }),
+  onOpenProfileSwitcher: PropTypes.func,
+};
+
+HomeScreen.defaultProps = {
+  user: null,
+  customerType: 'private',
+  activeProfile: null,
+  onOpenProfileSwitcher: () => {},
+};
+
+// ---------------------
+// SUB-COMPONENTS
+// ---------------------
+
 function ActingBanner({ profile, isBusiness, onPress }) {
   return (
     <Pressable style={styles.actingBanner} onPress={onPress}>
@@ -101,6 +135,15 @@ function ActingBanner({ profile, isBusiness, onPress }) {
     </Pressable>
   );
 }
+
+ActingBanner.propTypes = {
+  profile: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    subtitle: PropTypes.string,
+  }).isRequired,
+  isBusiness: PropTypes.bool,
+  onPress: PropTypes.func,
+};
 
 function WelcomeCard({ displayName, userInfo, companyProfile, isBusinessCustomer, insuranceCount, onPress }) {
   return (
@@ -136,6 +179,15 @@ function WelcomeCard({ displayName, userInfo, companyProfile, isBusinessCustomer
   );
 }
 
+WelcomeCard.propTypes = {
+  displayName: PropTypes.string,
+  userInfo: PropTypes.object,
+  companyProfile: PropTypes.object,
+  isBusinessCustomer: PropTypes.bool,
+  insuranceCount: PropTypes.number,
+  onPress: PropTypes.func,
+};
+
 function Avatar({ picture, displayName, isBusinessCustomer }) {
   return (
     <View style={styles.avatarContainer}>
@@ -155,6 +207,12 @@ function Avatar({ picture, displayName, isBusinessCustomer }) {
   );
 }
 
+Avatar.propTypes = {
+  picture: PropTypes.string,
+  displayName: PropTypes.string,
+  isBusinessCustomer: PropTypes.bool,
+};
+
 function StatItem({ value, label }) {
   return (
     <View style={styles.statItem}>
@@ -163,6 +221,11 @@ function StatItem({ value, label }) {
     </View>
   );
 }
+
+StatItem.propTypes = {
+  value: PropTypes.number.isRequired,
+  label: PropTypes.string.isRequired,
+};
 
 function RolePermissionsCard({ role }) {
   return (
@@ -180,6 +243,13 @@ function RolePermissionsCard({ role }) {
   );
 }
 
+RolePermissionsCard.propTypes = {
+  role: PropTypes.shape({
+    description: PropTypes.string,
+    permissions: PropTypes.arrayOf(PropTypes.string),
+  }).isRequired,
+};
+
 function EmptyInsurances({ isBusinessCustomer }) {
   return (
     <View style={styles.emptyState}>
@@ -192,6 +262,10 @@ function EmptyInsurances({ isBusinessCustomer }) {
   );
 }
 
+EmptyInsurances.propTypes = {
+  isBusinessCustomer: PropTypes.bool,
+};
+
 function CompanyInfoCard({ companyProfile }) {
   return (
     <Card title="🏢 Bedriftsinformasjon">
@@ -202,6 +276,15 @@ function CompanyInfoCard({ companyProfile }) {
     </Card>
   );
 }
+
+CompanyInfoCard.propTypes = {
+  companyProfile: PropTypes.shape({
+    companyName: PropTypes.string,
+    orgNumber: PropTypes.string,
+    employeeCount: PropTypes.number,
+    customerSince: PropTypes.string,
+  }).isRequired,
+};
 
 function HelpCard({ isBusinessCustomer }) {
   return (
@@ -215,6 +298,14 @@ function HelpCard({ isBusinessCustomer }) {
     </View>
   );
 }
+
+HelpCard.propTypes = {
+  isBusinessCustomer: PropTypes.bool,
+};
+
+// ---------------------
+// STYLES
+// ---------------------
 
 const styles = StyleSheet.create({
   actingBanner: {

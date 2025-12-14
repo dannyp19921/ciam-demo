@@ -48,6 +48,7 @@ backend-java/
 backend-kotlin/
   gradle/
     wrapper/
+      gradle-wrapper.jar
       gradle-wrapper.properties
   src/
     main/
@@ -124,7 +125,9 @@ frontend/
     utils/
       hash.js
       index.js
+  .env.example
   .gitignore
+  app.config.js
   App.js
   app.json
   index.js
@@ -141,47 +144,67 @@ README.md
 <files>
 This section contains the contents of the repository's files.
 
-<file path=".repomixignore">
-# Node
-**/node_modules/**
-**/package-lock.json
+<file path="frontend/.env.example">
+# frontend/.env.example
+# Copy this file to .env and fill in your values
+# NEVER commit .env to git!
 
-# Build outputs
-**/build/**
-**/dist/**
-**/.expo/**
-**/.gradle/**
+# Auth0 Configuration
+AUTH0_DOMAIN=your-tenant.eu.auth0.com
+AUTH0_CLIENT_ID=your-client-id
+AUTH0_AUDIENCE=https://your-api
 
-# IDE
-**/.vscode/**
-**/.idea/**
+# API Configuration
+API_BASE_URL=https://your-api.azurewebsites.net
+</file>
 
-# Git
-**/.git/**
+<file path="frontend/app.config.js">
+// frontend/app.config.js
+// Dynamic Expo configuration with environment variable support
+// Reads from .env file in development
 
-# Logs
-*.log
+import 'dotenv/config';
 
-# Media/binaries
-*.png
-*.jpg
-*.jpeg
-*.gif
-*.svg
-*.ico
-
-# Android/iOS builds
-**/android/**
-**/ios/**
-
-# Gradle
-**/*.jar
-**/gradlew
-**/gradlew.bat
-
-# Misc
-**/.DS_Store
-**/Thumbs.db
+export default {
+  expo: {
+    name: "CIAM Demo",
+    slug: "ciam-demo",
+    version: "1.0.0",
+    orientation: "portrait",
+    icon: "./assets/icon.png",
+    userInterfaceStyle: "light",
+    splash: {
+      image: "./assets/splash.png",
+      resizeMode: "contain",
+      backgroundColor: "#ffffff"
+    },
+    assetBundlePatterns: [
+      "**/*"
+    ],
+    ios: {
+      supportsTablet: true,
+      bundleIdentifier: "no.gjensidige.ciam.demo"
+    },
+    android: {
+      adaptiveIcon: {
+        foregroundImage: "./assets/adaptive-icon.png",
+        backgroundColor: "#ffffff"
+      },
+      package: "no.gjensidige.ciam.demo"
+    },
+    web: {
+      favicon: "./assets/favicon.png",
+      bundler: "metro"
+    },
+    // Environment variables exposed to the app
+    extra: {
+      AUTH0_DOMAIN: process.env.AUTH0_DOMAIN,
+      AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
+      AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE,
+      API_BASE_URL: process.env.API_BASE_URL,
+    },
+  }
+};
 </file>
 
 <file path="backend-java/README.md">
@@ -578,22 +601,18 @@ const styles = StyleSheet.create({
 
 <file path="frontend/src/components/DetailRow.js">
 // frontend/src/components/DetailRow.js
-// Reusable detail row component for displaying label-value pairs
-// Used in: HomeScreen, ProfileScreen, ApiTestScreen
+// Reusable component for displaying label-value pairs
 
+import PropTypes from 'prop-types';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS, SPACING, FONT_SIZES } from '../styles/theme';
 
 /**
- * A row displaying a label and value pair
- * @param {string} label - Left side label text
- * @param {string} value - Right side value text
- * @param {string} valueColor - Optional color override for value
- * @param {boolean} noBorder - Optional flag to hide bottom border
+ * DetailRow component for displaying a label-value pair
  */
-export function DetailRow({ label, value, valueColor, noBorder = false }) {
+export function DetailRow({ label, value, valueColor, noBorder }) {
   return (
-    <View style={[styles.container, noBorder && styles.noBorder]}>
+    <View style={[styles.row, !noBorder && styles.border]}>
       <Text style={styles.label}>{label}</Text>
       <Text style={[styles.value, valueColor && { color: valueColor }]}>
         {value}
@@ -602,29 +621,37 @@ export function DetailRow({ label, value, valueColor, noBorder = false }) {
   );
 }
 
+DetailRow.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
+  valueColor: PropTypes.string,
+  noBorder: PropTypes.bool,
+};
+
+DetailRow.defaultProps = {
+  valueColor: null,
+  noBorder: false,
+};
+
 const styles = StyleSheet.create({
-  container: {
+  row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: SPACING.sm,
+  },
+  border: {
     borderBottomWidth: 1,
     borderBottomColor: COLORS.gray100,
-  },
-  noBorder: {
-    borderBottomWidth: 0,
   },
   label: {
     fontSize: FONT_SIZES.sm,
     color: COLORS.gray500,
-    flex: 1,
   },
   value: {
     fontSize: FONT_SIZES.sm,
     fontWeight: '500',
     color: COLORS.gray900,
-    flex: 1,
-    textAlign: 'right',
   },
 });
 </file>
@@ -2533,19 +2560,70 @@ Thumbs.db
 
 # Miljøvariabler (viktig for sikkerhet!)
 .env
-*.env.local
+.env.*
+!.env.example
 
-# Node (for fremtidig frontend)
+# Node (for frontend)
 node_modules/
+.expo/
+
+# Kubernetes secrets (ALDRI commit faktiske secrets!)
+kubernetes/secrets.yaml
+kubernetes/*-secrets.yaml
+!kubernetes/secrets-template.yaml
+</file>
+
+<file path=".repomixignore">
+# Node
+**/node_modules/**
+**/package-lock.json
+
+# Build outputs
+**/build/**
+**/dist/**
+**/.expo/**
+**/.gradle/**
+
+# IDE
+**/.vscode/**
+**/.idea/**
+
+# Git
+**/.git/**
+
+# Logs
+*.log
+
+# Media/binaries
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+
+# Android/iOS builds
+**/android/**
+**/ios/**
+
+# Gradle
+**/*.jar
+**/gradlew
+**/gradlew.bat
+
+# Misc
+**/.DS_Store
+**/Thumbs.db
 </file>
 
 <file path="frontend/src/components/Button.js">
 // frontend/src/components/Button.js
 
+import PropTypes from 'prop-types';
 import { Pressable, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES } from '../styles/theme';
 
-export function Button({ title, onPress, variant = 'primary', disabled = false }) {
+export function Button({ title, onPress, variant, disabled }) {
   const { width } = useWindowDimensions();
   const isDesktop = width > 768;
 
@@ -2563,17 +2641,24 @@ export function Button({ title, onPress, variant = 'primary', disabled = false }
   );
 }
 
+Button.propTypes = {
+  title: PropTypes.string.isRequired,
+  onPress: PropTypes.func.isRequired,
+  variant: PropTypes.oneOf(['primary', 'success', 'danger', 'secondary']),
+  disabled: PropTypes.bool,
+};
+
+Button.defaultProps = {
+  variant: 'primary',
+  disabled: false,
+};
+
 const styles = StyleSheet.create({
   base: {
-    paddingVertical: SPACING.lg,
-    paddingHorizontal: SPACING.xxl,
-    borderRadius: BORDER_RADIUS.lg,
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.xl,
+    borderRadius: BORDER_RADIUS.md,
     alignItems: 'center',
-    width: '100%',
-  },
-  desktop: {
-    maxWidth: 320,
-    alignSelf: 'center',
   },
   primary: {
     backgroundColor: COLORS.primary,
@@ -2584,8 +2669,15 @@ const styles = StyleSheet.create({
   danger: {
     backgroundColor: COLORS.danger,
   },
+  secondary: {
+    backgroundColor: COLORS.gray200,
+  },
   disabled: {
+    backgroundColor: COLORS.gray300,
     opacity: 0.6,
+  },
+  desktop: {
+    paddingVertical: SPACING.lg,
   },
   text: {
     color: COLORS.white,
@@ -2597,18 +2689,11 @@ const styles = StyleSheet.create({
 
 <file path="frontend/src/components/Card.js">
 // frontend/src/components/Card.js
-// Reusable card component with consistent styling
 
+import PropTypes from 'prop-types';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../styles/theme';
 
-/**
- * Card container component
- * @param {string} title - Optional card title
- * @param {string} description - Optional description below title
- * @param {React.ReactNode} children - Card content
- * @param {Object} style - Optional additional styles
- */
 export function Card({ title, description, children, style }) {
   return (
     <View style={[styles.card, style]}>
@@ -2619,84 +2704,91 @@ export function Card({ title, description, children, style }) {
   );
 }
 
+Card.propTypes = {
+  title: PropTypes.string,
+  description: PropTypes.string,
+  children: PropTypes.node,
+  style: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+};
+
+Card.defaultProps = {
+  title: null,
+  description: null,
+  children: null,
+  style: null,
+};
+
 const styles = StyleSheet.create({
   card: {
     backgroundColor: COLORS.white,
-    borderRadius: BORDER_RADIUS.lg,
-    padding: SPACING.lg,
+    borderRadius: BORDER_RADIUS.xl,
+    padding: SPACING.xl,
     marginBottom: SPACING.lg,
     ...SHADOWS.md,
   },
   title: {
-    fontSize: FONT_SIZES.md,
+    fontSize: FONT_SIZES.lg,
     fontWeight: '600',
     color: COLORS.gray900,
-    marginBottom: SPACING.sm,
+    marginBottom: SPACING.md,
   },
   description: {
     fontSize: FONT_SIZES.sm,
     color: COLORS.gray500,
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.md,
+    lineHeight: 20,
   },
 });
 </file>
 
 <file path="frontend/src/components/InsuranceCard.js">
 // frontend/src/components/InsuranceCard.js
-// Card component for displaying insurance information
 
+import PropTypes from 'prop-types';
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../styles/theme';
+import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES } from '../styles/theme';
 
-/**
- * Card displaying insurance details
- * @param {Object} insurance - Insurance data object
- * @param {string} insurance.type - Insurance type name
- * @param {string} insurance.icon - Emoji icon
- * @param {string} insurance.status - Status (e.g., 'Aktiv')
- * @param {string} insurance.policyNumber - Policy number
- * @param {string} insurance.validUntil - Expiration date
- * @param {string} insurance.premium - Monthly premium
- */
 export function InsuranceCard({ insurance }) {
-  const isActive = insurance.status === 'Aktiv';
-
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <View style={styles.titleRow}>
-          <Text style={styles.icon}>{insurance.icon || '📋'}</Text>
+        <Text style={styles.icon}>{insurance.icon}</Text>
+        <View style={styles.headerText}>
           <Text style={styles.type}>{insurance.type}</Text>
+          <Text style={styles.policyNumber}>{insurance.policyNumber}</Text>
         </View>
-        <View style={[styles.badge, isActive && styles.badgeActive]}>
-          <Text style={[styles.badgeText, isActive && styles.badgeTextActive]}>
+        <View style={[styles.statusBadge, insurance.status === 'Aktiv' && styles.statusActive]}>
+          <Text style={[styles.statusText, insurance.status === 'Aktiv' && styles.statusTextActive]}>
             {insurance.status}
           </Text>
         </View>
       </View>
-
       <View style={styles.details}>
-        <DetailItem label="Polisenummer" value={insurance.policyNumber} />
-        <DetailItem label="Gyldig til" value={insurance.validUntil} />
-        {insurance.premium && (
-          <DetailItem label="Premie" value={insurance.premium} />
-        )}
+        <View style={styles.detailItem}>
+          <Text style={styles.detailLabel}>Gyldig til</Text>
+          <Text style={styles.detailValue}>{insurance.validUntil}</Text>
+        </View>
+        <View style={styles.detailItem}>
+          <Text style={styles.detailLabel}>Premie</Text>
+          <Text style={styles.detailValue}>{insurance.premium}</Text>
+        </View>
       </View>
     </View>
   );
 }
 
-/**
- * Internal detail item component
- */
-function DetailItem({ label, value }) {
-  return (
-    <View style={styles.detailRow}>
-      <Text style={styles.detailLabel}>{label}</Text>
-      <Text style={styles.detailValue}>{value}</Text>
-    </View>
-  );
-}
+InsuranceCard.propTypes = {
+  insurance: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    type: PropTypes.string.isRequired,
+    icon: PropTypes.string.isRequired,
+    policyNumber: PropTypes.string.isRequired,
+    status: PropTypes.string.isRequired,
+    validUntil: PropTypes.string.isRequired,
+    premium: PropTypes.string.isRequired,
+    category: PropTypes.string,
+  }).isRequired,
+};
 
 const styles = StyleSheet.create({
   card: {
@@ -2704,62 +2796,64 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.lg,
     padding: SPACING.lg,
     marginBottom: SPACING.md,
-    ...SHADOWS.md,
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: SPACING.md,
-    paddingBottom: SPACING.md,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.gray100,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
   },
   icon: {
-    fontSize: 24,
-    marginRight: SPACING.sm,
+    fontSize: 28,
+    marginRight: SPACING.md,
+  },
+  headerText: {
+    flex: 1,
   },
   type: {
     fontSize: FONT_SIZES.md,
     fontWeight: '600',
     color: COLORS.gray900,
   },
-  badge: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.xs,
-    borderRadius: BORDER_RADIUS.full,
-    backgroundColor: COLORS.gray200,
+  policyNumber: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.gray500,
+    marginTop: 2,
   },
-  badgeActive: {
+  statusBadge: {
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: SPACING.xs,
+    backgroundColor: COLORS.gray100,
+    borderRadius: BORDER_RADIUS.full,
+  },
+  statusActive: {
     backgroundColor: COLORS.successBg,
   },
-  badgeText: {
+  statusText: {
     fontSize: FONT_SIZES.xs,
     fontWeight: '500',
     color: COLORS.gray600,
   },
-  badgeTextActive: {
+  statusTextActive: {
     color: COLORS.success,
   },
   details: {
-    gap: SPACING.sm,
-  },
-  detailRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    borderTopWidth: 1,
+    borderTopColor: COLORS.gray100,
+    paddingTop: SPACING.md,
+  },
+  detailItem: {
+    flex: 1,
   },
   detailLabel: {
-    fontSize: FONT_SIZES.sm,
+    fontSize: FONT_SIZES.xs,
     color: COLORS.gray500,
   },
   detailValue: {
     fontSize: FONT_SIZES.sm,
-    fontWeight: '500',
     color: COLORS.gray900,
+    fontWeight: '500',
+    marginTop: 2,
   },
 });
 </file>
@@ -3269,21 +3363,78 @@ const styles = StyleSheet.create({
 
 <file path="frontend/src/constants/config.js">
 // frontend/src/constants/config.js
-// Application configuration constants
+// Configuration with environment variable support
+// For local development, create a .env file based on .env.example
 
-// Auth0 Configuration
+import Constants from 'expo-constants';
+
+// ---------------------
+// ENVIRONMENT VARIABLES
+// ---------------------
+
+// Get environment variables from Expo config or process.env
+const getEnvVar = (key, fallback) => {
+  // Try Expo Constants first (for app.config.js extra)
+  const expoExtra = Constants.expoConfig?.extra;
+  if (expoExtra?.[key]) {
+    return expoExtra[key];
+  }
+  
+  // Try process.env (for web builds)
+  if (typeof process !== 'undefined' && process.env?.[key]) {
+    return process.env[key];
+  }
+  
+  // Return fallback (development defaults)
+  return fallback;
+};
+
+// ---------------------
+// AUTH0 CONFIGURATION
+// ---------------------
+
 export const AUTH0_CONFIG = {
-  domain: 'dev-feccaeq8qwpicehq.eu.auth0.com',
-  clientId: 'Mp1DLIhUPWbTELgiO0C1GiuGnD3rdv2M',
-  audience: 'https://ciam-demo-api',
+  domain: getEnvVar('AUTH0_DOMAIN', 'dev-feccaeq8qwpicehq.eu.auth0.com'),
+  clientId: getEnvVar('AUTH0_CLIENT_ID', 'Mp1DLIhUPWbTELgiO0C1GiuGnD3rdv2M'),
+  audience: getEnvVar('AUTH0_AUDIENCE', 'https://ciam-demo-api'),
 };
 
-// API Configuration
+// ---------------------
+// API CONFIGURATION
+// ---------------------
+
 export const API_CONFIG = {
-  baseUrl: 'https://ciam-demo-dap-cdbcc5debgfgbaf5.westeurope-01.azurewebsites.net',
+  baseUrl: getEnvVar('API_BASE_URL', 'https://ciam-demo-dap-cdbcc5debgfgbaf5.westeurope-01.azurewebsites.net'),
 };
 
+// Backwards compatibility
 export const API_BASE_URL = API_CONFIG.baseUrl;
+
+// ---------------------
+// FEATURE FLAGS
+// ---------------------
+
+export const FEATURES = {
+  // Enable/disable features for testing
+  enableMockData: true,
+  enableStepUpDemo: true,
+  enableDelegationDemo: true,
+};
+
+// ---------------------
+// VALIDATION
+// ---------------------
+
+// Log warning in development if using fallback values
+if (__DEV__) {
+  const isUsingDefaults = 
+    AUTH0_CONFIG.domain.includes('dev-feccaeq8qwpicehq') &&
+    !getEnvVar('AUTH0_DOMAIN', null);
+  
+  if (isUsingDefaults) {
+    console.log('ℹ️ Using default Auth0 config. Create .env for custom values.');
+  }
+}
 </file>
 
 <file path="frontend/src/contexts/AuthContext.js">
@@ -4760,6 +4911,7 @@ const styles = StyleSheet.create({
 // frontend/src/screens/HomeScreen.js
 // Main dashboard screen showing user insurances and profile info
 
+import PropTypes from 'prop-types';
 import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
 import { Card, InsuranceCard, DetailRow, PermissionBadge, ScreenContainer } from '../components';
 import {
@@ -4844,6 +4996,39 @@ export function HomeScreen({ user, customerType, activeProfile, onOpenProfileSwi
   );
 }
 
+// ---------------------
+// PROP TYPES
+// ---------------------
+
+HomeScreen.propTypes = {
+  user: PropTypes.shape({
+    sub: PropTypes.string,
+    email: PropTypes.string,
+    name: PropTypes.string,
+    picture: PropTypes.string,
+  }),
+  customerType: PropTypes.oneOf(['private', 'business']),
+  activeProfile: PropTypes.shape({
+    id: PropTypes.string,
+    type: PropTypes.oneOf(['self', 'delegation', 'business']),
+    name: PropTypes.string,
+    subtitle: PropTypes.string,
+    role: PropTypes.object,
+  }),
+  onOpenProfileSwitcher: PropTypes.func,
+};
+
+HomeScreen.defaultProps = {
+  user: null,
+  customerType: 'private',
+  activeProfile: null,
+  onOpenProfileSwitcher: () => {},
+};
+
+// ---------------------
+// SUB-COMPONENTS
+// ---------------------
+
 function ActingBanner({ profile, isBusiness, onPress }) {
   return (
     <Pressable style={styles.actingBanner} onPress={onPress}>
@@ -4860,6 +5045,15 @@ function ActingBanner({ profile, isBusiness, onPress }) {
     </Pressable>
   );
 }
+
+ActingBanner.propTypes = {
+  profile: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    subtitle: PropTypes.string,
+  }).isRequired,
+  isBusiness: PropTypes.bool,
+  onPress: PropTypes.func,
+};
 
 function WelcomeCard({ displayName, userInfo, companyProfile, isBusinessCustomer, insuranceCount, onPress }) {
   return (
@@ -4895,6 +5089,15 @@ function WelcomeCard({ displayName, userInfo, companyProfile, isBusinessCustomer
   );
 }
 
+WelcomeCard.propTypes = {
+  displayName: PropTypes.string,
+  userInfo: PropTypes.object,
+  companyProfile: PropTypes.object,
+  isBusinessCustomer: PropTypes.bool,
+  insuranceCount: PropTypes.number,
+  onPress: PropTypes.func,
+};
+
 function Avatar({ picture, displayName, isBusinessCustomer }) {
   return (
     <View style={styles.avatarContainer}>
@@ -4914,6 +5117,12 @@ function Avatar({ picture, displayName, isBusinessCustomer }) {
   );
 }
 
+Avatar.propTypes = {
+  picture: PropTypes.string,
+  displayName: PropTypes.string,
+  isBusinessCustomer: PropTypes.bool,
+};
+
 function StatItem({ value, label }) {
   return (
     <View style={styles.statItem}>
@@ -4922,6 +5131,11 @@ function StatItem({ value, label }) {
     </View>
   );
 }
+
+StatItem.propTypes = {
+  value: PropTypes.number.isRequired,
+  label: PropTypes.string.isRequired,
+};
 
 function RolePermissionsCard({ role }) {
   return (
@@ -4939,6 +5153,13 @@ function RolePermissionsCard({ role }) {
   );
 }
 
+RolePermissionsCard.propTypes = {
+  role: PropTypes.shape({
+    description: PropTypes.string,
+    permissions: PropTypes.arrayOf(PropTypes.string),
+  }).isRequired,
+};
+
 function EmptyInsurances({ isBusinessCustomer }) {
   return (
     <View style={styles.emptyState}>
@@ -4951,6 +5172,10 @@ function EmptyInsurances({ isBusinessCustomer }) {
   );
 }
 
+EmptyInsurances.propTypes = {
+  isBusinessCustomer: PropTypes.bool,
+};
+
 function CompanyInfoCard({ companyProfile }) {
   return (
     <Card title="🏢 Bedriftsinformasjon">
@@ -4961,6 +5186,15 @@ function CompanyInfoCard({ companyProfile }) {
     </Card>
   );
 }
+
+CompanyInfoCard.propTypes = {
+  companyProfile: PropTypes.shape({
+    companyName: PropTypes.string,
+    orgNumber: PropTypes.string,
+    employeeCount: PropTypes.number,
+    customerSince: PropTypes.string,
+  }).isRequired,
+};
 
 function HelpCard({ isBusinessCustomer }) {
   return (
@@ -4974,6 +5208,14 @@ function HelpCard({ isBusinessCustomer }) {
     </View>
   );
 }
+
+HelpCard.propTypes = {
+  isBusinessCustomer: PropTypes.bool,
+};
+
+// ---------------------
+// STYLES
+// ---------------------
 
 const styles = StyleSheet.create({
   actingBanner: {
@@ -5185,12 +5427,12 @@ export { SecurityInfoScreen } from './SecurityInfoScreen';
 // frontend/src/screens/LoginScreen.js
 // Pre-authentication screen with customer type selection and API testing
 
-import { useState } from 'react';
+import PropTypes from 'prop-types';
 import { View, Text, StyleSheet, ScrollView, Pressable, Platform, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card, Button, InfoBox, ApiResultBox } from '../components';
 import { useApiTest } from '../hooks';
-import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS, SHADOWS } from '../styles/theme';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../styles/theme';
 
 /**
  * Login screen with customer type selection
@@ -5202,6 +5444,16 @@ export function LoginScreen({ onLogin, loading, selectedCustomerType, onSelectCu
 
   const isWeb = Platform.OS === 'web';
   const isWideScreen = width > 768;
+
+  // Login is disabled if loading OR no customer type selected
+  const isLoginDisabled = loading || !selectedCustomerType;
+
+  // Dynamic button text
+  const getButtonText = () => {
+    if (loading) return 'Laster...';
+    if (!selectedCustomerType) return 'Velg kundetype først';
+    return 'Logg inn med Auth0';
+  };
 
   return (
     <ScrollView
@@ -5222,7 +5474,7 @@ export function LoginScreen({ onLogin, loading, selectedCustomerType, onSelectCu
       </View>
 
       {/* Customer Type Selection */}
-      <Card title="Velg kundetype">
+      <Card title="1️⃣ Velg kundetype">
         <Text style={styles.customerTypeDescription}>
           Velg hvilken type kunde du vil simulere for å se forskjellig funksjonalitet.
         </Text>
@@ -5234,14 +5486,31 @@ export function LoginScreen({ onLogin, loading, selectedCustomerType, onSelectCu
       </Card>
 
       {/* Login Button */}
-      <View style={styles.loginSection}>
+      <Card title="2️⃣ Logg inn">
+        {!selectedCustomerType && (
+          <View style={styles.loginHint}>
+            <Text style={styles.loginHintIcon}>☝️</Text>
+            <Text style={styles.loginHintText}>
+              Velg kundetype ovenfor før du logger inn
+            </Text>
+          </View>
+        )}
+        
+        {selectedCustomerType && (
+          <Text style={styles.selectedTypeInfo}>
+            Du logger inn som: <Text style={styles.selectedTypeBold}>
+              {selectedCustomerType === 'private' ? '👤 Privatkunde' : '🏢 Bedriftskunde'}
+            </Text>
+          </Text>
+        )}
+
         <Button
-          title={loading ? 'Laster...' : 'Logg inn med Auth0'}
+          title={getButtonText()}
           onPress={onLogin}
-          disabled={loading}
-          variant="primary"
+          disabled={isLoginDisabled}
+          variant={selectedCustomerType ? 'primary' : 'secondary'}
         />
-      </View>
+      </Card>
 
       {/* API Test Section */}
       <Card
@@ -5294,6 +5563,26 @@ export function LoginScreen({ onLogin, loading, selectedCustomerType, onSelectCu
   );
 }
 
+// ---------------------
+// PROP TYPES
+// ---------------------
+
+LoginScreen.propTypes = {
+  onLogin: PropTypes.func.isRequired,
+  loading: PropTypes.bool,
+  selectedCustomerType: PropTypes.oneOf(['private', 'business', null]),
+  onSelectCustomerType: PropTypes.func.isRequired,
+};
+
+LoginScreen.defaultProps = {
+  loading: false,
+  selectedCustomerType: null,
+};
+
+// ---------------------
+// SUB-COMPONENTS
+// ---------------------
+
 function CustomerTypeSelector({ selectedType, onSelect }) {
   return (
     <View style={styles.customerTypeGrid}>
@@ -5317,6 +5606,11 @@ function CustomerTypeSelector({ selectedType, onSelect }) {
   );
 }
 
+CustomerTypeSelector.propTypes = {
+  selectedType: PropTypes.oneOf(['private', 'business', null]),
+  onSelect: PropTypes.func.isRequired,
+};
+
 function CustomerTypeOption({ icon, title, description, isSelected, onPress }) {
   return (
     <Pressable
@@ -5337,6 +5631,14 @@ function CustomerTypeOption({ icon, title, description, isSelected, onPress }) {
   );
 }
 
+CustomerTypeOption.propTypes = {
+  icon: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
+  isSelected: PropTypes.bool,
+  onPress: PropTypes.func.isRequired,
+};
+
 function FeatureItem({ icon, text }) {
   return (
     <View style={styles.featureItem}>
@@ -5345,6 +5647,15 @@ function FeatureItem({ icon, text }) {
     </View>
   );
 }
+
+FeatureItem.propTypes = {
+  icon: PropTypes.string.isRequired,
+  text: PropTypes.string.isRequired,
+};
+
+// ---------------------
+// STYLES
+// ---------------------
 
 const styles = StyleSheet.create({
   container: {
@@ -5432,8 +5743,32 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
-  loginSection: {
-    marginBottom: SPACING.lg,
+  loginHint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.warningBg,
+    padding: SPACING.md,
+    borderRadius: BORDER_RADIUS.md,
+    marginBottom: SPACING.md,
+  },
+  loginHintIcon: {
+    fontSize: 20,
+    marginRight: SPACING.sm,
+  },
+  loginHintText: {
+    fontSize: FONT_SIZES.sm,
+    color: '#92400e',
+    flex: 1,
+  },
+  selectedTypeInfo: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray600,
+    marginBottom: SPACING.md,
+    textAlign: 'center',
+  },
+  selectedTypeBold: {
+    fontWeight: '600',
+    color: COLORS.primary,
   },
   buttonRow: {
     flexDirection: 'row',
@@ -5954,11 +6289,13 @@ export const COMMON_STYLES = {
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
+    "dotenv": "^17.2.3",
     "expo": "~54.0.29",
     "expo-auth-session": "~7.0.10",
     "expo-crypto": "~15.0.8",
     "expo-status-bar": "~3.0.9",
     "expo-web-browser": "~15.0.10",
+    "prop-types": "^15.8.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",

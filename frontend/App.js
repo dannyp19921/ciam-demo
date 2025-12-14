@@ -1,222 +1,236 @@
 // frontend/App.js
+// CIAM Demo - Main Application
+// Responsibility: App orchestration, provider setup, and navigation
+// All business logic has been moved to contexts and hooks
 
-import { useState, useEffect } from 'react';
+import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import * as AuthSession from 'expo-auth-session';
-import * as WebBrowser from 'expo-web-browser';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { 
-  LoginScreen, 
-  HomeScreen, 
-  ProfileScreen, 
+// Contexts
+import { AuthProvider, useAuth } from './src/contexts/AuthContext';
+import { UserProvider, useUser } from './src/contexts/UserContext';
+import { ConsentProvider, useConsent } from './src/contexts/ConsentContext';
+
+// Screens
+import {
+  LoginScreen,
+  HomeScreen,
+  ProfileScreen,
   ApiTestScreen,
   ConsentScreen,
   SecurityInfoScreen,
-  DelegationScreen
+  DelegationScreen,
 } from './src/screens';
+
+// Components
 import { BottomNav, ProfileSwitcher } from './src/components';
-import { AUTH0_CONFIG } from './src/constants/config';
+
+// Styles
 import { COLORS } from './src/styles/theme';
-import { getAvailableProfiles } from './src/services/userData';
 
-WebBrowser.maybeCompleteAuthSession();
+// ---------------------
+// APP PROVIDERS
+// ---------------------
 
-const redirectUri = AuthSession.makeRedirectUri();
+/**
+ * Wrapper that sets up all required providers
+ */
+function AppProviders({ children }) {
+  return (
+    <AuthProvider>
+      <ConsentProvider>
+        <AppWithAuth>{children}</AppWithAuth>
+      </ConsentProvider>
+    </AuthProvider>
+  );
+}
+
+/**
+ * Intermediate layer that gives UserProvider access to auth state
+ */
+function AppWithAuth({ children }) {
+  const { user } = useAuth();
+  
+  return (
+    <UserProvider userId={user?.sub}>
+      {children}
+    </UserProvider>
+  );
+}
+
+// ---------------------
+// MAIN APP
+// ---------------------
 
 export default function App() {
-  const [user, setUser] = useState(null);
-  const [accessToken, setAccessToken] = useState(null);
-  const [activeTab, setActiveTab] = useState('home');
-  const [loading, setLoading] = useState(false);
-  const [hasConsented, setHasConsented] = useState(false);
-  const [consents, setConsents] = useState(null);
-  
-  // Customer type selected BEFORE login
-  const [customerType, setCustomerType] = useState(null);
-  const [activeProfile, setActiveProfile] = useState(null);
-  const [showProfileSwitcher, setShowProfileSwitcher] = useState(false);
-
-  const discovery = AuthSession.useAutoDiscovery(`https://${AUTH0_CONFIG.domain}`);
-
-  const [request, response, promptAsync] = AuthSession.useAuthRequest(
-    {
-      clientId: AUTH0_CONFIG.clientId,
-      redirectUri,
-      responseType: 'code',
-      scopes: ['openid', 'profile', 'email'],
-      prompt: 'login',
-      extraParams: { audience: AUTH0_CONFIG.audience },
-    },
-    discovery
+  return (
+    <AppProviders>
+      <AppContent />
+    </AppProviders>
   );
+}
 
-  useEffect(() => {
-    checkExistingData();
-  }, []);
+// ---------------------
+// APP CONTENT
+// ---------------------
 
-  useEffect(() => {
-    if (response?.type === 'success') {
-      exchangeCodeForToken(response.params.code);
+function AppContent() {
+  // Auth context
+  const { user, accessToken, isLoading, login, logout } = useAuth();
+  
+  // Consent context
+  const { hasConsented, acceptConsents, consents, toggleConsent, resetConsentState } = useConsent();
+  
+  // User context
+  const { 
+    customerType, 
+    selectCustomerType,
+    activeProfile,
+    availableProfiles,
+    isProfileSwitcherVisible,
+    openProfileSwitcher,
+    closeProfileSwitcher,
+    switchProfile,
+    initializeDefaultProfile,
+    resetUserState,
+  } = useUser();
+
+  // Navigation state
+  const [activeTab, setActiveTab] = React.useState('home');
+
+  // Initialize default profile when user logs in
+  React.useEffect(() => {
+    if (user && customerType && !activeProfile) {
+      initializeDefaultProfile(user.sub, customerType);
     }
-  }, [response]);
+  }, [user, customerType, activeProfile, initializeDefaultProfile]);
 
-  const checkExistingData = async () => {
-    try {
-      const storedConsent = await AsyncStorage.getItem('userConsent');
-      if (storedConsent) {
-        setConsents(JSON.parse(storedConsent));
-        setHasConsented(true);
-      }
-      // Note: We don't restore customerType here because user should choose each session
-    } catch (error) {
-      console.log('No existing data found');
-    }
-  };
-
-  const exchangeCodeForToken = async (code) => {
-    setLoading(true);
-    try {
-      const tokenResponse = await AuthSession.exchangeCodeAsync(
-        {
-          clientId: AUTH0_CONFIG.clientId,
-          code,
-          redirectUri,
-          extraParams: { code_verifier: request?.codeVerifier },
-        },
-        discovery
-      );
-
-      setAccessToken(tokenResponse.accessToken);
-
-      const userResponse = await fetch(`https://${AUTH0_CONFIG.domain}/userinfo`, {
-        headers: { Authorization: `Bearer ${tokenResponse.accessToken}` },
-      });
-      const userData = await userResponse.json();
-      setUser(userData);
-      
-      // Set default active profile based on customer type
-      if (customerType) {
-        const profiles = getAvailableProfiles(userData.sub, customerType);
-        setActiveProfile(profiles[0]);
-      }
-    } catch (error) {
-      console.error('Login failed:', error);
-    }
-    setLoading(false);
-  };
-
-  const handleLogin = () => promptAsync();
+  // ---------------------
+  // HANDLERS
+  // ---------------------
 
   const handleLogout = async () => {
-    setUser(null);
-    setAccessToken(null);
+    logout();
+    resetConsentState();
+    resetUserState();
     setActiveTab('home');
-    setHasConsented(false);
-    setConsents(null);
-    setCustomerType(null);
-    setActiveProfile(null);
-    try {
-      await AsyncStorage.removeItem('userConsent');
-    } catch (error) {
-      console.log('Error clearing data');
-    }
-  };
-
-  const handleConsent = async (userConsents) => {
-    try {
-      await AsyncStorage.setItem('userConsent', JSON.stringify(userConsents));
-      setConsents(userConsents);
-      setHasConsented(true);
-    } catch (error) {
-      console.log('Error saving consent');
-      setHasConsented(true);
-    }
   };
 
   const handleDeleteAccount = async () => {
+    // In production: call backend to delete data
     await handleLogout();
   };
 
-  const handleConsentChange = async (key) => {
-    const updatedConsents = {
-      ...consents,
-      [key]: !consents[key],
-    };
-    try {
-      await AsyncStorage.setItem('userConsent', JSON.stringify(updatedConsents));
-      setConsents(updatedConsents);
-    } catch (error) {
-      console.log('Error updating consent');
-    }
-  };
-
-  const handleCustomerTypeSelect = (type) => {
-    setCustomerType(type);
-  };
-
-  const handleProfileSelect = (profile) => {
-    setActiveProfile(profile);
-    setShowProfileSwitcher(false);
-  };
-
-  const availableProfiles = user && customerType 
-    ? getAvailableProfiles(user.sub, customerType) 
-    : [];
+  // ---------------------
+  // RENDER LOGIC
+  // ---------------------
 
   // Not logged in - show login with customer type selection
   if (!user) {
     return (
-      <LoginScreen 
-        onLogin={handleLogin} 
-        loading={loading}
+      <LoginScreen
+        onLogin={login}
+        loading={isLoading}
         selectedCustomerType={customerType}
-        onSelectCustomerType={handleCustomerTypeSelect}
+        onSelectCustomerType={selectCustomerType}
       />
     );
   }
 
-  // Logged in but hasn't consented
+  // Logged in but not consented
   if (!hasConsented) {
-    return <ConsentScreen user={user} onAccept={handleConsent} />;
+    return <ConsentScreen user={user} onAccept={acceptConsents} />;
   }
 
   // Fully logged in and consented
   return (
     <View style={styles.container}>
-      {activeTab === 'home' && (
-        <HomeScreen 
-          user={user} 
-          customerType={customerType}
-          activeProfile={activeProfile}
-          onOpenProfileSwitcher={() => setShowProfileSwitcher(true)}
-        />
-      )}
-      {activeTab === 'delegation' && <DelegationScreen user={user} />}
-      {activeTab === 'api' && <ApiTestScreen accessToken={accessToken} />}
-      {activeTab === 'security' && <SecurityInfoScreen />}
-      {activeTab === 'profile' && (
-        <ProfileScreen 
-          user={user} 
-          consents={consents}
-          customerType={customerType}
-          onLogout={handleLogout} 
-          onDeleteAccount={handleDeleteAccount}
-          onConsentChange={handleConsentChange}
-        />
-      )}
+      <ScreenContent
+        activeTab={activeTab}
+        user={user}
+        accessToken={accessToken}
+        customerType={customerType}
+        activeProfile={activeProfile}
+        consents={consents}
+        onOpenProfileSwitcher={openProfileSwitcher}
+        onLogout={handleLogout}
+        onDeleteAccount={handleDeleteAccount}
+        onConsentChange={toggleConsent}
+      />
+
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
-      
+
       <ProfileSwitcher
-        visible={showProfileSwitcher}
+        visible={isProfileSwitcherVisible}
         profiles={availableProfiles}
         activeProfileId={activeProfile?.id}
-        onSelectProfile={handleProfileSelect}
-        onClose={() => setShowProfileSwitcher(false)}
+        onSelectProfile={switchProfile}
+        onClose={closeProfileSwitcher}
       />
     </View>
   );
 }
+
+// ---------------------
+// SCREEN CONTENT
+// ---------------------
+
+/**
+ * Renders the correct screen based on active tab
+ * Separated for better readability
+ */
+function ScreenContent({
+  activeTab,
+  user,
+  accessToken,
+  customerType,
+  activeProfile,
+  consents,
+  onOpenProfileSwitcher,
+  onLogout,
+  onDeleteAccount,
+  onConsentChange,
+}) {
+  switch (activeTab) {
+    case 'home':
+      return (
+        <HomeScreen
+          user={user}
+          customerType={customerType}
+          activeProfile={activeProfile}
+          onOpenProfileSwitcher={onOpenProfileSwitcher}
+        />
+      );
+
+    case 'delegation':
+      return <DelegationScreen user={user} />;
+
+    case 'api':
+      return <ApiTestScreen accessToken={accessToken} />;
+
+    case 'security':
+      return <SecurityInfoScreen />;
+
+    case 'profile':
+      return (
+        <ProfileScreen
+          user={user}
+          consents={consents}
+          customerType={customerType}
+          onLogout={onLogout}
+          onDeleteAccount={onDeleteAccount}
+          onConsentChange={onConsentChange}
+        />
+      );
+
+    default:
+      return null;
+  }
+}
+
+// ---------------------
+// STYLES
+// ---------------------
 
 const styles = StyleSheet.create({
   container: {

@@ -1,4 +1,9 @@
-// src/services/index.js
+// frontend/src/services/index.js
+// Barrel export for all services
 
-export { apiService } from './api';
-export { generateUserInsurances, getFirstName, getUserDisplayInfo } from './userData';
+export { default as api } from './api';
+export * from './profile';
+export * from './insurance';
+export * from './delegation';
+export * from './business';
+export { getAvailableProfiles } from './userData';

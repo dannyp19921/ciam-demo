@@ -1,8 +1,19 @@
 # CIAM Demo
 
-A Customer Identity and Access Management (CIAM) demonstration project showcasing secure authentication and authorization using modern technologies.
+A comprehensive Customer Identity and Access Management (CIAM) demonstration project built for the IAM Developer position at Gjensidige. This project showcases secure authentication, authorization, and modern CIAM patterns using enterprise-grade technologies.
+
+## Project Purpose
+
+This demo was built to demonstrate practical understanding of CIAM concepts relevant to the insurance industry, including:
+
+- Customer authentication with MFA
+- Delegated access (fullmakt) for family members
+- Role-based access control (RBAC) for business customers
+- Step-up authentication for sensitive operations
+- GDPR compliance features
 
 ## Architecture
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                         CIAM Demo                               │
@@ -14,246 +25,228 @@ A Customer Identity and Access Management (CIAM) demonstration project showcasin
 │   └──────┬──────┘        └──────┬──────┘                       │
 │          │                      │                               │
 │          └──────────┬───────────┘                               │
+│                     │                                           │
+│          ┌──────────▼──────────┐                               │
+│          │  Customer Type      │                               │
+│          │  [Privat] [Bedrift] │                               │
+│          └──────────┬──────────┘                               │
 │                     ▼                                           │
 │          ┌─────────────────────┐                               │
 │          │       Auth0         │                               │
-│          │  (Identity Provider)│                               │
+│          │  + MFA (TOTP)       │                               │
 │          └──────────┬──────────┘                               │
 │                     ▼                                           │
 │          ┌─────────────────────┐                               │
 │          │  Azure App Service  │                               │
 │          │  (Spring Boot API)  │                               │
+│          │  JWT Validation     │                               │
 │          └─────────────────────┘                               │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-## Technologies
-
-### Backend
-- **Kotlin** - Modern JVM language
-- **Spring Boot 3.4** - Application framework
-- **Spring Security** - Security framework with OAuth2 Resource Server
-- **Java 21** - Runtime environment
-
-### Frontend
-- **React Native** - Cross-platform mobile framework
-- **Expo** - React Native toolchain
-- **JavaScript** - Programming language
-
-### Authentication & Authorization
-- **Auth0** - Identity-as-a-Service platform
-- **OAuth 2.0** - Authorization framework
-- **OpenID Connect** - Authentication layer
-- **JWT** - JSON Web Tokens for secure data transmission
-
-### Cloud & DevOps
-- **Azure App Service** - Cloud hosting platform
-- **GitHub Actions** - CI/CD pipeline
-- **Docker** - Containerization
-- **Kubernetes** - Container orchestration (manifests included)
-- **HTTPS** - Secure communication
-
 ## Features Demonstrated
+
+### Authentication and Security
+
+| Feature | Description | Status |
+|---------|-------------|--------|
+| OAuth 2.0 + PKCE | Secure authorization flow | Implemented |
+| OpenID Connect | Identity layer on OAuth 2.0 | Implemented |
+| MFA (TOTP) | Google Authenticator integration | Implemented |
+| JWT Validation | Backend token verification | Implemented |
+| Step-up Authentication | Extra verification for sensitive actions | Demo |
+
+### Customer Types
+
+The application supports two customer types, mirroring Gjensidige's actual customer segmentation:
+
+| Type | Features |
+|------|----------|
+| Private Customer (Privat) | Personal insurances, family delegations |
+| Business Customer (Bedrift) | Business insurances, RBAC roles |
+
+### Delegated Access (Fullmakt)
 
 | Feature | Description |
 |---------|-------------|
-| **User Registration** | Self-service signup via Auth0 |
-| **User Login** | OAuth 2.0 Authorization Code flow with PKCE |
-| **JWT Validation** | Backend validates tokens from Auth0 |
-| **Protected Endpoints** | API endpoints requiring authentication |
-| **Public Endpoints** | Open API endpoints for unauthenticated users |
-| **Cross-Platform** | Same backend serves web and mobile clients |
-| **Cloud Deployment** | Production-ready Azure hosting |
-| **Containerization** | Docker support for consistent environments |
-| **Orchestration Ready** | Kubernetes manifests for scalable deployment |
+| Give delegation | Grant access to family members or accountants |
+| Receive delegation | View and manage others' insurances |
+| Profile switching | Switch between delegated profiles |
+| Revoke access | Remove delegations at any time |
+
+### Role-Based Access Control (RBAC) for Business Customers
+
+| Role | Property Insurance | Personal Insurance | Pension |
+|------|-------------------|-------------------|---------|
+| CEO (Daglig leder) | Yes | Yes | Yes |
+| HR Manager | No | Yes | Yes |
+| Accountant (Regnskapsfører) | Yes | No | No |
+| CFO (Økonomisjef) | Yes | No | Yes |
+
+### GDPR Compliance
+
+| Feature | Description |
+|---------|-------------|
+| Consent Management | Granular consent for cookies, analytics, marketing |
+| Right to Access | Download all personal data (Article 15) |
+| Right to Erasure | Delete account and data (Article 17) |
+| Consent Modification | Update preferences at any time |
+
+## Technologies
+
+### Backend
+- Kotlin
+- Spring Boot 3.4
+- Spring Security OAuth2 Resource Server
+- Java 21
+
+### Frontend
+- React Native / Expo
+- AsyncStorage for consent persistence
+- Modular architecture (screens, components, services)
+
+### Authentication
+- Auth0 (Identity-as-a-Service)
+- OAuth 2.0 with PKCE
+- MFA/TOTP (Time-based One-Time Password)
+
+### Cloud and DevOps
+- Azure App Service
+- GitHub Actions (CI/CD)
+- Docker
+- Kubernetes (manifests included)
 
 ## Project Structure
+
 ```
 ciam-demo/
-├── backend-kotlin/              # Spring Boot API (active)
-│   ├── src/main/kotlin/
-│   │   └── no/gjensidige/ciam/
-│   │       ├── CiamDemoApplication.kt
-│   │       ├── ApiController.kt
-│   │       └── SecurityConfig.kt
-│   ├── build.gradle.kts
-│   └── Dockerfile
-├── backend-java/                # Java implementation (placeholder)
-│   └── README.md
-├── backend-python/              # Python implementation (placeholder)
-│   ├── README.md
-│   └── requirements.txt
-├── frontend/                    # React Native / Expo app
+├── backend-kotlin/
+│   ├── src/main/kotlin/no/gjensidige/ciam/
+│   │   ├── CiamDemoApplication.kt
+│   │   ├── ApiController.kt
+│   │   └── SecurityConfig.kt
+│   ├── Dockerfile
+│   └── build.gradle.kts
+│
+├── frontend/
 │   ├── App.js
-│   ├── app.json
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── BottomNav.js
+│   │   │   ├── Button.js
+│   │   │   ├── Card.js
+│   │   │   ├── InsuranceCard.js
+│   │   │   ├── ProfileSwitcher.js
+│   │   │   └── StepUpModal.js
+│   │   │
+│   │   ├── screens/
+│   │   │   ├── LoginScreen.js
+│   │   │   ├── ConsentScreen.js
+│   │   │   ├── HomeScreen.js
+│   │   │   ├── DelegationScreen.js
+│   │   │   ├── ApiTestScreen.js
+│   │   │   ├── ProfileScreen.js
+│   │   │   └── SecurityInfoScreen.js
+│   │   │
+│   │   ├── services/
+│   │   │   ├── api.js
+│   │   │   └── userData.js
+│   │   │
+│   │   ├── constants/
+│   │   │   └── config.js
+│   │   │
+│   │   └── styles/
+│   │       └── theme.js
+│   │
 │   └── package.json
-├── kubernetes/                  # Kubernetes manifests
+│
+├── kubernetes/
 │   ├── deployment.yaml
 │   ├── service.yaml
 │   └── secrets-template.yaml
-├── .github/workflows/           # CI/CD
-│   └── main_ciam-demo-dap.yml
-└── README.md
+│
+└── .github/workflows/
+    └── main_ciam-demo-dap.yml
 ```
+
+## Application Flow
+
+1. **Login Screen**: User selects customer type (Privat/Bedrift) and initiates login
+2. **Auth0 Authentication**: Email/password followed by MFA verification
+3. **Consent Screen**: GDPR-compliant consent collection
+4. **Main Application**: Personalized dashboard based on customer type and role
+
+## Security Concepts Demonstrated
+
+| Concept | Implementation |
+|---------|----------------|
+| OAuth 2.0 + PKCE | Auth0 integration with secure code exchange |
+| JWT Tokens | Backend validation with signature verification |
+| MFA/TOTP | Google Authenticator required for every login |
+| Step-up Authentication | Additional verification for sensitive operations |
+| RBAC | Role-based permissions for business customers |
+| Delegated Access | Acting on behalf of family members |
+| SSO | Explained in security education screen |
+| BankID | Explained as Norwegian eID solution |
+| GDPR | Consent management, data export, account deletion |
+
+## Gjensidige-Relevant Features
+
+This demo mirrors real CIAM patterns used by Gjensidige:
+
+| Gjensidige Feature | Demo Implementation |
+|--------------------|---------------------|
+| Privat / Bedrift login separation | Customer type selection before login |
+| BankID for step-up | Simulated with OTP verification |
+| Fullmakt for family | Delegation management screen |
+| Role-based business access | RBAC with 4 predefined roles |
+| Profile switching in app | ProfileSwitcher component |
 
 ## API Endpoints
 
-| Endpoint | Method | Auth Required | Description |
-|----------|--------|---------------|-------------|
-| `/public` | GET | No | Returns public information |
-| `/protected` | GET | Yes (JWT) | Returns protected data + token info |
+| Endpoint | Authentication | Description |
+|----------|----------------|-------------|
+| GET /public | None | Returns public data |
+| GET /protected | JWT required | Returns user info from token claims |
+
+**Live API:** https://ciam-demo-dap-cdbcc5debgfgbaf5.westeurope-01.azurewebsites.net
 
 ## Getting Started
 
 ### Prerequisites
-
-- Java 21
 - Node.js 18+
-- Docker (optional)
+- Java 21 (for backend development)
+- Expo Go app on mobile device
 - Auth0 account
-- Azure account (optional, for cloud deployment)
 
-### Local Development
+### Run Frontend
+```bash
+cd frontend
+npm install
+npx expo start --tunnel
+```
 
-#### Backend
+### Run Backend Locally
 ```bash
 cd backend-kotlin
 ./gradlew bootRun
 ```
 
-Backend runs at `http://localhost:8080`
+## Production Considerations
 
-#### Frontend
-```bash
-cd frontend
-npm install
-npx expo start
-```
+For a production implementation, the following enhancements would be recommended:
 
-Press `w` for web or scan QR code with Expo Go app.
-
-### Docker
-
-#### Build the image
-```bash
-cd backend-kotlin
-docker build -t ciam-demo-backend .
-```
-
-#### Run the container
-```bash
-docker run -p 8080:8080 \
-  -e SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=https://YOUR-AUTH0-DOMAIN/ \
-  ciam-demo-backend
-```
-
-### Kubernetes
-
-#### Prerequisites
-
-- Kubernetes cluster (minikube, AKS, EKS, GKE, etc.)
-- kubectl configured
-
-#### Deploy
-```bash
-# Create secrets (edit with your values first)
-kubectl apply -f kubernetes/secrets-template.yaml
-
-# Deploy application
-kubectl apply -f kubernetes/deployment.yaml
-kubectl apply -f kubernetes/service.yaml
-```
-
-#### Verify deployment
-```bash
-kubectl get pods
-kubectl get services
-```
-
-## Environment Configuration
-
-### Auth0 Setup
-
-1. Create an API in Auth0 Dashboard
-2. Create a Single Page Application
-3. Configure callback URLs for your environment
-
-### Backend Configuration
-
-Update `application.properties`:
-```properties
-spring.security.oauth2.resourceserver.jwt.issuer-uri=https://YOUR-AUTH0-DOMAIN/
-```
-
-### Frontend Configuration
-
-Update `App.js`:
-```javascript
-const AUTH0_DOMAIN = 'your-auth0-domain';
-const AUTH0_CLIENT_ID = 'your-client-id';
-const API_URL = 'https://your-azure-url';
-```
-
-## Production Deployment
-
-The backend is deployed to Azure App Service via GitHub Actions. Every push to `main` triggers automatic deployment.
-
-**Live URL:** `https://ciam-demo-dap-cdbcc5debgfgbaf5.westeurope-01.azurewebsites.net`
-
-## CIAM Concepts Demonstrated
-
-### OAuth 2.0 Flow (Authorization Code with PKCE)
-```
-1. User clicks "Login"
-2. App redirects to Auth0
-3. User authenticates
-4. Auth0 redirects back with authorization code
-5. App exchanges code for tokens (with PKCE verification)
-6. App uses access token for API calls
-```
-
-### JWT Token Validation
-
-The backend validates every request to protected endpoints:
-- Verifies token signature
-- Checks token expiration
-- Validates issuer (Auth0)
-- Extracts user information from claims
-
-### Security by Design
-
-- HTTPS everywhere (Azure provides SSL)
-- CORS configuration for allowed origins
-- No secrets in code (environment variables)
-- Token-based authentication (stateless)
-- Multi-stage Docker build (minimal attack surface)
-
-## IAM Platform Portability
-
-This project uses Auth0, but the concepts transfer directly to other IAM platforms:
-
-| Platform | Difference |
-|----------|------------|
-| **Okta** | Different dashboard, same OAuth 2.0/OIDC protocols |
-| **Azure AD** | Microsoft ecosystem, identical token flow |
-| **Ping Identity** | Enterprise-focused, same standards |
-| **AWS Cognito** | AWS ecosystem, same JWT validation |
-
-Switching platforms requires only configuration changes – the architecture remains the same.
-
-## Future Enhancements
-
-- [ ] Add SAML 2.0 support for legacy system integration
-- [ ] Implement refresh token rotation
-- [ ] Add role-based access control (RBAC)
-- [ ] Deploy Kubernetes to Azure AKS
-- [ ] Add monitoring with Azure Application Insights
-- [ ] Implement rate limiting
+- BankID integration for Norwegian users
+- Backend database for delegations and consents
+- Audit logging of all user actions
+- Rate limiting and DDoS protection
+- Refresh token rotation
 
 ## Author
 
-Daniel Parker - Bachelor in Computer Science, University of Oslo
+Daniel Parker  
+Bachelor in Computer Science, University of Oslo
 
 ## License
 

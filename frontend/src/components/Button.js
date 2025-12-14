@@ -1,4 +1,4 @@
-// src/components/Button.js
+// frontend/src/components/Button.js
 
 import { Pressable, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES } from '../styles/theme';

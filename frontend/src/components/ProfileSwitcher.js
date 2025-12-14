@@ -1,15 +1,20 @@
-// src/components/ProfileSwitcher.js
+// frontend/src/components/ProfileSwitcher.js
+// Modal for switching between user profiles and delegations
 
-import { useState } from 'react';
 import { View, Text, StyleSheet, Modal, Pressable, ScrollView } from 'react-native';
+import { InfoBox } from './InfoBox';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../styles/theme';
 
-export function ProfileSwitcher({ 
-  visible, 
-  profiles, 
-  activeProfileId, 
-  onSelectProfile, 
-  onClose 
+/**
+ * Profile switcher modal
+ * Allows switching between own profile and delegated profiles
+ */
+export function ProfileSwitcher({
+  visible,
+  profiles,
+  activeProfileId,
+  onSelectProfile,
+  onClose,
 }) {
   return (
     <Modal
@@ -20,58 +25,74 @@ export function ProfileSwitcher({
     >
       <View style={styles.overlay}>
         <View style={styles.content}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Bytt profil</Text>
-            <Pressable onPress={onClose} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>✕</Text>
-            </Pressable>
-          </View>
-          
+          <Header onClose={onClose} />
+
           <Text style={styles.description}>
             Velg hvilken profil du vil se og administrere forsikringer for.
           </Text>
 
           <ScrollView style={styles.profileList}>
             {profiles.map((profile) => (
-              <Pressable
+              <ProfileItem
                 key={profile.id}
-                style={[
-                  styles.profileItem,
-                  activeProfileId === profile.id && styles.profileItemActive
-                ]}
-                onPress={() => onSelectProfile(profile)}
-              >
-                <Text style={styles.profileIcon}>{profile.icon}</Text>
-                <View style={styles.profileInfo}>
-                  <Text style={styles.profileName}>{profile.name}</Text>
-                  <Text style={styles.profileSubtitle}>{profile.subtitle}</Text>
-                </View>
-                {activeProfileId === profile.id && (
-                  <View style={styles.activeBadge}>
-                    <Text style={styles.activeBadgeText}>Aktiv</Text>
-                  </View>
-                )}
-              </Pressable>
+                profile={profile}
+                isActive={activeProfileId === profile.id}
+                onSelect={() => onSelectProfile(profile)}
+              />
             ))}
           </ScrollView>
 
-          <View style={styles.infoBox}>
-            <Text style={styles.infoTitle}>💡 Om profilbytte</Text>
-            <Text style={styles.infoText}>
-              Når du bytter profil, ser du forsikringene til den valgte 
-              personen eller bedriften. Du handler på deres vegne.
-            </Text>
-          </View>
+          <InfoBox title="💡 Om profilbytte">
+            Når du bytter profil, ser du forsikringene til den valgte
+            personen eller bedriften. Du handler på deres vegne.
+          </InfoBox>
         </View>
       </View>
     </Modal>
   );
 }
 
+/**
+ * Modal header with close button
+ */
+function Header({ onClose }) {
+  return (
+    <View style={styles.header}>
+      <Text style={styles.title}>Bytt profil</Text>
+      <Pressable onPress={onClose} style={styles.closeButton}>
+        <Text style={styles.closeButtonText}>✕</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+/**
+ * Individual profile item
+ */
+function ProfileItem({ profile, isActive, onSelect }) {
+  return (
+    <Pressable
+      style={[styles.profileItem, isActive && styles.profileItemActive]}
+      onPress={onSelect}
+    >
+      <Text style={styles.profileIcon}>{profile.icon}</Text>
+      <View style={styles.profileInfo}>
+        <Text style={styles.profileName}>{profile.name}</Text>
+        <Text style={styles.profileSubtitle}>{profile.subtitle}</Text>
+      </View>
+      {isActive && (
+        <View style={styles.activeBadge}>
+          <Text style={styles.activeBadgeText}>Aktiv</Text>
+        </View>
+      )}
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: COLORS.overlay,
     justifyContent: 'flex-end',
   },
   content: {
@@ -153,22 +174,5 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.xs,
     color: COLORS.white,
     fontWeight: '600',
-  },
-  infoBox: {
-    backgroundColor: COLORS.gray50,
-    borderRadius: BORDER_RADIUS.md,
-    padding: SPACING.md,
-    marginTop: SPACING.lg,
-  },
-  infoTitle: {
-    fontSize: FONT_SIZES.sm,
-    fontWeight: '600',
-    color: COLORS.gray700,
-    marginBottom: SPACING.xs,
-  },
-  infoText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.gray500,
-    lineHeight: 20,
   },
 });

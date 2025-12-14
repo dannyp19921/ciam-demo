@@ -1,10 +1,10 @@
 // frontend/App.js
 // CIAM Demo - Main Application
 // Responsibility: App orchestration, provider setup, and navigation
-// All business logic has been moved to contexts and hooks
 
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 // Contexts
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
@@ -32,25 +32,21 @@ import { COLORS } from './src/styles/theme';
 // APP PROVIDERS
 // ---------------------
 
-/**
- * Wrapper that sets up all required providers
- */
 function AppProviders({ children }) {
   return (
-    <AuthProvider>
-      <ConsentProvider>
-        <AppWithAuth>{children}</AppWithAuth>
-      </ConsentProvider>
-    </AuthProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <ConsentProvider>
+          <AppWithAuth>{children}</AppWithAuth>
+        </ConsentProvider>
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }
 
-/**
- * Intermediate layer that gives UserProvider access to auth state
- */
 function AppWithAuth({ children }) {
   const { user } = useAuth();
-  
+
   return (
     <UserProvider userId={user?.sub}>
       {children}
@@ -75,15 +71,10 @@ export default function App() {
 // ---------------------
 
 function AppContent() {
-  // Auth context
-  const { user, accessToken, isLoading, login, logout } = useAuth();
-  
-  // Consent context
+  const { user, accessToken, isLoading, login, logout, isReady } = useAuth();
   const { hasConsented, acceptConsents, consents, toggleConsent, resetConsentState } = useConsent();
-  
-  // User context
-  const { 
-    customerType, 
+  const {
+    customerType,
     selectCustomerType,
     activeProfile,
     availableProfiles,
@@ -95,19 +86,13 @@ function AppContent() {
     resetUserState,
   } = useUser();
 
-  // Navigation state
   const [activeTab, setActiveTab] = React.useState('home');
 
-  // Initialize default profile when user logs in
   React.useEffect(() => {
     if (user && customerType && !activeProfile) {
       initializeDefaultProfile(user.sub, customerType);
     }
   }, [user, customerType, activeProfile, initializeDefaultProfile]);
-
-  // ---------------------
-  // HANDLERS
-  // ---------------------
 
   const handleLogout = async () => {
     logout();
@@ -117,20 +102,15 @@ function AppContent() {
   };
 
   const handleDeleteAccount = async () => {
-    // In production: call backend to delete data
     await handleLogout();
   };
 
-  // ---------------------
-  // RENDER LOGIC
-  // ---------------------
-
-  // Not logged in - show login with customer type selection
+  // Not logged in
   if (!user) {
     return (
       <LoginScreen
         onLogin={login}
-        loading={isLoading}
+        loading={isLoading || !isReady}
         selectedCustomerType={customerType}
         onSelectCustomerType={selectCustomerType}
       />
@@ -175,10 +155,6 @@ function AppContent() {
 // SCREEN CONTENT
 // ---------------------
 
-/**
- * Renders the correct screen based on active tab
- * Separated for better readability
- */
 function ScreenContent({
   activeTab,
   user,
@@ -201,16 +177,12 @@ function ScreenContent({
           onOpenProfileSwitcher={onOpenProfileSwitcher}
         />
       );
-
     case 'delegation':
       return <DelegationScreen user={user} />;
-
     case 'api':
       return <ApiTestScreen accessToken={accessToken} />;
-
     case 'security':
       return <SecurityInfoScreen />;
-
     case 'profile':
       return (
         <ProfileScreen
@@ -222,7 +194,6 @@ function ScreenContent({
           onConsentChange={onConsentChange}
         />
       );
-
     default:
       return null;
   }

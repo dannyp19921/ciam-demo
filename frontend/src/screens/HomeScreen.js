@@ -1,211 +1,231 @@
-// src/screens/HomeScreen.js
+// frontend/src/screens/HomeScreen.js
+// Main dashboard screen showing user insurances and profile info
 
-import { View, Text, StyleSheet, ScrollView, Image, Pressable } from 'react-native';
-import { Card, InsuranceCard } from '../components';
-import { 
-  generateUserInsurances, 
+import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
+import { Card, InsuranceCard, DetailRow, PermissionBadge, ScreenContainer } from '../components';
+import {
+  generateUserInsurances,
   generateBusinessInsurances,
-  getFirstName, 
+  getFirstName,
   getUserDisplayInfo,
   generateCompanyProfile,
-  hasPermission
+  hasPermission,
 } from '../services/userData';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../styles/theme';
 
+/**
+ * Home screen component
+ */
 export function HomeScreen({ user, customerType, activeProfile, onOpenProfileSwitcher }) {
   const isBusinessCustomer = customerType === 'business';
   const isActingAsDelegate = activeProfile?.type === 'delegation';
   const isActingAsBusiness = activeProfile?.type === 'business';
-  
-  // Get appropriate data based on customer type and active profile
+
   const userInfo = getUserDisplayInfo(user);
   const companyProfile = isBusinessCustomer ? generateCompanyProfile(user?.sub) : null;
-  
-  const insurances = isBusinessCustomer 
-    ? generateBusinessInsurances(activeProfile?.id || user?.sub)
-    : generateUserInsurances(activeProfile?.type === 'delegation' ? activeProfile.id : user?.sub);
-  
-  const displayName = isBusinessCustomer 
-    ? companyProfile?.companyName 
-    : (isActingAsDelegate ? activeProfile.name : getFirstName(user));
 
-  // Filter insurances based on role permissions (for business)
-  const filteredInsurances = isBusinessCustomer && activeProfile?.role
-    ? insurances.filter(ins => hasPermission(activeProfile.role, ins.category))
-    : insurances;
+  const insurances = isBusinessCustomer
+    ? generateBusinessInsurances(activeProfile?.id || user?.sub)
+    : generateUserInsurances(
+        activeProfile?.type === 'delegation' ? activeProfile.id : user?.sub
+      );
+
+  const displayName = isBusinessCustomer
+    ? companyProfile?.companyName
+    : isActingAsDelegate
+    ? activeProfile.name
+    : getFirstName(user);
+
+  const filteredInsurances =
+    isBusinessCustomer && activeProfile?.role
+      ? insurances.filter((ins) => hasPermission(activeProfile.role, ins.category))
+      : insurances;
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* Delegate/Acting Banner */}
+    <ScreenContainer>
       {(isActingAsDelegate || isActingAsBusiness) && (
-        <Pressable style={styles.actingBanner} onPress={onOpenProfileSwitcher}>
-          <Text style={styles.actingBannerIcon}>
-            {isActingAsBusiness ? '🏢' : '👵'}
-          </Text>
-          <View style={styles.actingBannerContent}>
-            <Text style={styles.actingBannerTitle}>
-              Handler på vegne av {activeProfile.name}
-            </Text>
-            <Text style={styles.actingBannerSubtitle}>
-              {activeProfile.subtitle} • Trykk for å bytte
-            </Text>
-          </View>
-          <Text style={styles.actingBannerArrow}>→</Text>
-        </Pressable>
+        <ActingBanner
+          profile={activeProfile}
+          isBusiness={isActingAsBusiness}
+          onPress={onOpenProfileSwitcher}
+        />
       )}
 
-      {/* Welcome Card */}
-      <Pressable style={styles.welcomeCard} onPress={onOpenProfileSwitcher}>
-        <View style={styles.welcomeHeader}>
-          <View style={styles.welcomeText}>
-            <Text style={styles.greeting}>
-              {isBusinessCustomer ? 'Velkommen,' : 'Velkommen tilbake,'}
-            </Text>
-            <Text style={styles.userName}>{displayName}!</Text>
-            {isBusinessCustomer && companyProfile?.role && (
-              <View style={styles.roleBadge}>
-                <Text style={styles.roleBadgeText}>
-                  {companyProfile.role.name}
-                </Text>
-              </View>
-            )}
-          </View>
-          <View style={styles.avatarContainer}>
-            {userInfo?.picture ? (
-              <Image source={{ uri: userInfo.picture }} style={styles.avatar} />
-            ) : (
-              <View style={[styles.avatarPlaceholder, isBusinessCustomer && styles.avatarBusiness]}>
-                <Text style={styles.avatarText}>
-                  {isBusinessCustomer ? '🏢' : displayName?.[0] || '?'}
-                </Text>
-              </View>
-            )}
-            <View style={styles.switchIndicator}>
-              <Text style={styles.switchIndicatorText}>⇄</Text>
-            </View>
-          </View>
-        </View>
-        
-        <View style={styles.statsRow}>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{filteredInsurances.length}</Text>
-            <Text style={styles.statLabel}>
-              {isBusinessCustomer ? 'Bedriftsforsikringer' : 'Aktive forsikringer'}
-            </Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>0</Text>
-            <Text style={styles.statLabel}>Åpne saker</Text>
-          </View>
-        </View>
-      </Pressable>
+      <WelcomeCard
+        displayName={displayName}
+        userInfo={userInfo}
+        companyProfile={companyProfile}
+        isBusinessCustomer={isBusinessCustomer}
+        insuranceCount={filteredInsurances.length}
+        onPress={onOpenProfileSwitcher}
+      />
 
-      {/* Role Permissions (for business) */}
       {isBusinessCustomer && companyProfile?.role && (
-        <Card title="🔐 Din tilgang">
-          <Text style={styles.roleDescription}>
-            {companyProfile.role.description}
-          </Text>
-          <View style={styles.permissionList}>
-            <PermissionBadge 
-              label="Tingforsikringer" 
-              hasAccess={hasPermission(companyProfile.role, 'ting')} 
-            />
-            <PermissionBadge 
-              label="Personforsikringer" 
-              hasAccess={hasPermission(companyProfile.role, 'person')} 
-            />
-            <PermissionBadge 
-              label="Pensjon" 
-              hasAccess={hasPermission(companyProfile.role, 'pensjon')} 
-            />
-          </View>
-          <Text style={styles.rbacNote}>
-            💡 Dette er RBAC (Role-Based Access Control) i praksis
-          </Text>
-        </Card>
+        <RolePermissionsCard role={companyProfile.role} />
       )}
 
-      {/* Insurances */}
       <Text style={styles.sectionTitle}>
         {isBusinessCustomer ? '📋 Bedriftsforsikringer' : '📋 Mine forsikringer'}
       </Text>
-      
+
       {filteredInsurances.length > 0 ? (
         filteredInsurances.map((insurance) => (
           <InsuranceCard key={insurance.id} insurance={insurance} />
         ))
       ) : (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>
-            {isBusinessCustomer 
-              ? 'Du har ikke tilgang til noen forsikringer med din rolle'
-              : 'Ingen forsikringer funnet'
-            }
-          </Text>
-        </View>
+        <EmptyInsurances isBusinessCustomer={isBusinessCustomer} />
       )}
 
-      {/* Company Info (for business) */}
       {isBusinessCustomer && companyProfile && (
-        <Card title="🏢 Bedriftsinformasjon">
-          <DetailRow label="Bedriftsnavn" value={companyProfile.companyName} />
-          <DetailRow label="Org.nummer" value={companyProfile.orgNumber} />
-          <DetailRow label="Antall ansatte" value={String(companyProfile.employeeCount)} />
-          <DetailRow label="Kunde siden" value={companyProfile.customerSince} />
-        </Card>
+        <CompanyInfoCard companyProfile={companyProfile} />
       )}
 
-      {/* Help Card */}
-      <View style={styles.helpCard}>
-        <Text style={styles.helpTitle}>Trenger du hjelp?</Text>
-        <Text style={styles.helpText}>
-          {isBusinessCustomer 
-            ? 'Kontakt bedriftsavdelingen på 915 03100 eller e-post bedrift@gjensidige.no'
-            : 'Kontakt oss på telefon 915 03100 eller chat med oss i appen.'
-          }
-        </Text>
-      </View>
-    </ScrollView>
+      <HelpCard isBusinessCustomer={isBusinessCustomer} />
+    </ScreenContainer>
   );
 }
 
-function PermissionBadge({ label, hasAccess }) {
+function ActingBanner({ profile, isBusiness, onPress }) {
   return (
-    <View style={[styles.permissionBadge, hasAccess ? styles.permissionYes : styles.permissionNo]}>
-      <Text style={styles.permissionIcon}>{hasAccess ? '✓' : '✗'}</Text>
-      <Text style={[styles.permissionLabel, hasAccess ? styles.permissionLabelYes : styles.permissionLabelNo]}>
-        {label}
+    <Pressable style={styles.actingBanner} onPress={onPress}>
+      <Text style={styles.actingBannerIcon}>{isBusiness ? '🏢' : '👵'}</Text>
+      <View style={styles.actingBannerContent}>
+        <Text style={styles.actingBannerTitle}>
+          Handler på vegne av {profile.name}
+        </Text>
+        <Text style={styles.actingBannerSubtitle}>
+          {profile.subtitle} • Trykk for å bytte
+        </Text>
+      </View>
+      <Text style={styles.actingBannerArrow}>→</Text>
+    </Pressable>
+  );
+}
+
+function WelcomeCard({ displayName, userInfo, companyProfile, isBusinessCustomer, insuranceCount, onPress }) {
+  return (
+    <Pressable style={styles.welcomeCard} onPress={onPress}>
+      <View style={styles.welcomeHeader}>
+        <View style={styles.welcomeText}>
+          <Text style={styles.greeting}>
+            {isBusinessCustomer ? 'Velkommen,' : 'Velkommen tilbake,'}
+          </Text>
+          <Text style={styles.userName}>{displayName}!</Text>
+          {isBusinessCustomer && companyProfile?.role && (
+            <View style={styles.roleBadge}>
+              <Text style={styles.roleBadgeText}>{companyProfile.role.name}</Text>
+            </View>
+          )}
+        </View>
+        <Avatar
+          picture={userInfo?.picture}
+          displayName={displayName}
+          isBusinessCustomer={isBusinessCustomer}
+        />
+      </View>
+
+      <View style={styles.statsRow}>
+        <StatItem
+          value={insuranceCount}
+          label={isBusinessCustomer ? 'Bedriftsforsikringer' : 'Aktive forsikringer'}
+        />
+        <View style={styles.statDivider} />
+        <StatItem value={0} label="Åpne saker" />
+      </View>
+    </Pressable>
+  );
+}
+
+function Avatar({ picture, displayName, isBusinessCustomer }) {
+  return (
+    <View style={styles.avatarContainer}>
+      {picture ? (
+        <Image source={{ uri: picture }} style={styles.avatar} />
+      ) : (
+        <View style={[styles.avatarPlaceholder, isBusinessCustomer && styles.avatarBusiness]}>
+          <Text style={styles.avatarText}>
+            {isBusinessCustomer ? '🏢' : displayName?.[0] || '?'}
+          </Text>
+        </View>
+      )}
+      <View style={styles.switchIndicator}>
+        <Text style={styles.switchIndicatorText}>⇄</Text>
+      </View>
+    </View>
+  );
+}
+
+function StatItem({ value, label }) {
+  return (
+    <View style={styles.statItem}>
+      <Text style={styles.statNumber}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
+    </View>
+  );
+}
+
+function RolePermissionsCard({ role }) {
+  return (
+    <Card title="🔐 Din tilgang">
+      <Text style={styles.roleDescription}>{role.description}</Text>
+      <View style={styles.permissionList}>
+        <PermissionBadge label="Tingforsikringer" hasAccess={hasPermission(role, 'ting')} />
+        <PermissionBadge label="Personforsikringer" hasAccess={hasPermission(role, 'person')} />
+        <PermissionBadge label="Pensjon" hasAccess={hasPermission(role, 'pensjon')} />
+      </View>
+      <Text style={styles.rbacNote}>
+        💡 Dette er RBAC (Role-Based Access Control) i praksis
+      </Text>
+    </Card>
+  );
+}
+
+function EmptyInsurances({ isBusinessCustomer }) {
+  return (
+    <View style={styles.emptyState}>
+      <Text style={styles.emptyText}>
+        {isBusinessCustomer
+          ? 'Du har ikke tilgang til noen forsikringer med din rolle'
+          : 'Ingen forsikringer funnet'}
       </Text>
     </View>
   );
 }
 
-function DetailRow({ label, value }) {
+function CompanyInfoCard({ companyProfile }) {
   return (
-    <View style={styles.detailRow}>
-      <Text style={styles.detailLabel}>{label}</Text>
-      <Text style={styles.detailValue}>{value}</Text>
+    <Card title="🏢 Bedriftsinformasjon">
+      <DetailRow label="Bedriftsnavn" value={companyProfile.companyName} />
+      <DetailRow label="Org.nummer" value={companyProfile.orgNumber} />
+      <DetailRow label="Antall ansatte" value={String(companyProfile.employeeCount)} />
+      <DetailRow label="Kunde siden" value={companyProfile.customerSince} noBorder />
+    </Card>
+  );
+}
+
+function HelpCard({ isBusinessCustomer }) {
+  return (
+    <View style={styles.helpCard}>
+      <Text style={styles.helpTitle}>Trenger du hjelp?</Text>
+      <Text style={styles.helpText}>
+        {isBusinessCustomer
+          ? 'Kontakt bedriftsavdelingen på 915 03100 eller e-post bedrift@gjensidige.no'
+          : 'Kontakt oss på telefon 915 03100 eller chat med oss i appen.'}
+      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: SPACING.xl,
-    paddingTop: 60,
-    paddingBottom: 100,
-  },
   actingBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fef3c7',
+    backgroundColor: COLORS.warningBg,
     borderRadius: BORDER_RADIUS.lg,
     padding: SPACING.md,
     marginBottom: SPACING.lg,
     borderWidth: 1,
-    borderColor: '#fcd34d',
+    borderColor: COLORS.warning,
   },
   actingBannerIcon: {
     fontSize: 24,
@@ -343,33 +363,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: SPACING.sm,
   },
-  permissionBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-    borderRadius: BORDER_RADIUS.full,
-  },
-  permissionYes: {
-    backgroundColor: COLORS.successBg,
-  },
-  permissionNo: {
-    backgroundColor: '#fef2f2',
-  },
-  permissionIcon: {
-    marginRight: SPACING.xs,
-    fontSize: 12,
-  },
-  permissionLabel: {
-    fontSize: FONT_SIZES.xs,
-    fontWeight: '500',
-  },
-  permissionLabelYes: {
-    color: COLORS.success,
-  },
-  permissionLabelNo: {
-    color: COLORS.danger,
-  },
   rbacNote: {
     fontSize: FONT_SIZES.xs,
     color: COLORS.gray500,
@@ -393,22 +386,6 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.md,
     color: COLORS.gray500,
     textAlign: 'center',
-  },
-  detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: SPACING.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.gray100,
-  },
-  detailLabel: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.gray500,
-  },
-  detailValue: {
-    fontSize: FONT_SIZES.sm,
-    fontWeight: '500',
-    color: COLORS.gray900,
   },
   helpCard: {
     backgroundColor: COLORS.gray50,

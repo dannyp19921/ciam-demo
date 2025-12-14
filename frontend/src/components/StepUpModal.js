@@ -1,41 +1,51 @@
-// src/components/StepUpModal.js
+// frontend/src/components/StepUpModal.js
+// Modal for step-up authentication flow
+// Demonstrates additional verification for sensitive actions
 
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Modal, Pressable, TextInput } from 'react-native';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../styles/theme';
+import { useCountdown } from '../hooks/useCountdown';
 
+const VALID_DEMO_CODE = '123456';
+const CODE_LENGTH = 6;
+const COUNTDOWN_SECONDS = 30;
+
+/**
+ * Modal for step-up authentication
+ * @param {boolean} visible - Modal visibility
+ * @param {Object} action - Action requiring step-up
+ * @param {Function} onConfirm - Callback when verified
+ * @param {Function} onCancel - Callback when cancelled
+ */
 export function StepUpModal({ visible, action, onConfirm, onCancel }) {
   const [code, setCode] = useState('');
-  const [timeLeft, setTimeLeft] = useState(30);
   const [codeSent, setCodeSent] = useState(false);
+  const { secondsLeft, isExpired, restart, reset } = useCountdown(COUNTDOWN_SECONDS);
 
-  useEffect(() => {
-    if (visible && codeSent && timeLeft > 0) {
-      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [visible, codeSent, timeLeft]);
-
+  // Reset state when modal opens/closes
   useEffect(() => {
     if (visible) {
       setCode('');
-      setTimeLeft(30);
       setCodeSent(false);
+      reset();
     }
-  }, [visible]);
+  }, [visible, reset]);
 
   const handleSendCode = () => {
     setCodeSent(true);
-    setTimeLeft(30);
+    restart();
   };
 
   const handleVerify = () => {
     // In production, this would verify with backend
-    // For demo, accept "123456" as valid code
-    if (code === '123456' || code.length === 6) {
+    // For demo, accept "123456" or any 6-digit code
+    if (code === VALID_DEMO_CODE || code.length === CODE_LENGTH) {
       onConfirm();
     }
   };
+
+  const isCodeValid = code.length === CODE_LENGTH;
 
   return (
     <Modal
@@ -48,7 +58,7 @@ export function StepUpModal({ visible, action, onConfirm, onCancel }) {
         <View style={styles.content}>
           <Text style={styles.icon}>🔐</Text>
           <Text style={styles.title}>Bekreft handling</Text>
-          
+
           <View style={styles.actionBox}>
             <Text style={styles.actionIcon}>{action?.icon}</Text>
             <Text style={styles.actionName}>{action?.name}</Text>
@@ -57,41 +67,19 @@ export function StepUpModal({ visible, action, onConfirm, onCancel }) {
           <Text style={styles.description}>
             Denne handlingen krever ekstra bekreftelse for din sikkerhet.
             {'\n\n'}
-            Dette kalles <Text style={styles.bold}>Step-up Authentication</Text> – 
+            Dette kalles <Text style={styles.bold}>Step-up Authentication</Text> –
             sensitive handlinger krever sterkere autentisering enn vanlig navigering.
           </Text>
 
           {!codeSent ? (
-            <View style={styles.sendCodeSection}>
-              <Text style={styles.sendCodeText}>
-                Vi sender en engangskode til din registrerte e-post/telefon.
-              </Text>
-              <Pressable style={styles.sendCodeButton} onPress={handleSendCode}>
-                <Text style={styles.sendCodeButtonText}>Send kode</Text>
-              </Pressable>
-            </View>
+            <SendCodeSection onSendCode={handleSendCode} />
           ) : (
-            <View style={styles.verifySection}>
-              <Text style={styles.codeLabel}>Skriv inn 6-sifret kode:</Text>
-              <TextInput
-                style={styles.codeInput}
-                value={code}
-                onChangeText={setCode}
-                keyboardType="number-pad"
-                maxLength={6}
-                placeholder="000000"
-                placeholderTextColor={COLORS.gray400}
-              />
-              <Text style={styles.timer}>
-                {timeLeft > 0 
-                  ? `Koden utløper om ${timeLeft} sekunder`
-                  : 'Koden er utløpt'
-                }
-              </Text>
-              <Text style={styles.demoHint}>
-                💡 Demo: Bruk kode "123456"
-              </Text>
-            </View>
+            <VerifyCodeSection
+              code={code}
+              onChangeCode={setCode}
+              secondsLeft={secondsLeft}
+              isExpired={isExpired}
+            />
           )}
 
           <View style={styles.buttons}>
@@ -99,10 +87,10 @@ export function StepUpModal({ visible, action, onConfirm, onCancel }) {
               <Text style={styles.cancelButtonText}>Avbryt</Text>
             </Pressable>
             {codeSent && (
-              <Pressable 
-                style={[styles.confirmButton, code.length !== 6 && styles.buttonDisabled]} 
+              <Pressable
+                style={[styles.confirmButton, !isCodeValid && styles.buttonDisabled]}
                 onPress={handleVerify}
-                disabled={code.length !== 6}
+                disabled={!isCodeValid}
               >
                 <Text style={styles.confirmButtonText}>Bekreft</Text>
               </Pressable>
@@ -123,10 +111,54 @@ export function StepUpModal({ visible, action, onConfirm, onCancel }) {
   );
 }
 
+/**
+ * Section for sending verification code
+ */
+function SendCodeSection({ onSendCode }) {
+  return (
+    <View style={styles.sendCodeSection}>
+      <Text style={styles.sendCodeText}>
+        Vi sender en engangskode til din registrerte e-post/telefon.
+      </Text>
+      <Pressable style={styles.sendCodeButton} onPress={onSendCode}>
+        <Text style={styles.sendCodeButtonText}>Send kode</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+/**
+ * Section for entering and verifying code
+ */
+function VerifyCodeSection({ code, onChangeCode, secondsLeft, isExpired }) {
+  return (
+    <View style={styles.verifySection}>
+      <Text style={styles.codeLabel}>Skriv inn 6-sifret kode:</Text>
+      <TextInput
+        style={styles.codeInput}
+        value={code}
+        onChangeText={onChangeCode}
+        keyboardType="number-pad"
+        maxLength={CODE_LENGTH}
+        placeholder="000000"
+        placeholderTextColor={COLORS.gray400}
+      />
+      <Text style={styles.timer}>
+        {isExpired
+          ? 'Koden er utløpt'
+          : `Koden utløper om ${secondsLeft} sekunder`}
+      </Text>
+      <Text style={styles.demoHint}>
+        Demo: Bruk kode "123456"
+      </Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: COLORS.overlay,
     justifyContent: 'center',
     alignItems: 'center',
     padding: SPACING.xl,

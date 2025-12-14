@@ -1,9 +1,22 @@
-// src/components/InsuranceCard.js
+// frontend/src/components/InsuranceCard.js
+// Card component for displaying insurance information
 
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES } from '../styles/theme';
+import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../styles/theme';
 
+/**
+ * Card displaying insurance details
+ * @param {Object} insurance - Insurance data object
+ * @param {string} insurance.type - Insurance type name
+ * @param {string} insurance.icon - Emoji icon
+ * @param {string} insurance.status - Status (e.g., 'Aktiv')
+ * @param {string} insurance.policyNumber - Policy number
+ * @param {string} insurance.validUntil - Expiration date
+ * @param {string} insurance.premium - Monthly premium
+ */
 export function InsuranceCard({ insurance }) {
+  const isActive = insurance.status === 'Aktiv';
+
   return (
     <View style={styles.card}>
       <View style={styles.header}>
@@ -11,26 +24,32 @@ export function InsuranceCard({ insurance }) {
           <Text style={styles.icon}>{insurance.icon || '📋'}</Text>
           <Text style={styles.type}>{insurance.type}</Text>
         </View>
-        <View style={[styles.badge, insurance.status === 'Aktiv' && styles.badgeActive]}>
-          <Text style={styles.badgeText}>{insurance.status}</Text>
+        <View style={[styles.badge, isActive && styles.badgeActive]}>
+          <Text style={[styles.badgeText, isActive && styles.badgeTextActive]}>
+            {insurance.status}
+          </Text>
         </View>
       </View>
+
       <View style={styles.details}>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Polisenummer</Text>
-          <Text style={styles.detailValue}>{insurance.policyNumber}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Gyldig til</Text>
-          <Text style={styles.detailValue}>{insurance.validUntil}</Text>
-        </View>
+        <DetailItem label="Polisenummer" value={insurance.policyNumber} />
+        <DetailItem label="Gyldig til" value={insurance.validUntil} />
         {insurance.premium && (
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Premie</Text>
-            <Text style={styles.detailValue}>{insurance.premium}</Text>
-          </View>
+          <DetailItem label="Premie" value={insurance.premium} />
         )}
       </View>
+    </View>
+  );
+}
+
+/**
+ * Internal detail item component
+ */
+function DetailItem({ label, value }) {
+  return (
+    <View style={styles.detailRow}>
+      <Text style={styles.detailLabel}>{label}</Text>
+      <Text style={styles.detailValue}>{value}</Text>
     </View>
   );
 }
@@ -41,11 +60,7 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.lg,
     padding: SPACING.lg,
     marginBottom: SPACING.md,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    ...SHADOWS.md,
   },
   header: {
     flexDirection: 'row',
@@ -81,6 +96,9 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: FONT_SIZES.xs,
     fontWeight: '500',
+    color: COLORS.gray600,
+  },
+  badgeTextActive: {
     color: COLORS.success,
   },
   details: {

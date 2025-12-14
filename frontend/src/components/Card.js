@@ -1,11 +1,19 @@
-// src/components/Card.js
+// frontend/src/components/Card.js
+// Reusable card component with consistent styling
 
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES } from '../styles/theme';
+import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../styles/theme';
 
-export function Card({ title, description, children }) {
+/**
+ * Card container component
+ * @param {string} title - Optional card title
+ * @param {string} description - Optional description below title
+ * @param {React.ReactNode} children - Card content
+ * @param {Object} style - Optional additional styles
+ */
+export function Card({ title, description, children, style }) {
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, style]}>
       {title && <Text style={styles.title}>{title}</Text>}
       {description && <Text style={styles.description}>{description}</Text>}
       {children}
@@ -19,13 +27,7 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.lg,
     padding: SPACING.lg,
     marginBottom: SPACING.lg,
-    // Shadow for iOS
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    // Shadow for Android
-    elevation: 2,
+    ...SHADOWS.md,
   },
   title: {
     fontSize: FONT_SIZES.md,

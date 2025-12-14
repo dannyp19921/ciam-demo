@@ -1,12 +1,15 @@
-// src/screens/DelegationScreen.js
+// frontend/src/screens/DelegationScreen.js
+// Screen for managing delegated access (fullmakt)
 
 import { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { Card, Button } from '../components';
-import { StepUpModal } from '../components/StepUpModal';
-import { generateUserDelegations, getAccessLevelDescription, SENSITIVE_ACTIONS } from '../services/userData';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { Card, InfoBox, StepUpModal, ScreenContainer } from '../components';
+import { generateUserDelegations, SENSITIVE_ACTIONS } from '../services/userData';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../styles/theme';
 
+/**
+ * Delegation screen component
+ */
 export function DelegationScreen({ user }) {
   const [stepUpVisible, setStepUpVisible] = useState(false);
   const [selectedAction, setSelectedAction] = useState(null);
@@ -19,7 +22,6 @@ export function DelegationScreen({ user }) {
       setSelectedAction(action);
       setStepUpVisible(true);
     } else {
-      // Action doesn't require step-up, just mark as completed
       setCompletedActions([...completedActions, action.id]);
     }
   };
@@ -36,19 +38,13 @@ export function DelegationScreen({ user }) {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>🤝 Fullmakter</Text>
-        <Text style={styles.subtitle}>
-          Administrer hvem som har tilgang til dine forsikringer
-        </Text>
-      </View>
-
-      {/* Explanation Card */}
+    <ScreenContainer
+      title="🤝 Fullmakter"
+      subtitle="Administrer hvem som har tilgang til dine forsikringer"
+    >
       <Card title="Hva er fullmakt?">
         <Text style={styles.explanationText}>
-          En fullmakt lar deg gi andre personer tilgang til å se eller administrere 
+          En fullmakt lar deg gi andre personer tilgang til å se eller administrere
           dine forsikringer på dine vegne. Dette er nyttig for:
         </Text>
         <Text style={styles.useCaseText}>
@@ -58,154 +54,61 @@ export function DelegationScreen({ user }) {
         </Text>
       </Card>
 
-      {/* Delegations Given */}
       <Card title="📤 Fullmakter du har gitt">
         {delegations.givenTo.length > 0 ? (
           delegations.givenTo.map((delegation) => (
-            <View key={delegation.id} style={styles.delegationItem}>
-              <View style={styles.delegationHeader}>
-                <View style={styles.avatarSmall}>
-                  <Text style={styles.avatarSmallText}>
-                    {delegation.name.split(' ').map(n => n[0]).join('')}
-                  </Text>
-                </View>
-                <View style={styles.delegationInfo}>
-                  <Text style={styles.delegationName}>{delegation.name}</Text>
-                  <Text style={styles.delegationRelation}>{delegation.relationship}</Text>
-                </View>
-                <View style={[
-                  styles.accessBadge,
-                  delegation.accessLevel === 'full' && styles.accessBadgeFull
-                ]}>
-                  <Text style={styles.accessBadgeText}>
-                    {delegation.accessLevel === 'full' ? 'Full' : 'Lese'}
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.delegationDetails}>
-                <Text style={styles.delegationDetailLabel}>Tilgang til:</Text>
-                <Text style={styles.delegationDetailValue}>
-                  {delegation.accessTypes.join(', ')}
-                </Text>
-              </View>
-              <View style={styles.delegationDetails}>
-                <Text style={styles.delegationDetailLabel}>Gyldig fra:</Text>
-                <Text style={styles.delegationDetailValue}>
-                  {delegation.grantedDate}
-                  {delegation.expiresDate ? ` til ${delegation.expiresDate}` : ' (permanent)'}
-                </Text>
-              </View>
-              <Pressable style={styles.revokeButton}>
-                <Text style={styles.revokeButtonText}>Trekk tilbake</Text>
-              </Pressable>
-            </View>
+            <DelegationItem key={delegation.id} delegation={delegation} type="given" />
           ))
         ) : (
-          <Text style={styles.emptyText}>
-            Du har ikke gitt fullmakt til noen.
-          </Text>
+          <Text style={styles.emptyText}>Du har ikke gitt fullmakt til noen.</Text>
         )}
-        
-        <Pressable 
+
+        <Pressable
           style={styles.addButton}
-          onPress={() => handleActionPress(SENSITIVE_ACTIONS.find(a => a.id === 'add_delegation'))}
+          onPress={() => handleActionPress(SENSITIVE_ACTIONS.find((a) => a.id === 'add_delegation'))}
         >
           <Text style={styles.addButtonText}>+ Gi fullmakt til noen</Text>
         </Pressable>
       </Card>
 
-      {/* Delegations Received */}
       <Card title="📥 Fullmakter du har mottatt">
         {delegations.receivedFrom.length > 0 ? (
           delegations.receivedFrom.map((delegation) => (
-            <View key={delegation.id} style={styles.delegationItem}>
-              <View style={styles.delegationHeader}>
-                <View style={[styles.avatarSmall, styles.avatarReceived]}>
-                  <Text style={styles.avatarSmallText}>
-                    {delegation.name.split(' ').map(n => n[0]).join('')}
-                  </Text>
-                </View>
-                <View style={styles.delegationInfo}>
-                  <Text style={styles.delegationName}>{delegation.name}</Text>
-                  <Text style={styles.delegationRelation}>{delegation.relationship}</Text>
-                </View>
-              </View>
-              <Text style={styles.receivedNote}>
-                Du kan se og administrere {delegation.name}s {delegation.accessTypes.join(' og ').toLowerCase()}
-              </Text>
-              <Pressable style={styles.switchProfileButton}>
-                <Text style={styles.switchProfileButtonText}>Bytt til denne profilen →</Text>
-              </Pressable>
-            </View>
+            <DelegationItem key={delegation.id} delegation={delegation} type="received" />
           ))
         ) : (
-          <Text style={styles.emptyText}>
-            Du har ikke mottatt fullmakt fra noen.
-          </Text>
+          <Text style={styles.emptyText}>Du har ikke mottatt fullmakt fra noen.</Text>
         )}
       </Card>
 
-      {/* Step-up Authentication Demo */}
       <Card title="🔐 Step-up Authentication Demo">
         <Text style={styles.stepUpExplanation}>
-          Noen handlinger krever ekstra bekreftelse. Prøv å klikke på handlingene 
+          Noen handlinger krever ekstra bekreftelse. Prøv å klikke på handlingene
           nedenfor for å se hvordan Step-up Authentication fungerer.
         </Text>
-        
+
         <View style={styles.actionsList}>
           {SENSITIVE_ACTIONS.map((action) => (
-            <Pressable 
+            <ActionItem
               key={action.id}
-              style={[
-                styles.actionItem,
-                completedActions.includes(action.id) && styles.actionItemCompleted
-              ]}
+              action={action}
+              isCompleted={completedActions.includes(action.id)}
               onPress={() => handleActionPress(action)}
-            >
-              <Text style={styles.actionIcon}>{action.icon}</Text>
-              <View style={styles.actionInfo}>
-                <Text style={styles.actionName}>{action.name}</Text>
-                <Text style={styles.actionDescription}>{action.description}</Text>
-              </View>
-              <View style={[
-                styles.stepUpIndicator,
-                action.requiresStepUp ? styles.stepUpRequired : styles.stepUpNotRequired
-              ]}>
-                <Text style={styles.stepUpIndicatorText}>
-                  {action.requiresStepUp ? '🔒' : '✓'}
-                </Text>
-              </View>
-            </Pressable>
+            />
           ))}
         </View>
 
-        <View style={styles.legend}>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, styles.stepUpRequired]} />
-            <Text style={styles.legendText}>Krever step-up</Text>
-          </View>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, styles.stepUpNotRequired]} />
-            <Text style={styles.legendText}>Vanlig tilgang</Text>
-          </View>
-        </View>
+        <Legend />
       </Card>
 
-      {/* Gjensidige Context */}
-      <Card title="💡 Slik gjør Gjensidige det">
-        <Text style={styles.gjensidigText}>
-          Gjensidige bruker <Text style={styles.bold}>BankID</Text> for step-up authentication:
-        </Text>
-        <Text style={styles.gjensidigList}>
-          • Se forsikringer → Vanlig innlogging{'\n'}
-          • Signere avtaler → Krever BankID{'\n'}
-          • Endre kontaktinfo → Krever BankID{'\n'}
-          • Gi fullmakt → Krever BankID
-        </Text>
-        <Text style={styles.gjensidigNote}>
-          I denne demoen simulerer vi dette med en engangskode.
-        </Text>
-      </Card>
+      <InfoBox title="💡 Slik gjør Gjensidige det" variant="primary">
+        Gjensidige bruker BankID for step-up authentication:{'\n\n'}
+        • Se forsikringer → Vanlig innlogging{'\n'}
+        • Signere avtaler → Krever BankID{'\n'}
+        • Endre kontaktinfo → Krever BankID{'\n'}
+        • Gi fullmakt → Krever BankID{'\n\n'}
+        I denne demoen simulerer vi dette med en engangskode.
+      </InfoBox>
 
       <StepUpModal
         visible={stepUpVisible}
@@ -213,29 +116,103 @@ export function DelegationScreen({ user }) {
         onConfirm={handleStepUpConfirm}
         onCancel={handleStepUpCancel}
       />
-    </ScrollView>
+    </ScreenContainer>
+  );
+}
+
+function DelegationItem({ delegation, type }) {
+  const isGiven = type === 'given';
+  const initials = delegation.name.split(' ').map((n) => n[0]).join('');
+
+  return (
+    <View style={styles.delegationItem}>
+      <View style={styles.delegationHeader}>
+        <View style={[styles.avatarSmall, !isGiven && styles.avatarReceived]}>
+          <Text style={styles.avatarSmallText}>{initials}</Text>
+        </View>
+        <View style={styles.delegationInfo}>
+          <Text style={styles.delegationName}>{delegation.name}</Text>
+          <Text style={styles.delegationRelation}>{delegation.relationship}</Text>
+        </View>
+        {isGiven && (
+          <View style={[styles.accessBadge, delegation.accessLevel === 'full' && styles.accessBadgeFull]}>
+            <Text style={styles.accessBadgeText}>
+              {delegation.accessLevel === 'full' ? 'Full' : 'Lese'}
+            </Text>
+          </View>
+        )}
+      </View>
+
+      {isGiven ? (
+        <>
+          <View style={styles.delegationDetails}>
+            <Text style={styles.delegationDetailLabel}>Tilgang til:</Text>
+            <Text style={styles.delegationDetailValue}>{delegation.accessTypes.join(', ')}</Text>
+          </View>
+          <View style={styles.delegationDetails}>
+            <Text style={styles.delegationDetailLabel}>Gyldig fra:</Text>
+            <Text style={styles.delegationDetailValue}>
+              {delegation.grantedDate}
+              {delegation.expiresDate ? ` til ${delegation.expiresDate}` : ' (permanent)'}
+            </Text>
+          </View>
+          <Pressable style={styles.revokeButton}>
+            <Text style={styles.revokeButtonText}>Trekk tilbake</Text>
+          </Pressable>
+        </>
+      ) : (
+        <>
+          <Text style={styles.receivedNote}>
+            Du kan se og administrere {delegation.name}s {delegation.accessTypes.join(' og ').toLowerCase()}
+          </Text>
+          <Pressable style={styles.switchProfileButton}>
+            <Text style={styles.switchProfileButtonText}>Bytt til denne profilen →</Text>
+          </Pressable>
+        </>
+      )}
+    </View>
+  );
+}
+
+function ActionItem({ action, isCompleted, onPress }) {
+  return (
+    <Pressable
+      style={[styles.actionItem, isCompleted && styles.actionItemCompleted]}
+      onPress={onPress}
+    >
+      <Text style={styles.actionIcon}>{action.icon}</Text>
+      <View style={styles.actionInfo}>
+        <Text style={styles.actionName}>{action.name}</Text>
+        <Text style={styles.actionDescription}>{action.description}</Text>
+      </View>
+      <View style={[
+        styles.stepUpIndicator,
+        action.requiresStepUp ? styles.stepUpRequired : styles.stepUpNotRequired,
+      ]}>
+        <Text style={styles.stepUpIndicatorText}>
+          {action.requiresStepUp ? '🔒' : '✓'}
+        </Text>
+      </View>
+    </Pressable>
+  );
+}
+
+function Legend() {
+  return (
+    <View style={styles.legend}>
+      <View style={styles.legendItem}>
+        <View style={[styles.legendDot, styles.stepUpRequired]} />
+        <Text style={styles.legendText}>Krever step-up</Text>
+      </View>
+      <View style={styles.legendItem}>
+        <View style={[styles.legendDot, styles.stepUpNotRequired]} />
+        <Text style={styles.legendText}>Vanlig tilgang</Text>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: SPACING.xl,
-    paddingTop: 60,
-    paddingBottom: 100,
-  },
-  header: {
-    marginBottom: SPACING.xl,
-  },
-  title: {
-    fontSize: FONT_SIZES.xxl,
-    fontWeight: 'bold',
-    color: COLORS.gray900,
-  },
-  subtitle: {
-    fontSize: FONT_SIZES.md,
-    color: COLORS.gray500,
-    marginTop: SPACING.xs,
-  },
   explanationText: {
     fontSize: FONT_SIZES.sm,
     color: COLORS.gray600,
@@ -321,7 +298,7 @@ const styles = StyleSheet.create({
   revokeButton: {
     marginTop: SPACING.md,
     padding: SPACING.sm,
-    backgroundColor: '#fef2f2',
+    backgroundColor: COLORS.dangerBg,
     borderRadius: BORDER_RADIUS.sm,
     alignItems: 'center',
   },
@@ -415,7 +392,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   stepUpRequired: {
-    backgroundColor: '#fef3c7',
+    backgroundColor: COLORS.warningBg,
   },
   stepUpNotRequired: {
     backgroundColor: COLORS.successBg,
@@ -445,21 +422,5 @@ const styles = StyleSheet.create({
   legendText: {
     fontSize: FONT_SIZES.xs,
     color: COLORS.gray500,
-  },
-  gjensidigText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.gray700,
-    marginBottom: SPACING.sm,
-  },
-  gjensidigList: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.gray600,
-    lineHeight: 22,
-  },
-  gjensidigNote: {
-    fontSize: FONT_SIZES.xs,
-    color: COLORS.gray500,
-    fontStyle: 'italic',
-    marginTop: SPACING.md,
   },
 });

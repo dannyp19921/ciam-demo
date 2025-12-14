@@ -3,10 +3,28 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 import * as AuthSession from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
 import { AUTH0_CONFIG } from '../constants/config';
+import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 
 WebBrowser.maybeCompleteAuthSession();
 
-const redirectUri = AuthSession.makeRedirectUri();
+const getRedirectUri = () => {
+  // Web
+  if (Platform.OS === 'web') {
+    return AuthSession.makeRedirectUri({ preferLocalhost: true });
+  }
+  
+  // Expo Go
+  if (Constants.appOwnership === 'expo') {
+    return AuthSession.makeRedirectUri();
+  }
+  
+  // Standalone APK
+  return AuthSession.makeRedirectUri({ scheme: 'ciam-demo', path: 'auth' });
+};
+
+const redirectUri = getRedirectUri();
+console.log('Using redirect URI:', redirectUri);
 
 const AuthContext = createContext(null);
 

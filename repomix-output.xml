@@ -6680,6 +6680,7 @@ The application supports two customer types, mirroring Gjensidige's actual custo
 - **React Native / Expo** for cross-platform mobile
 - **React Context API** for state management
 - **Custom Hooks** for reusable logic
+- **PropTypes** for runtime type checking
 - **Design System** with centralized theme
 
 ### Authentication
@@ -6710,7 +6711,7 @@ frontend/src/
 │   ├── useCountdown.js         # Timer logic for OTP expiration
 │   └── index.js                # Barrel export
 │
-├── components/                  # Reusable UI components
+├── components/                  # Reusable UI components (with PropTypes)
 │   ├── ScreenContainer.js      # SafeArea wrapper with responsive layout
 │   ├── DetailRow.js            # Label-value display component
 │   ├── PermissionBadge.js      # RBAC permission indicator
@@ -6724,7 +6725,7 @@ frontend/src/
 │   ├── ProfileSwitcher.js      # Profile/delegation switcher
 │   └── index.js                # Barrel export
 │
-├── screens/                     # Screen components
+├── screens/                     # Screen components (with PropTypes)
 │   ├── LoginScreen.js          # Pre-auth with customer type selection
 │   ├── ConsentScreen.js        # GDPR consent collection
 │   ├── HomeScreen.js           # Main dashboard
@@ -6736,10 +6737,15 @@ frontend/src/
 │
 ├── services/                    # Business logic
 │   ├── api.js                  # API client
-│   └── userData.js             # Mock data generation
+│   ├── profile.js              # User profile generation
+│   ├── insurance.js            # Insurance data
+│   ├── delegation.js           # Delegation logic
+│   ├── business.js             # RBAC and company profiles
+│   └── userData.js             # Data aggregator
 │
 ├── constants/                   # Configuration
-│   └── config.js               # Auth0, API endpoints
+│   ├── config.js               # Auth0, API (with env var support)
+│   └── mockData.js             # Demo data constants
 │
 └── styles/                      # Design system
     └── theme.js                # Colors, spacing, typography, shadows
@@ -6751,10 +6757,12 @@ frontend/src/
 |-----------|----------------|
 | **Separation of Concerns** | Contexts for state, hooks for logic, components for UI |
 | **DRY (Don't Repeat Yourself)** | Shared components like DetailRow, PermissionBadge |
+| **Type Safety** | PropTypes for runtime validation |
 | **Mobile-first Design** | SafeAreaInsets, touch-friendly targets |
 | **Responsive Layout** | Platform detection, breakpoints for web |
 | **Design System** | Centralized theme with COLORS, SPACING, SHADOWS |
 | **Barrel Exports** | Clean imports via index.js files |
+| **Environment Config** | Configurable via .env with secure defaults |
 
 ### State Management
 
@@ -6783,6 +6791,8 @@ ciam-demo/
 │   └── build.gradle.kts
 │
 ├── frontend/
+│   ├── .env.example             # Environment variables template
+│   ├── app.config.js            # Expo config with env support
 │   ├── App.js                   # App entry with providers
 │   ├── src/
 │   │   ├── contexts/            # State management
@@ -6859,10 +6869,33 @@ This demo mirrors real CIAM patterns used by Gjensidige:
 ## Getting Started
 
 ### Prerequisites
-- Node.js 18+
+- Node.js 20+ (required)
 - Java 21 (for backend development)
 - Expo Go app on mobile device
-- Auth0 account
+- Auth0 account (optional - defaults work for demo)
+
+### Environment Variables (Optional)
+
+The frontend uses environment variables for configuration. Default values are provided for demo purposes, so this step is optional.
+
+```bash
+cd frontend
+
+# Copy the example file
+cp .env.example .env
+
+# Edit with your own values (optional)
+nano .env
+```
+
+Available variables:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `AUTH0_DOMAIN` | Auth0 tenant domain | Demo tenant |
+| `AUTH0_CLIENT_ID` | Auth0 application client ID | Demo client |
+| `AUTH0_AUDIENCE` | Auth0 API audience | `https://ciam-demo-api` |
+| `API_BASE_URL` | Backend API URL | Azure deployment |
 
 ### Run Frontend
 ```bash

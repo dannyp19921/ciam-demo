@@ -12,7 +12,8 @@ import {
   ProfileScreen, 
   ApiTestScreen,
   ConsentScreen,
-  SecurityInfoScreen 
+  SecurityInfoScreen,
+  DelegationScreen
 } from './src/screens';
 import { BottomNav } from './src/components';
 import { AUTH0_CONFIG } from './src/constants/config';
@@ -44,7 +45,6 @@ export default function App() {
     discovery
   );
 
-  // Check for existing consent on app load
   useEffect(() => {
     checkExistingConsent();
   }, []);
@@ -114,12 +114,11 @@ export default function App() {
       setHasConsented(true);
     } catch (error) {
       console.log('Error saving consent');
-      setHasConsented(true); // Continue anyway
+      setHasConsented(true);
     }
   };
 
   const handleDeleteAccount = async () => {
-    // In production, this would call your backend to delete user data
     await handleLogout();
   };
 
@@ -150,6 +149,9 @@ export default function App() {
   return (
     <View style={styles.container}>
       {activeTab === 'home' && <HomeScreen user={user} />}
+      {activeTab === 'delegation' && <DelegationScreen user={user} />}
+      {activeTab === 'api' && <ApiTestScreen accessToken={accessToken} />}
+      {activeTab === 'security' && <SecurityInfoScreen />}
       {activeTab === 'profile' && (
         <ProfileScreen 
           user={user} 
@@ -159,8 +161,6 @@ export default function App() {
           onConsentChange={handleConsentChange}
         />
       )}
-      {activeTab === 'api' && <ApiTestScreen accessToken={accessToken} />}
-      {activeTab === 'security' && <SecurityInfoScreen />}
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
     </View>
   );

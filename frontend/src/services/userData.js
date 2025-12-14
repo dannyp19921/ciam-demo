@@ -175,3 +175,108 @@ export function getUserDisplayInfo(user) {
     createdAt: user.updated_at || new Date().toISOString(),
   };
 }
+
+// Generate delegations (fullmakter) for a user
+export function generateUserDelegations(userId) {
+  if (!userId) return { givenTo: [], receivedFrom: [] };
+  
+  const hash = hashCode(userId);
+  
+  // Mock delegations given to others
+  const givenTo = [];
+  if (hash % 3 === 0) {
+    givenTo.push({
+      id: 1,
+      name: 'Marie Hansen',
+      relationship: 'Ektefelle',
+      email: 'm.hansen@email.no',
+      accessLevel: 'full',
+      accessTypes: ['Forsikringer', 'Pensjon'],
+      grantedDate: '2024-01-15',
+      expiresDate: null, // Permanent
+    });
+  }
+  if (hash % 5 === 0) {
+    givenTo.push({
+      id: 2,
+      name: 'Erik Olsen',
+      relationship: 'Regnskapsfører',
+      email: 'erik@regnskap.no',
+      accessLevel: 'read',
+      accessTypes: ['Forsikringer'],
+      grantedDate: '2024-06-01',
+      expiresDate: '2025-06-01',
+    });
+  }
+  
+  // Mock delegations received from others
+  const receivedFrom = [];
+  if (hash % 4 === 0) {
+    receivedFrom.push({
+      id: 3,
+      name: 'Kari Nordmann',
+      relationship: 'Mor',
+      accessLevel: 'full',
+      accessTypes: ['Forsikringer', 'Pensjon'],
+      grantedDate: '2023-08-20',
+    });
+  }
+  
+  return { givenTo, receivedFrom };
+}
+
+// Get access level description
+export function getAccessLevelDescription(level) {
+  const levels = {
+    full: 'Full tilgang (lese og endre)',
+    read: 'Lesetilgang',
+    limited: 'Begrenset tilgang',
+  };
+  return levels[level] || level;
+}
+
+// Sensitive actions that require step-up authentication
+export const SENSITIVE_ACTIONS = [
+  { 
+    id: 'change_contact', 
+    name: 'Endre kontaktinformasjon', 
+    icon: '📝',
+    description: 'Endre e-post, telefon eller adresse',
+    requiresStepUp: true,
+  },
+  { 
+    id: 'sign_agreement', 
+    name: 'Signere avtale', 
+    icon: '✍️',
+    description: 'Signere nye forsikringsavtaler',
+    requiresStepUp: true,
+  },
+  { 
+    id: 'add_delegation', 
+    name: 'Gi fullmakt', 
+    icon: '🤝',
+    description: 'Gi andre tilgang til dine forsikringer',
+    requiresStepUp: true,
+  },
+  { 
+    id: 'cancel_insurance', 
+    name: 'Si opp forsikring', 
+    icon: '❌',
+    description: 'Avslutte en forsikringsavtale',
+    requiresStepUp: true,
+  },
+  { 
+    id: 'view_policy', 
+    name: 'Se forsikringsdetaljer', 
+    icon: '👁️',
+    description: 'Lese forsikringsinformasjon',
+    requiresStepUp: false,
+  },
+  { 
+    id: 'report_claim', 
+    name: 'Melde skade', 
+    icon: '📋',
+    description: 'Registrere en skademelding',
+    requiresStepUp: false,
+  },
+];

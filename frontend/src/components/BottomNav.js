@@ -5,7 +5,8 @@ import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES } from '../styles/theme';
 
 const NAV_ITEMS = [
   { key: 'home', icon: '🏠', label: 'Hjem' },
-  { key: 'api', icon: '🔑', label: 'API Test' },
+  { key: 'delegation', icon: '🤝', label: 'Fullmakt' },
+  { key: 'api', icon: '🔑', label: 'API' },
   { key: 'security', icon: '🛡️', label: 'Sikkerhet' },
   { key: 'profile', icon: '👤', label: 'Profil' },
 ];
@@ -45,14 +46,14 @@ const styles = StyleSheet.create({
   item: {
     alignItems: 'center',
     paddingVertical: SPACING.xs,
-    paddingHorizontal: SPACING.md,
+    paddingHorizontal: SPACING.sm,
   },
   itemActive: {
     backgroundColor: COLORS.primaryBg,
     borderRadius: BORDER_RADIUS.lg,
   },
   icon: {
-    fontSize: 20,
+    fontSize: 18,
     marginBottom: 2,
   },
   label: {

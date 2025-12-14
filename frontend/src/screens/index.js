@@ -6,3 +6,4 @@ export { ProfileScreen } from './ProfileScreen';
 export { ApiTestScreen } from './ApiTestScreen';
 export { ConsentScreen } from './ConsentScreen';
 export { SecurityInfoScreen } from './SecurityInfoScreen';
+export { DelegationScreen } from './DelegationScreen';

@@ -132,6 +132,85 @@ export function SecurityInfoScreen() {
         </Text>
       </Card>
 
+      <Card title="🤝 Delegert tilgang (Fullmakt)">
+        <Text style={styles.conceptText}>
+          <Text style={styles.bold}>Hva er det?</Text>{'\n'}
+          Delegert tilgang lar en person handle på vegne av en annen. 
+          Vanlig i forsikring når familie hjelper hverandre.
+        </Text>
+        <View style={styles.diagram}>
+          <Text style={styles.diagramText}>
+            Mor (gir fullmakt) → Datter (mottar){'\n'}
+            Datter kan nå se mors forsikringer
+          </Text>
+        </View>
+        <Text style={styles.benefitText}>
+          ✓ Familiemedlemmer kan hjelpe hverandre{'\n'}
+          ✓ Regnskapsførere kan se bedriftsforsikringer{'\n'}
+          ✓ Fullmakt kan trekkes tilbake når som helst
+        </Text>
+      </Card>
+
+      <Card title="🔐 Step-up Authentication">
+        <Text style={styles.conceptText}>
+          <Text style={styles.bold}>Hva er det?</Text>{'\n'}
+          Noen handlinger krever sterkere autentisering enn vanlig 
+          navigering. Dette kalles "step-up" – du må bevise identiteten 
+          din på nytt for sensitive operasjoner.
+        </Text>
+        <View style={styles.diagram}>
+          <Text style={styles.diagramText}>
+            Vanlig: Se forsikringer ✓{'\n'}
+            Step-up: Signere avtale → Krever BankID
+          </Text>
+        </View>
+        <Text style={styles.benefitText}>
+          ✓ Beskytter mot uautoriserte endringer{'\n'}
+          ✓ Balanserer sikkerhet og brukervennlighet{'\n'}
+          ✓ Gjensidige bruker BankID for dette
+        </Text>
+      </Card>
+
+      <Card title="🔄 SSO (Single Sign-On)">
+        <Text style={styles.conceptText}>
+          <Text style={styles.bold}>Hva er det?</Text>{'\n'}
+          Med SSO logger du inn én gang og får tilgang til flere 
+          tjenester uten å logge inn på nytt.
+        </Text>
+        <View style={styles.diagram}>
+          <Text style={styles.diagramText}>
+            Login → Gjensidige.no{'\n'}
+                  → Gjensidige App{'\n'}
+                  → Min Pensjon{'\n'}
+            (Samme sesjon for alle)
+          </Text>
+        </View>
+        <Text style={styles.benefitText}>
+          ✓ Bedre brukeropplevelse{'\n'}
+          ✓ Færre passord å huske{'\n'}
+          ✓ Sentralisert tilgangskontroll
+        </Text>
+      </Card>
+
+      <Card title="🏦 BankID i Norge">
+        <Text style={styles.conceptText}>
+          <Text style={styles.bold}>Hva er det?</Text>{'\n'}
+          BankID er Norges nasjonale eID-løsning, brukt av banker, 
+          forsikringsselskaper og offentlige tjenester.
+        </Text>
+        <View style={styles.diagram}>
+          <Text style={styles.diagramText}>
+            BankID = Autentisering + Signering{'\n'}
+            Sikkerhetsnivå: Høyt (juridisk bindende)
+          </Text>
+        </View>
+        <Text style={styles.benefitText}>
+          ✓ Over 4,5 millioner brukere i Norge{'\n'}
+          ✓ Juridisk gyldig signatur{'\n'}
+          ✓ Gjensidige bruker BankID for login og signering
+        </Text>
+      </Card>
+
       <Card title="📜 GDPR og personvern">
         <Text style={styles.conceptText}>
           <Text style={styles.bold}>Dine rettigheter:</Text>

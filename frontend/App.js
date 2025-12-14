@@ -1,4 +1,4 @@
-// App.js
+// frontend/App.js
 
 import { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';

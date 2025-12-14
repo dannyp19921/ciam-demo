@@ -5,3 +5,4 @@ export { Card } from './Card';
 export { InsuranceCard } from './InsuranceCard';
 export { BottomNav } from './BottomNav';
 export { StepUpModal } from './StepUpModal';
+export { ProfileSwitcher } from './ProfileSwitcher';

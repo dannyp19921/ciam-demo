@@ -27,6 +27,50 @@ const CITIES = [
   { city: 'Kristiansand', postalCode: '4612' },
 ];
 
+// Business insurance types
+const BUSINESS_INSURANCE_TYPES = [
+  { type: 'Næringsforsikring', icon: '🏢', prefix: 'NÆR' },
+  { type: 'Ansvarsforsikring', icon: '⚖️', prefix: 'ANS' },
+  { type: 'Yrkesskadeforsikring', icon: '🦺', prefix: 'YRK' },
+  { type: 'Bedriftsbil', icon: '🚐', prefix: 'BIL' },
+  { type: 'Kontorforsikring', icon: '🖥️', prefix: 'KNT' },
+  { type: 'Driftstapsforsikring', icon: '📉', prefix: 'DRF' },
+];
+
+// Business roles with permissions
+const BUSINESS_ROLES = [
+  { 
+    id: 'daglig_leder', 
+    name: 'Daglig leder',
+    permissions: ['ting', 'person', 'pensjon'],
+    description: 'Full tilgang til alle forsikringer og pensjon',
+  },
+  { 
+    id: 'hr_ansvarlig', 
+    name: 'HR-ansvarlig',
+    permissions: ['person', 'pensjon'],
+    description: 'Tilgang til personforsikringer og pensjon',
+  },
+  { 
+    id: 'regnskapsforer', 
+    name: 'Regnskapsfører',
+    permissions: ['ting'],
+    description: 'Kun tilgang til tingforsikringer',
+  },
+  { 
+    id: 'okonomisjef', 
+    name: 'Økonomisjef',
+    permissions: ['ting', 'pensjon'],
+    description: 'Tilgang til tingforsikringer og pensjon',
+  },
+];
+
+// Company names for business profiles
+const COMPANY_NAMES = [
+  'Nordvik AS', 'Fjordtech Solutions', 'Bergen Bygg AS', 
+  'Oslo Consulting Group', 'Trondheim Transport', 'Stavanger Shipping'
+];
+
 // Simple hash function to generate consistent numbers from a string
 function hashCode(str) {
   let hash = 0;
@@ -233,6 +277,121 @@ export function getAccessLevelDescription(level) {
     limited: 'Begrenset tilgang',
   };
   return levels[level] || level;
+}
+
+// Generate business insurances
+export function generateBusinessInsurances(companyId) {
+  if (!companyId) return [];
+  
+  const hash = hashCode(companyId);
+  const numInsurances = (hash % 4) + 2; // 2-5 insurances
+  const insurances = [];
+  
+  for (let i = 0; i < numInsurances; i++) {
+    const typeIndex = (hash + i * 5) % BUSINESS_INSURANCE_TYPES.length;
+    const insuranceType = BUSINESS_INSURANCE_TYPES[typeIndex];
+    
+    const year = 2024;
+    const month = ((hash + i) % 12) + 1;
+    const policyNum = ((hash * (i + 1)) % 90000) + 10000;
+    
+    // Determine category
+    let category = 'ting';
+    if (insuranceType.type.includes('Yrkesskade')) category = 'person';
+    
+    insurances.push({
+      id: i + 1,
+      type: insuranceType.type,
+      icon: insuranceType.icon,
+      policyNumber: `${insuranceType.prefix}-${year}-${policyNum}`,
+      status: 'Aktiv',
+      validUntil: `${year + 1}-${String(month).padStart(2, '0')}-01`,
+      premium: `${((hash + i * 2000) % 15000) + 2000} kr/mnd`,
+      category: category,
+    });
+  }
+  
+  return insurances;
+}
+
+// Generate company profile
+export function generateCompanyProfile(userId) {
+  if (!userId) return null;
+  
+  const hash = hashCode(userId);
+  const companyIndex = hash % COMPANY_NAMES.length;
+  const roleIndex = hash % BUSINESS_ROLES.length;
+  
+  return {
+    companyName: COMPANY_NAMES[companyIndex],
+    orgNumber: `${900000000 + (hash % 100000000)}`,
+    role: BUSINESS_ROLES[roleIndex],
+    address: {
+      street: `${STREET_NAMES[hash % STREET_NAMES.length]} ${(hash % 50) + 1}`,
+      postalCode: CITIES[hash % CITIES.length].postalCode,
+      city: CITIES[hash % CITIES.length].city,
+    },
+    employeeCount: (hash % 200) + 10,
+    customerSince: `${2010 + (hash % 14)}`,
+  };
+}
+
+// Get available profiles for a user (for profile switching)
+export function getAvailableProfiles(userId, customerType) {
+  if (!userId) return [];
+  
+  const hash = hashCode(userId);
+  const profiles = [];
+  
+  // Always add own profile first
+  const userProfile = generateUserProfile({ sub: userId, email: 'user@example.com' });
+  profiles.push({
+    id: 'self',
+    type: 'self',
+    name: customerType === 'business' ? generateCompanyProfile(userId).companyName : userProfile.fullName,
+    subtitle: customerType === 'business' ? 'Din bedrift' : 'Din profil',
+    icon: customerType === 'business' ? '🏢' : '👤',
+  });
+  
+  if (customerType === 'private') {
+    // Add family members from delegations
+    const delegations = generateUserDelegations(userId);
+    delegations.receivedFrom.forEach(d => {
+      profiles.push({
+        id: `delegate-${d.id}`,
+        type: 'delegation',
+        name: d.name,
+        subtitle: `Fullmakt fra ${d.relationship.toLowerCase()}`,
+        icon: '👵',
+        delegationInfo: d,
+      });
+    });
+  } else {
+    // Add other companies user has access to
+    if (hash % 3 === 0) {
+      profiles.push({
+        id: 'company-2',
+        type: 'business',
+        name: COMPANY_NAMES[(hash + 2) % COMPANY_NAMES.length],
+        subtitle: 'Regnskapsfører-tilgang',
+        icon: '🏢',
+        role: BUSINESS_ROLES[2], // Regnskapsfører
+      });
+    }
+  }
+  
+  return profiles;
+}
+
+// Check if user has permission for an action (RBAC)
+export function hasPermission(role, permissionType) {
+  if (!role || !role.permissions) return false;
+  return role.permissions.includes(permissionType);
+}
+
+// Get all business roles
+export function getBusinessRoles() {
+  return BUSINESS_ROLES;
 }
 
 // Sensitive actions that require step-up authentication

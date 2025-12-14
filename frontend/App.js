@@ -15,9 +15,10 @@ import {
   SecurityInfoScreen,
   DelegationScreen
 } from './src/screens';
-import { BottomNav } from './src/components';
+import { BottomNav, ProfileSwitcher } from './src/components';
 import { AUTH0_CONFIG } from './src/constants/config';
 import { COLORS } from './src/styles/theme';
+import { getAvailableProfiles } from './src/services/userData';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -30,6 +31,11 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [hasConsented, setHasConsented] = useState(false);
   const [consents, setConsents] = useState(null);
+  
+  // Customer type selected BEFORE login
+  const [customerType, setCustomerType] = useState(null);
+  const [activeProfile, setActiveProfile] = useState(null);
+  const [showProfileSwitcher, setShowProfileSwitcher] = useState(false);
 
   const discovery = AuthSession.useAutoDiscovery(`https://${AUTH0_CONFIG.domain}`);
 
@@ -46,7 +52,7 @@ export default function App() {
   );
 
   useEffect(() => {
-    checkExistingConsent();
+    checkExistingData();
   }, []);
 
   useEffect(() => {
@@ -55,15 +61,16 @@ export default function App() {
     }
   }, [response]);
 
-  const checkExistingConsent = async () => {
+  const checkExistingData = async () => {
     try {
       const storedConsent = await AsyncStorage.getItem('userConsent');
       if (storedConsent) {
         setConsents(JSON.parse(storedConsent));
         setHasConsented(true);
       }
+      // Note: We don't restore customerType here because user should choose each session
     } catch (error) {
-      console.log('No existing consent found');
+      console.log('No existing data found');
     }
   };
 
@@ -85,7 +92,14 @@ export default function App() {
       const userResponse = await fetch(`https://${AUTH0_CONFIG.domain}/userinfo`, {
         headers: { Authorization: `Bearer ${tokenResponse.accessToken}` },
       });
-      setUser(await userResponse.json());
+      const userData = await userResponse.json();
+      setUser(userData);
+      
+      // Set default active profile based on customer type
+      if (customerType) {
+        const profiles = getAvailableProfiles(userData.sub, customerType);
+        setActiveProfile(profiles[0]);
+      }
     } catch (error) {
       console.error('Login failed:', error);
     }
@@ -100,10 +114,12 @@ export default function App() {
     setActiveTab('home');
     setHasConsented(false);
     setConsents(null);
+    setCustomerType(null);
+    setActiveProfile(null);
     try {
       await AsyncStorage.removeItem('userConsent');
     } catch (error) {
-      console.log('Error clearing consent');
+      console.log('Error clearing data');
     }
   };
 
@@ -135,9 +151,29 @@ export default function App() {
     }
   };
 
-  // Not logged in
+  const handleCustomerTypeSelect = (type) => {
+    setCustomerType(type);
+  };
+
+  const handleProfileSelect = (profile) => {
+    setActiveProfile(profile);
+    setShowProfileSwitcher(false);
+  };
+
+  const availableProfiles = user && customerType 
+    ? getAvailableProfiles(user.sub, customerType) 
+    : [];
+
+  // Not logged in - show login with customer type selection
   if (!user) {
-    return <LoginScreen onLogin={handleLogin} loading={loading} />;
+    return (
+      <LoginScreen 
+        onLogin={handleLogin} 
+        loading={loading}
+        selectedCustomerType={customerType}
+        onSelectCustomerType={handleCustomerTypeSelect}
+      />
+    );
   }
 
   // Logged in but hasn't consented
@@ -148,7 +184,14 @@ export default function App() {
   // Fully logged in and consented
   return (
     <View style={styles.container}>
-      {activeTab === 'home' && <HomeScreen user={user} />}
+      {activeTab === 'home' && (
+        <HomeScreen 
+          user={user} 
+          customerType={customerType}
+          activeProfile={activeProfile}
+          onOpenProfileSwitcher={() => setShowProfileSwitcher(true)}
+        />
+      )}
       {activeTab === 'delegation' && <DelegationScreen user={user} />}
       {activeTab === 'api' && <ApiTestScreen accessToken={accessToken} />}
       {activeTab === 'security' && <SecurityInfoScreen />}
@@ -156,12 +199,21 @@ export default function App() {
         <ProfileScreen 
           user={user} 
           consents={consents}
+          customerType={customerType}
           onLogout={handleLogout} 
           onDeleteAccount={handleDeleteAccount}
           onConsentChange={handleConsentChange}
         />
       )}
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+      
+      <ProfileSwitcher
+        visible={showProfileSwitcher}
+        profiles={availableProfiles}
+        activeProfileId={activeProfile?.id}
+        onSelectProfile={handleProfileSelect}
+        onClose={() => setShowProfileSwitcher(false)}
+      />
     </View>
   );
 }

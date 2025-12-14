@@ -3,7 +3,7 @@
 
 export const COLORS = {
   primary: '#2563eb',
-  primaryLight: '#bfdbfe',
+  primaryLight: '#93c5fd',
   primaryBg: '#eff6ff',
   success: '#16a34a',
   successBg: '#dcfce7',

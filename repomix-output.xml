@@ -1,0 +1,6781 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.github/
+  workflows/
+    main_ciam-demo-dap.yml
+backend-java/
+  README.md
+backend-kotlin/
+  gradle/
+    wrapper/
+      gradle-wrapper.properties
+  src/
+    main/
+      kotlin/
+        no/
+          gjensidige/
+            ciam/
+              ApiController.kt
+              CiamDemoApplication.kt
+              SecurityConfig.kt
+      resources/
+        application.properties
+    test/
+      kotlin/
+        no/
+          gjensidige/
+            ciam/
+              CiamDemoApplicationTests.kt
+  .gitattributes
+  .gitignore
+  build.gradle.kts
+  Dockerfile
+  settings.gradle.kts
+backend-python/
+  README.md
+  requirements.txt
+frontend/
+  src/
+    components/
+      ApiResultBox.js
+      BottomNav.js
+      Button.js
+      Card.js
+      DetailRow.js
+      index.js
+      InfoBox.js
+      InsuranceCard.js
+      PermissionBadge.js
+      ProfileSwitcher.js
+      ScreenContainer.js
+      StepUpModal.js
+    constants/
+      config.js
+      index.js
+      mockData.js
+    contexts/
+      AuthContext.js
+      ConsentContext.js
+      index.js
+      UserContext.js
+    hooks/
+      index.js
+      useApiTest.js
+      useCountdown.js
+    screens/
+      ApiTestScreen.js
+      ConsentScreen.js
+      DelegationScreen.js
+      HomeScreen.js
+      index.js
+      LoginScreen.js
+      ProfileScreen.js
+      SecurityInfoScreen.js
+    services/
+      api.js
+      business.js
+      delegation.js
+      index.js
+      insurance.js
+      profile.js
+      userData.js
+    styles/
+      theme.js
+    utils/
+      hash.js
+      index.js
+  .gitignore
+  App.js
+  app.json
+  index.js
+  package.json
+kubernetes/
+  deployment.yaml
+  secrets-template.yaml
+  service.yaml
+.gitignore
+.repomixignore
+README.md
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path=".repomixignore">
+# Node
+**/node_modules/**
+**/package-lock.json
+
+# Build outputs
+**/build/**
+**/dist/**
+**/.expo/**
+**/.gradle/**
+
+# IDE
+**/.vscode/**
+**/.idea/**
+
+# Git
+**/.git/**
+
+# Logs
+*.log
+
+# Media/binaries
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+
+# Android/iOS builds
+**/android/**
+**/ios/**
+
+# Gradle
+**/*.jar
+**/gradlew
+**/gradlew.bat
+
+# Misc
+**/.DS_Store
+**/Thumbs.db
+</file>
+
+<file path="backend-java/README.md">
+# Backend - Java (Placeholder)
+
+This folder is a placeholder for a potential Java implementation of the CIAM backend.
+
+## Planned Stack
+
+- **Framework:** Spring Boot 3.x
+- **Language:** Java 21
+- **Security:** Spring Security with OAuth2 Resource Server
+
+## Relationship to Kotlin Backend
+
+The Kotlin backend (`backend-kotlin/`) already runs on the JVM and uses Spring Boot. A Java implementation would be nearly identical, demonstrating that:
+
+- Kotlin and Java are interoperable
+- The same Spring Security configuration works in both
+- Teams can choose based on preference or existing codebase
+
+## Key Differences from Kotlin
+
+| Aspect | Kotlin | Java |
+|--------|--------|------|
+| Null safety | Built-in | Optional/annotations |
+| Boilerplate | Minimal | More verbose |
+| Data classes | Native | Records (Java 14+) |
+| Coroutines | Native | Project Loom (Java 21) |
+
+## Getting Started (Future)
+```bash
+cd backend-java
+./gradlew bootRun
+```
+</file>
+
+<file path="backend-kotlin/gradle/wrapper/gradle-wrapper.properties">
+distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+distributionUrl=https\://services.gradle.org/distributions/gradle-8.14.3-bin.zip
+networkTimeout=10000
+validateDistributionUrl=true
+zipStoreBase=GRADLE_USER_HOME
+zipStorePath=wrapper/dists
+</file>
+
+<file path="backend-kotlin/src/main/kotlin/no/gjensidige/ciam/ApiController.kt">
+package no.gjensidige.ciam
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.oauth2.jwt.Jwt
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RestController
+
+@RestController
+class ApiController {
+
+    @GetMapping("/public")
+    fun publicEndpoint(): Map<String, String> {
+        return mapOf(
+            "message" to "Dette er et offentlig endepunkt - ingen innlogging kreves!",
+            "status" to "åpen"
+        )
+    }
+
+    @GetMapping("/protected")
+    fun protectedEndpoint(@AuthenticationPrincipal jwt: Jwt): Map<String, Any?> {
+        return mapOf(
+            "message" to "Gratulerer! Du har tilgang til beskyttet data.",
+            "status" to "autentisert",
+            "tokenInfo" to mapOf(
+                "subject" to jwt.subject,
+                "issuer" to jwt.issuer.toString(),
+                "expiresAt" to jwt.expiresAt.toString()
+            )
+        )
+    }
+}
+</file>
+
+<file path="backend-kotlin/src/main/kotlin/no/gjensidige/ciam/CiamDemoApplication.kt">
+package no.gjensidige.ciam
+
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
+
+@SpringBootApplication
+class CiamDemoApplication
+
+fun main(args: Array<String>) {
+	runApplication<CiamDemoApplication>(*args)
+}
+</file>
+
+<file path="backend-kotlin/src/main/resources/application.properties">
+# Server-konfigurasjon
+server.port=8080
+
+# Auth0-konfigurasjon
+spring.security.oauth2.resourceserver.jwt.issuer-uri=https://dev-feccaeq8qwpicehq.eu.auth0.com/
+
+# Logging (nyttig for feilsøking)
+logging.level.org.springframework.security=DEBUG
+</file>
+
+<file path="backend-kotlin/src/test/kotlin/no/gjensidige/ciam/CiamDemoApplicationTests.kt">
+package no.gjensidige.ciam
+
+import org.junit.jupiter.api.Test
+import org.springframework.boot.test.context.SpringBootTest
+
+@SpringBootTest
+class CiamDemoApplicationTests {
+
+	@Test
+	fun contextLoads() {
+	}
+
+}
+</file>
+
+<file path="backend-kotlin/.gitattributes">
+/gradlew text eol=lf
+*.bat text eol=crlf
+*.jar binary
+</file>
+
+<file path="backend-kotlin/.gitignore">
+HELP.md
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Kotlin ###
+.kotlin
+</file>
+
+<file path="backend-kotlin/build.gradle.kts">
+plugins {
+	kotlin("jvm") version "1.9.25"
+	kotlin("plugin.spring") version "1.9.25"
+	id("org.springframework.boot") version "3.4.1"
+	id("io.spring.dependency-management") version "1.1.7"
+}
+
+group = "no.gjensidige.ciam"
+version = "0.0.1-SNAPSHOT"
+description = "Demo project for Spring Boot"
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+	testImplementation("org.springframework.security:spring-security-test")
+	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+kotlin {
+	compilerOptions {
+		freeCompilerArgs.addAll("-Xjsr305=strict")
+	}
+}
+
+tasks.withType<Test> {
+	useJUnitPlatform()
+}
+</file>
+
+<file path="backend-kotlin/Dockerfile">
+# Build stage
+FROM gradle:8.5-jdk21 AS build
+WORKDIR /app
+COPY . .
+RUN gradle build -x test --no-daemon
+
+# Run stage
+FROM eclipse-temurin:21-jre
+WORKDIR /app
+COPY --from=build /app/build/libs/*-SNAPSHOT.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
+</file>
+
+<file path="backend-kotlin/settings.gradle.kts">
+rootProject.name = "ciam-demo"
+</file>
+
+<file path="backend-python/README.md">
+# Backend - Python (Placeholder)
+
+This folder is a placeholder for a potential Python implementation of the CIAM backend.
+
+## Planned Stack
+
+- **Framework:** Flask or FastAPI
+- **JWT Validation:** python-jose
+- **Auth0 Integration:** authlib
+
+## Why Multiple Backends?
+
+This project demonstrates that the same CIAM concepts work across different languages:
+
+| Language | Framework | Use Case |
+|----------|-----------|----------|
+| Kotlin | Spring Boot | Enterprise, existing Java ecosystem |
+| Python | FastAPI | Rapid prototyping, data science integration |
+| Java | Spring Boot | Enterprise standard |
+
+The frontend and Auth0 configuration remain identical – only the backend implementation changes.
+
+## Getting Started (Future)
+```bash
+cd backend-python
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python app.py
+```
+</file>
+
+<file path="backend-python/requirements.txt">
+blinker==1.9.0
+certifi==2025.11.12
+cffi==2.0.0
+charset-normalizer==3.4.4
+click==8.3.1
+cryptography==46.0.3
+ecdsa==0.19.1
+Flask==3.1.2
+idna==3.11
+itsdangerous==2.2.0
+Jinja2==3.1.6
+MarkupSafe==3.0.3
+pyasn1==0.6.1
+pycparser==2.23
+python-dotenv==1.2.1
+python-jose==3.5.0
+requests==2.32.5
+rsa==4.9.1
+six==1.17.0
+urllib3==2.6.2
+Werkzeug==3.1.4
+</file>
+
+<file path="frontend/src/components/ApiResultBox.js">
+// frontend/src/components/ApiResultBox.js
+// Component for displaying API test results
+// Used in LoginScreen and ApiTestScreen
+
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../styles/theme';
+
+/**
+ * Display box for API call results
+ * @param {Object} result - API result object
+ * @param {string} result.endpoint - API endpoint called
+ * @param {boolean} result.success - Whether call succeeded
+ * @param {boolean} result.authenticated - Whether request was authenticated
+ * @param {boolean} result.expectedBehavior - Whether failure was expected
+ * @param {Object} result.data - Response data (if success)
+ * @param {string} result.error - Error message (if failure)
+ */
+export function ApiResultBox({ result }) {
+  if (!result) return null;
+
+  return (
+    <View style={[styles.container, result.success ? styles.success : styles.error]}>
+      <View style={styles.header}>
+        <Text style={styles.endpoint}>
+          {result.endpoint} → {result.success ? '✓ OK' : '✗ Feilet'}
+          {result.authenticated && ' (Autentisert)'}
+        </Text>
+      </View>
+
+      {result.expectedBehavior && (
+        <Text style={styles.expectedText}>
+          ✓ Forventet oppførsel! Logg inn for å få tilgang.
+        </Text>
+      )}
+
+      {result.success && result.authenticated && (
+        <Text style={styles.authBadge}>
+          JWT-token validert av backend
+        </Text>
+      )}
+
+      <ScrollView style={styles.resultScroll} nestedScrollEnabled>
+        <Text style={styles.resultText}>
+          {result.success
+            ? JSON.stringify(result.data, null, 2)
+            : result.error}
+        </Text>
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    borderRadius: BORDER_RADIUS.lg,
+    padding: SPACING.lg,
+    marginTop: SPACING.lg,
+    borderWidth: 1,
+  },
+  success: {
+    backgroundColor: COLORS.successBg,
+    borderColor: COLORS.success,
+  },
+  error: {
+    backgroundColor: COLORS.dangerBg,
+    borderColor: COLORS.danger,
+  },
+  header: {
+    marginBottom: SPACING.sm,
+  },
+  endpoint: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
+    color: COLORS.gray900,
+  },
+  expectedText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.success,
+    fontWeight: '500',
+    marginBottom: SPACING.sm,
+  },
+  authBadge: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.success,
+    fontWeight: '500',
+    marginBottom: SPACING.md,
+  },
+  resultScroll: {
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    borderRadius: BORDER_RADIUS.sm,
+    padding: SPACING.md,
+    maxHeight: 200,
+  },
+  resultText: {
+    fontFamily: 'monospace',
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.gray700,
+  },
+});
+</file>
+
+<file path="frontend/src/components/DetailRow.js">
+// frontend/src/components/DetailRow.js
+// Reusable detail row component for displaying label-value pairs
+// Used in: HomeScreen, ProfileScreen, ApiTestScreen
+
+import { View, Text, StyleSheet } from 'react-native';
+import { COLORS, SPACING, FONT_SIZES } from '../styles/theme';
+
+/**
+ * A row displaying a label and value pair
+ * @param {string} label - Left side label text
+ * @param {string} value - Right side value text
+ * @param {string} valueColor - Optional color override for value
+ * @param {boolean} noBorder - Optional flag to hide bottom border
+ */
+export function DetailRow({ label, value, valueColor, noBorder = false }) {
+  return (
+    <View style={[styles.container, noBorder && styles.noBorder]}>
+      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.value, valueColor && { color: valueColor }]}>
+        {value}
+      </Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: SPACING.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.gray100,
+  },
+  noBorder: {
+    borderBottomWidth: 0,
+  },
+  label: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray500,
+    flex: 1,
+  },
+  value: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '500',
+    color: COLORS.gray900,
+    flex: 1,
+    textAlign: 'right',
+  },
+});
+</file>
+
+<file path="frontend/src/components/InfoBox.js">
+// frontend/src/components/InfoBox.js
+// Informational box component for tips and explanations
+// Used across multiple screens for contextual information
+
+import { View, Text, StyleSheet } from 'react-native';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../styles/theme';
+
+/**
+ * Informational box with title and text
+ * @param {string} title - Box title (often with emoji)
+ * @param {string} children - Box content text
+ * @param {string} variant - 'default' | 'primary' | 'warning'
+ */
+export function InfoBox({ title, children, variant = 'default' }) {
+  const variantStyles = {
+    default: {
+      container: styles.containerDefault,
+      title: styles.titleDefault,
+      text: styles.textDefault,
+    },
+    primary: {
+      container: styles.containerPrimary,
+      title: styles.titlePrimary,
+      text: styles.textPrimary,
+    },
+    warning: {
+      container: styles.containerWarning,
+      title: styles.titleWarning,
+      text: styles.textWarning,
+    },
+  };
+
+  const currentVariant = variantStyles[variant] || variantStyles.default;
+
+  return (
+    <View style={[styles.container, currentVariant.container]}>
+      {title && <Text style={[styles.title, currentVariant.title]}>{title}</Text>}
+      <Text style={[styles.text, currentVariant.text]}>{children}</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    borderRadius: BORDER_RADIUS.lg,
+    padding: SPACING.md,
+  },
+  containerDefault: {
+    backgroundColor: COLORS.gray50,
+  },
+  containerPrimary: {
+    backgroundColor: COLORS.primaryBg,
+  },
+  containerWarning: {
+    backgroundColor: COLORS.warningBg,
+  },
+  title: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '600',
+    marginBottom: SPACING.xs,
+  },
+  titleDefault: {
+    color: COLORS.gray700,
+  },
+  titlePrimary: {
+    color: COLORS.primary,
+  },
+  titleWarning: {
+    color: COLORS.warning,
+  },
+  text: {
+    fontSize: FONT_SIZES.sm,
+    lineHeight: 20,
+  },
+  textDefault: {
+    color: COLORS.gray500,
+  },
+  textPrimary: {
+    color: COLORS.primary,
+  },
+  textWarning: {
+    color: COLORS.warning,
+  },
+});
+</file>
+
+<file path="frontend/src/components/PermissionBadge.js">
+// frontend/src/components/PermissionBadge.js
+// Badge component showing permission status (granted/denied)
+// Used for RBAC visualization in HomeScreen
+
+import { View, Text, StyleSheet } from 'react-native';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../styles/theme';
+
+/**
+ * Badge showing whether a permission is granted or denied
+ * @param {string} label - Permission name
+ * @param {boolean} hasAccess - Whether access is granted
+ */
+export function PermissionBadge({ label, hasAccess }) {
+  return (
+    <View style={[styles.container, hasAccess ? styles.granted : styles.denied]}>
+      <Text style={styles.icon}>{hasAccess ? '✓' : '✗'}</Text>
+      <Text style={[styles.label, hasAccess ? styles.labelGranted : styles.labelDenied]}>
+        {label}
+      </Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderRadius: BORDER_RADIUS.full,
+  },
+  granted: {
+    backgroundColor: COLORS.successBg,
+  },
+  denied: {
+    backgroundColor: COLORS.dangerBg,
+  },
+  icon: {
+    marginRight: SPACING.xs,
+    fontSize: 12,
+  },
+  label: {
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '500',
+  },
+  labelGranted: {
+    color: COLORS.success,
+  },
+  labelDenied: {
+    color: COLORS.danger,
+  },
+});
+</file>
+
+<file path="frontend/src/components/ScreenContainer.js">
+// frontend/src/components/ScreenContainer.js
+// Wrapper component for consistent screen layout with SafeArea and responsive web support
+
+import { ScrollView, View, Text, StyleSheet, Platform, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { COLORS, SPACING, FONT_SIZES } from '../styles/theme';
+
+/**
+ * Container component for screen content
+ * Responsive: Full width on mobile, max 900px centered on web
+ */
+export function ScreenContainer({ 
+  children, 
+  title, 
+  subtitle, 
+  scroll = true,
+  style 
+}) {
+  const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  
+  const isWeb = Platform.OS === 'web';
+  const isWideScreen = width > 768;
+
+  const containerStyle = [
+    styles.container,
+    {
+      paddingTop: Math.max(insets.top + SPACING.lg, 60),
+      paddingBottom: Math.max(insets.bottom + 80, 100),
+    },
+    isWeb && isWideScreen && styles.containerWeb,
+    style,
+  ];
+
+  const content = (
+    <>
+      {(title || subtitle) && (
+        <View style={styles.header}>
+          {title && <Text style={styles.title}>{title}</Text>}
+          {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+        </View>
+      )}
+      {children}
+    </>
+  );
+
+  if (scroll) {
+    return (
+      <ScrollView 
+        contentContainerStyle={containerStyle}
+        showsVerticalScrollIndicator={false}
+      >
+        {content}
+      </ScrollView>
+    );
+  }
+
+  return (
+    <View style={[containerStyle, styles.noScroll]}>
+      {content}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: SPACING.xl,
+    backgroundColor: COLORS.gray100,
+  },
+  containerWeb: {
+    maxWidth: 900,
+    alignSelf: 'center',
+    width: '100%',
+    paddingHorizontal: SPACING.xxl,
+  },
+  noScroll: {
+    flex: 1,
+  },
+  header: {
+    marginBottom: SPACING.xl,
+  },
+  title: {
+    fontSize: FONT_SIZES.xxl,
+    fontWeight: 'bold',
+    color: COLORS.gray900,
+  },
+  subtitle: {
+    fontSize: FONT_SIZES.md,
+    color: COLORS.gray500,
+    marginTop: SPACING.xs,
+  },
+});
+</file>
+
+<file path="frontend/src/constants/index.js">
+// frontend/src/constants/index.js
+// Barrel export for all constants
+
+export { AUTH0_CONFIG } from './config';
+export * from './mockData';
+</file>
+
+<file path="frontend/src/constants/mockData.js">
+// frontend/src/constants/mockData.js
+// Constants for mock data generation
+// Centralized location for all mock data arrays
+// Makes it easy to modify and extend demo data
+
+// ---------------------
+// GEOGRAPHIC DATA
+// ---------------------
+export const STREET_NAMES = [
+  'Storgata',
+  'Kirkegata',
+  'Parkveien',
+  'Solveien',
+  'Fjordgata',
+  'Bjørkealléen',
+  'Granveien',
+  'Osloveien',
+];
+
+export const CITIES = [
+  { city: 'Oslo', postalCode: '0150' },
+  { city: 'Bergen', postalCode: '5003' },
+  { city: 'Trondheim', postalCode: '7010' },
+  { city: 'Stavanger', postalCode: '4006' },
+  { city: 'Drammen', postalCode: '3015' },
+  { city: 'Kristiansand', postalCode: '4612' },
+];
+
+export const LAST_NAMES = [
+  'Hansen', 'Johansen', 'Olsen', 'Larsen', 'Andersen',
+  'Pedersen', 'Nilsen', 'Kristiansen', 'Jensen', 'Karlsen',
+  'Johnsen', 'Pettersen', 'Eriksen', 'Berg', 'Haugen',
+];
+
+// ---------------------
+// INSURANCE TYPES
+// ---------------------
+export const INSURANCE_TYPES = [
+  { type: 'Bilforsikring', icon: '🚗', prefix: 'BIL', category: 'ting' },
+  { type: 'Innboforsikring', icon: '🏠', prefix: 'INN', category: 'ting' },
+  { type: 'Reiseforsikring', icon: '✈️', prefix: 'REI', category: 'person' },
+  { type: 'Husforsikring', icon: '🏡', prefix: 'HUS', category: 'ting' },
+  { type: 'Livsforsikring', icon: '❤️', prefix: 'LIV', category: 'person' },
+  { type: 'Båtforsikring', icon: '⛵', prefix: 'BAT', category: 'ting' },
+  { type: 'Dyreforsikring', icon: '🐕', prefix: 'DYR', category: 'person' },
+];
+
+export const BUSINESS_INSURANCE_TYPES = [
+  { type: 'Næringsforsikring', icon: '🏢', prefix: 'NÆR', category: 'ting' },
+  { type: 'Ansvarsforsikring', icon: '⚖️', prefix: 'ANS', category: 'ting' },
+  { type: 'Yrkesskadeforsikring', icon: '🦺', prefix: 'YRK', category: 'person' },
+  { type: 'Bedriftsbil', icon: '🚐', prefix: 'BIL', category: 'ting' },
+  { type: 'Kontorforsikring', icon: '🖥️', prefix: 'KNT', category: 'ting' },
+  { type: 'Driftstapsforsikring', icon: '📉', prefix: 'DRF', category: 'ting' },
+];
+
+// ---------------------
+// COMPANY DATA
+// ---------------------
+export const COMPANY_NAMES = [
+  'Nordvik AS',
+  'Fjordtech Solutions',
+  'Bergen Bygg AS',
+  'Oslo Consulting Group',
+  'Trondheim Transport',
+  'Stavanger Shipping',
+];
+
+// ---------------------
+// RBAC ROLES
+// ---------------------
+export const BUSINESS_ROLES = [
+  {
+    id: 'daglig_leder',
+    name: 'Daglig leder',
+    permissions: ['ting', 'person', 'pensjon'],
+    description: 'Full tilgang til alle forsikringer og pensjon',
+  },
+  {
+    id: 'hr_ansvarlig',
+    name: 'HR-ansvarlig',
+    permissions: ['person', 'pensjon'],
+    description: 'Tilgang til personforsikringer og pensjon',
+  },
+  {
+    id: 'regnskapsforer',
+    name: 'Regnskapsfører',
+    permissions: ['ting'],
+    description: 'Kun tilgang til tingforsikringer',
+  },
+  {
+    id: 'okonomisjef',
+    name: 'Økonomisjef',
+    permissions: ['ting', 'pensjon'],
+    description: 'Tilgang til tingforsikringer og pensjon',
+  },
+];
+
+// ---------------------
+// SENSITIVE ACTIONS (Step-up authentication)
+// ---------------------
+export const SENSITIVE_ACTIONS = [
+  {
+    id: 'change_contact',
+    name: 'Endre kontaktinformasjon',
+    icon: '📝',
+    description: 'Endre e-post, telefon eller adresse',
+    requiresStepUp: true,
+  },
+  {
+    id: 'sign_agreement',
+    name: 'Signere avtale',
+    icon: '✍️',
+    description: 'Signere nye forsikringsavtaler',
+    requiresStepUp: true,
+  },
+  {
+    id: 'add_delegation',
+    name: 'Gi fullmakt',
+    icon: '🤝',
+    description: 'Gi andre tilgang til dine forsikringer',
+    requiresStepUp: true,
+  },
+  {
+    id: 'cancel_insurance',
+    name: 'Si opp forsikring',
+    icon: '❌',
+    description: 'Avslutte en forsikringsavtale',
+    requiresStepUp: true,
+  },
+  {
+    id: 'view_policy',
+    name: 'Se forsikringsdetaljer',
+    icon: '👁️',
+    description: 'Lese forsikringsinformasjon',
+    requiresStepUp: false,
+  },
+  {
+    id: 'report_claim',
+    name: 'Melde skade',
+    icon: '📋',
+    description: 'Registrere en skademelding',
+    requiresStepUp: false,
+  },
+];
+
+// ---------------------
+// ACCESS LEVELS
+// ---------------------
+export const ACCESS_LEVELS = {
+  full: {
+    id: 'full',
+    name: 'Full tilgang',
+    description: 'Full tilgang (lese og endre)',
+  },
+  read: {
+    id: 'read',
+    name: 'Lesetilgang',
+    description: 'Kun lesetilgang',
+  },
+  limited: {
+    id: 'limited',
+    name: 'Begrenset tilgang',
+    description: 'Begrenset tilgang',
+  },
+};
+</file>
+
+<file path="frontend/src/contexts/ConsentContext.js">
+// frontend/src/contexts/ConsentContext.js
+// GDPR Consent context
+// Responsibility: Manage user consents with AsyncStorage persistence
+// GDPR compliance: Article 7 (consent), Article 17 (erasure)
+
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// ---------------------
+// CONSTANTS
+// ---------------------
+const CONSENT_STORAGE_KEY = 'userConsent';
+
+// Default consent state - all false until user consents
+const DEFAULT_CONSENTS = {
+  necessary: true,      // Always true - required for functionality
+  analytics: false,     // Anonymized usage statistics
+  marketing: false,     // Marketing communications
+  thirdParty: false,    // Third-party sharing
+};
+
+// ---------------------
+// CONTEXT DEFINITION
+// ---------------------
+const ConsentContext = createContext(null);
+
+// ---------------------
+// PROVIDER COMPONENT
+// ---------------------
+export function ConsentProvider({ children }) {
+  const [consents, setConsents] = useState(null);
+  const [hasConsented, setHasConsented] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // ---------------------
+  // LIFECYCLE
+  // ---------------------
+
+  useEffect(() => {
+    loadStoredConsents();
+  }, []);
+
+  // ---------------------
+  // STORAGE FUNCTIONS
+  // ---------------------
+
+  /**
+   * Load consents from AsyncStorage
+   */
+  const loadStoredConsents = async () => {
+    try {
+      const stored = await AsyncStorage.getItem(CONSENT_STORAGE_KEY);
+      
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setConsents(parsed);
+        setHasConsented(true);
+      }
+    } catch (error) {
+      console.warn('Failed to load consents:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  /**
+   * Save consents to AsyncStorage
+   */
+  const saveConsents = async (newConsents) => {
+    try {
+      await AsyncStorage.setItem(CONSENT_STORAGE_KEY, JSON.stringify(newConsents));
+      return true;
+    } catch (error) {
+      console.error('Failed to save consents:', error);
+      return false;
+    }
+  };
+
+  /**
+   * Clear consents from AsyncStorage
+   */
+  const clearStoredConsents = async () => {
+    try {
+      await AsyncStorage.removeItem(CONSENT_STORAGE_KEY);
+      return true;
+    } catch (error) {
+      console.error('Failed to clear consents:', error);
+      return false;
+    }
+  };
+
+  // ---------------------
+  // ACTIONS
+  // ---------------------
+
+  /**
+   * Set initial consents (from consent screen)
+   */
+  const acceptConsents = useCallback(async (userConsents) => {
+    const consentsToSave = {
+      ...DEFAULT_CONSENTS,
+      ...userConsents,
+      necessary: true,
+    };
+
+    const saved = await saveConsents(consentsToSave);
+    
+    setConsents(consentsToSave);
+    setHasConsented(true);
+
+    return saved;
+  }, []);
+
+  /**
+   * Update a single consent
+   */
+  const updateConsent = useCallback(async (key, value) => {
+    if (key === 'necessary') {
+      console.warn('Necessary consents cannot be changed');
+      return false;
+    }
+
+    const updatedConsents = {
+      ...consents,
+      [key]: value,
+    };
+
+    const saved = await saveConsents(updatedConsents);
+    
+    if (saved) {
+      setConsents(updatedConsents);
+    }
+
+    return saved;
+  }, [consents]);
+
+  /**
+   * Toggle a consent on/off
+   */
+  const toggleConsent = useCallback(async (key) => {
+    if (!consents) return false;
+    return updateConsent(key, !consents[key]);
+  }, [consents, updateConsent]);
+
+  /**
+   * Revoke all consents (GDPR Article 7)
+   */
+  const revokeAllConsents = useCallback(async () => {
+    await clearStoredConsents();
+    setConsents(null);
+    setHasConsented(false);
+  }, []);
+
+  /**
+   * Reset consent state (on logout)
+   */
+  const resetConsentState = useCallback(async () => {
+    await clearStoredConsents();
+    setConsents(null);
+    setHasConsented(false);
+  }, []);
+
+  /**
+   * Export consent data (GDPR Article 15 - Right to Access)
+   */
+  const exportConsentData = useCallback(() => {
+    if (!consents) return null;
+
+    return {
+      consents,
+      exportedAt: new Date().toISOString(),
+      version: '1.0',
+    };
+  }, [consents]);
+
+  /**
+   * Check if a specific consent is given
+   */
+  const hasConsentFor = useCallback((key) => {
+    return consents?.[key] ?? false;
+  }, [consents]);
+
+  // ---------------------
+  // CONTEXT VALUE
+  // ---------------------
+  const value = {
+    consents,
+    hasConsented,
+    isLoading,
+    acceptConsents,
+    updateConsent,
+    toggleConsent,
+    revokeAllConsents,
+    resetConsentState,
+    exportConsentData,
+    hasConsentFor,
+  };
+
+  return (
+    <ConsentContext.Provider value={value}>
+      {children}
+    </ConsentContext.Provider>
+  );
+}
+
+// ---------------------
+// CUSTOM HOOK
+// ---------------------
+export function useConsent() {
+  const context = useContext(ConsentContext);
+
+  if (!context) {
+    throw new Error('useConsent must be used within a ConsentProvider');
+  }
+
+  return context;
+}
+
+export default ConsentContext;
+</file>
+
+<file path="frontend/src/contexts/index.js">
+// frontend/src/contexts/index.js
+// Barrel export for all contexts
+
+export { AuthProvider, useAuth } from './AuthContext';
+export { UserProvider, useUser, CUSTOMER_TYPES } from './UserContext';
+export { ConsentProvider, useConsent } from './ConsentContext';
+</file>
+
+<file path="frontend/src/contexts/UserContext.js">
+// frontend/src/contexts/UserContext.js
+// User context for profiles and customer type
+// Responsibility: Customer type selection, profile switching, active profile state
+// Separated from auth for better separation of concerns
+
+import { createContext, useContext, useState, useCallback, useMemo } from 'react';
+import { getAvailableProfiles } from '../services/userData';
+
+// ---------------------
+// TYPES
+// ---------------------
+export const CUSTOMER_TYPES = {
+  PRIVATE: 'private',
+  BUSINESS: 'business',
+};
+
+// ---------------------
+// CONTEXT DEFINITION
+// ---------------------
+const UserContext = createContext(null);
+
+// ---------------------
+// PROVIDER COMPONENT
+// ---------------------
+export function UserProvider({ children, userId }) {
+  // Customer type selected before login
+  const [customerType, setCustomerType] = useState(null);
+  
+  // Active profile (own or delegated)
+  const [activeProfile, setActiveProfile] = useState(null);
+  
+  // Profile switcher visibility
+  const [isProfileSwitcherVisible, setIsProfileSwitcherVisible] = useState(false);
+
+  // ---------------------
+  // COMPUTED VALUES
+  // ---------------------
+
+  /**
+   * Get available profiles based on userId and customerType
+   */
+  const availableProfiles = useMemo(() => {
+    if (!userId || !customerType) return [];
+    return getAvailableProfiles(userId, customerType);
+  }, [userId, customerType]);
+
+  /**
+   * Check if user is viewing a delegated profile
+   */
+  const isViewingDelegatedProfile = useMemo(() => {
+    return activeProfile?.type === 'delegation';
+  }, [activeProfile]);
+
+  const hasSelectedCustomerType = Boolean(customerType);
+
+  // ---------------------
+  // ACTIONS
+  // ---------------------
+
+  /**
+   * Set customer type (private/business)
+   */
+  const selectCustomerType = useCallback((type) => {
+    if (type !== CUSTOMER_TYPES.PRIVATE && type !== CUSTOMER_TYPES.BUSINESS) {
+      console.warn('Invalid customer type:', type);
+      return;
+    }
+    setCustomerType(type);
+  }, []);
+
+  /**
+   * Initialize default profile when user logs in
+   */
+  const initializeDefaultProfile = useCallback((userId, type) => {
+    if (!userId || !type) return;
+    
+    const profiles = getAvailableProfiles(userId, type);
+    if (profiles.length > 0) {
+      setActiveProfile(profiles[0]);
+    }
+  }, []);
+
+  /**
+   * Switch to a different profile
+   */
+  const switchProfile = useCallback((profile) => {
+    setActiveProfile(profile);
+    setIsProfileSwitcherVisible(false);
+  }, []);
+
+  /**
+   * Open profile switcher modal
+   */
+  const openProfileSwitcher = useCallback(() => {
+    setIsProfileSwitcherVisible(true);
+  }, []);
+
+  /**
+   * Close profile switcher modal
+   */
+  const closeProfileSwitcher = useCallback(() => {
+    setIsProfileSwitcherVisible(false);
+  }, []);
+
+  /**
+   * Reset all user state (on logout)
+   */
+  const resetUserState = useCallback(() => {
+    setCustomerType(null);
+    setActiveProfile(null);
+    setIsProfileSwitcherVisible(false);
+  }, []);
+
+  // ---------------------
+  // CONTEXT VALUE
+  // ---------------------
+  const value = {
+    // State
+    customerType,
+    activeProfile,
+    availableProfiles,
+    isProfileSwitcherVisible,
+    
+    // Computed
+    hasSelectedCustomerType,
+    isViewingDelegatedProfile,
+    isPrivateCustomer: customerType === CUSTOMER_TYPES.PRIVATE,
+    isBusinessCustomer: customerType === CUSTOMER_TYPES.BUSINESS,
+    
+    // Actions
+    selectCustomerType,
+    initializeDefaultProfile,
+    switchProfile,
+    openProfileSwitcher,
+    closeProfileSwitcher,
+    resetUserState,
+  };
+
+  return (
+    <UserContext.Provider value={value}>
+      {children}
+    </UserContext.Provider>
+  );
+}
+
+// ---------------------
+// CUSTOM HOOK
+// ---------------------
+export function useUser() {
+  const context = useContext(UserContext);
+  
+  if (!context) {
+    throw new Error('useUser must be used within a UserProvider');
+  }
+  
+  return context;
+}
+
+export default UserContext;
+</file>
+
+<file path="frontend/src/hooks/index.js">
+// frontend/src/hooks/index.js
+// Barrel export for custom hooks
+
+export { useApiTest } from './useApiTest';
+export { useCountdown } from './useCountdown';
+</file>
+
+<file path="frontend/src/hooks/useApiTest.js">
+// frontend/src/hooks/useApiTest.js
+// Custom hook for API endpoint testing
+// Used in LoginScreen and ApiTestScreen
+
+import { useState, useCallback } from 'react';
+import { apiService } from '../services/api';
+import { API_BASE_URL } from '../constants/config';
+
+/**
+ * Hook for testing API endpoints
+ * Handles loading state, results, and error handling
+ * @param {string|null} accessToken - Optional access token for authenticated requests
+ * @returns {Object} - API test state and handlers
+ */
+export function useApiTest(accessToken = null) {
+  const [result, setResult] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  /**
+   * Call public endpoint (no auth required)
+   */
+  const callPublic = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await apiService.callPublic();
+      setResult({
+        endpoint: '/public',
+        success: true,
+        authenticated: false,
+        data,
+      });
+    } catch (error) {
+      setResult({
+        endpoint: '/public',
+        success: false,
+        error: error.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  /**
+   * Call protected endpoint (requires auth)
+   * Behavior differs based on whether accessToken is provided
+   */
+  const callProtected = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      if (accessToken) {
+        // Authenticated request
+        const data = await apiService.callProtected(accessToken);
+        setResult({
+          endpoint: '/protected',
+          success: true,
+          authenticated: true,
+          data,
+        });
+      } else {
+        // Unauthenticated request - expect 401
+        const response = await fetch(`${API_BASE_URL}/protected`);
+        if (response.status === 401) {
+          setResult({
+            endpoint: '/protected',
+            success: false,
+            error: '401 Unauthorized - Krever innlogging!',
+            expectedBehavior: true,
+          });
+        } else {
+          const data = await response.json();
+          setResult({
+            endpoint: '/protected',
+            success: true,
+            data,
+          });
+        }
+      }
+    } catch (error) {
+      setResult({
+        endpoint: '/protected',
+        success: false,
+        error: error.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [accessToken]);
+
+  /**
+   * Clear the current result
+   */
+  const clearResult = useCallback(() => {
+    setResult(null);
+  }, []);
+
+  return {
+    result,
+    isLoading,
+    callPublic,
+    callProtected,
+    clearResult,
+  };
+}
+</file>
+
+<file path="frontend/src/hooks/useCountdown.js">
+// frontend/src/hooks/useCountdown.js
+// Custom hook for countdown timer functionality
+// Used in StepUpModal for OTP expiration
+
+import { useState, useEffect, useCallback } from 'react';
+
+/**
+ * Hook for countdown timer
+ * @param {number} initialSeconds - Starting countdown value
+ * @param {boolean} autoStart - Whether to start automatically
+ * @returns {Object} - Timer state and controls
+ */
+export function useCountdown(initialSeconds = 30, autoStart = false) {
+  const [secondsLeft, setSecondsLeft] = useState(initialSeconds);
+  const [isRunning, setIsRunning] = useState(autoStart);
+
+  // Countdown effect
+  useEffect(() => {
+    if (!isRunning || secondsLeft <= 0) return;
+
+    const timer = setTimeout(() => {
+      setSecondsLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [isRunning, secondsLeft]);
+
+  /**
+   * Start the countdown
+   */
+  const start = useCallback(() => {
+    setIsRunning(true);
+  }, []);
+
+  /**
+   * Stop the countdown
+   */
+  const stop = useCallback(() => {
+    setIsRunning(false);
+  }, []);
+
+  /**
+   * Reset the countdown to initial value
+   * @param {number} newSeconds - Optional new starting value
+   */
+  const reset = useCallback((newSeconds = initialSeconds) => {
+    setSecondsLeft(newSeconds);
+    setIsRunning(false);
+  }, [initialSeconds]);
+
+  /**
+   * Restart the countdown from initial value
+   */
+  const restart = useCallback(() => {
+    setSecondsLeft(initialSeconds);
+    setIsRunning(true);
+  }, [initialSeconds]);
+
+  const isExpired = secondsLeft <= 0;
+
+  return {
+    secondsLeft,
+    isRunning,
+    isExpired,
+    start,
+    stop,
+    reset,
+    restart,
+  };
+}
+</file>
+
+<file path="frontend/src/services/api.js">
+// src/services/api.js
+
+import { API_CONFIG } from '../constants/config';
+
+export const apiService = {
+  async callPublic() {
+    const response = await fetch(`${API_CONFIG.baseUrl}/public`);
+    return response.json();
+  },
+
+  async callProtected(accessToken) {
+    const response = await fetch(`${API_CONFIG.baseUrl}/protected`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    return response.json();
+  },
+};
+</file>
+
+<file path="frontend/src/services/business.js">
+// frontend/src/services/business.js
+// Business service
+// Responsibility: Generate company profiles and handle RBAC
+// Gjensidige-relevant: Roles for business customers (CEO, HR, etc.)
+
+import { hashCode } from '../utils/hash';
+import { 
+  COMPANY_NAMES, 
+  BUSINESS_ROLES, 
+  STREET_NAMES, 
+  CITIES 
+} from '../constants/mockData';
+
+// ---------------------
+// COMPANY PROFILE
+// ---------------------
+
+/**
+ * Generate company profile based on user ID
+ * @param {string} userId - User ID
+ * @returns {Object|null} - Company profile
+ */
+export function generateCompanyProfile(userId) {
+  if (!userId) return null;
+
+  const hash = hashCode(userId);
+  const companyIndex = hash % COMPANY_NAMES.length;
+  const roleIndex = hash % BUSINESS_ROLES.length;
+  const cityIndex = hash % CITIES.length;
+
+  return {
+    companyName: COMPANY_NAMES[companyIndex],
+    orgNumber: formatOrgNumber(900000000 + (hash % 100000000)),
+    role: BUSINESS_ROLES[roleIndex],
+    address: {
+      street: `${STREET_NAMES[hash % STREET_NAMES.length]} ${(hash % 50) + 1}`,
+      postalCode: CITIES[cityIndex].postalCode,
+      city: CITIES[cityIndex].city,
+    },
+    employeeCount: (hash % 200) + 10,
+    customerSince: `${2010 + (hash % 14)}`,
+  };
+}
+
+/**
+ * Format organization number with spaces
+ * @param {number|string} orgNumber - Org number
+ * @returns {string} - Formatted org number (xxx xxx xxx)
+ */
+export function formatOrgNumber(orgNumber) {
+  const str = String(orgNumber);
+  return `${str.slice(0, 3)} ${str.slice(3, 6)} ${str.slice(6)}`;
+}
+
+// ---------------------
+// RBAC (Role-Based Access Control)
+// ---------------------
+
+/**
+ * Check if a role has a specific permission
+ * @param {Object} role - Role object
+ * @param {string} permissionType - Permission type ('ting', 'person', 'pensjon')
+ * @returns {boolean} - Has permission
+ */
+export function hasPermission(role, permissionType) {
+  if (!role || !role.permissions) return false;
+  return role.permissions.includes(permissionType);
+}
+
+/**
+ * Check if a role has all specified permissions
+ * @param {Object} role - Role object
+ * @param {Array} permissionTypes - List of permission types
+ * @returns {boolean} - Has all permissions
+ */
+export function hasAllPermissions(role, permissionTypes) {
+  if (!role || !role.permissions) return false;
+  return permissionTypes.every(p => role.permissions.includes(p));
+}
+
+/**
+ * Check if a role has at least one of the permissions
+ * @param {Object} role - Role object
+ * @param {Array} permissionTypes - List of permission types
+ * @returns {boolean} - Has at least one permission
+ */
+export function hasAnyPermission(role, permissionTypes) {
+  if (!role || !role.permissions) return false;
+  return permissionTypes.some(p => role.permissions.includes(p));
+}
+
+/**
+ * Get all available roles
+ * @returns {Array} - List of roles
+ */
+export function getBusinessRoles() {
+  return BUSINESS_ROLES;
+}
+
+/**
+ * Get role by ID
+ * @param {string} roleId - Role ID
+ * @returns {Object|undefined} - Role object
+ */
+export function getRoleById(roleId) {
+  return BUSINESS_ROLES.find(r => r.id === roleId);
+}
+
+/**
+ * Get access description for a role
+ * @param {Object} role - Role object
+ * @returns {string} - Human-readable description of access
+ */
+export function getRoleAccessDescription(role) {
+  if (!role) return '';
+  
+  const permissionLabels = {
+    ting: 'Tingforsikringer',
+    person: 'Personforsikringer',
+    pensjon: 'Pensjon',
+  };
+
+  const accessList = role.permissions
+    .map(p => permissionLabels[p])
+    .filter(Boolean);
+
+  return accessList.join(', ');
+}
+
+// ---------------------
+// PERMISSION CATEGORIES
+// ---------------------
+
+export const PERMISSION_CATEGORIES = {
+  ting: {
+    id: 'ting',
+    label: 'Tingforsikringer',
+    description: 'Forsikringer for eiendeler (bil, hus, båt, etc.)',
+    icon: '🏠',
+  },
+  person: {
+    id: 'person',
+    label: 'Personforsikringer',
+    description: 'Forsikringer for ansatte (yrkesskade, helse, etc.)',
+    icon: '👤',
+  },
+  pensjon: {
+    id: 'pensjon',
+    label: 'Pensjon',
+    description: 'Pensjonsordninger og -avtaler',
+    icon: '💰',
+  },
+};
+
+/**
+ * Get category info by ID
+ * @param {string} categoryId - Category ID
+ * @returns {Object|undefined} - Category object
+ */
+export function getPermissionCategory(categoryId) {
+  return PERMISSION_CATEGORIES[categoryId];
+}
+</file>
+
+<file path="frontend/src/services/delegation.js">
+// frontend/src/services/delegation.js
+// Delegation (Fullmakt) service
+// Responsibility: Generate and handle delegations
+// In production: This would fetch data from backend API
+// Gjensidige-relevant: Mirrors delegation functionality for family members
+
+import { hashCode } from '../utils/hash';
+import { ACCESS_LEVELS } from '../constants/mockData';
+
+// ---------------------
+// DELEGATION GENERATION
+// ---------------------
+
+/**
+ * Generate delegations for a user
+ * @param {string} userId - User ID
+ * @returns {Object} - { givenTo: [], receivedFrom: [] }
+ */
+export function generateUserDelegations(userId) {
+  if (!userId) return { givenTo: [], receivedFrom: [] };
+
+  const hash = hashCode(userId);
+
+  // Delegations given TO others
+  const givenTo = [];
+  
+  if (hash % 3 === 0) {
+    givenTo.push({
+      id: 1,
+      name: 'Marie Hansen',
+      relationship: 'Ektefelle',
+      email: 'm.hansen@email.no',
+      accessLevel: 'full',
+      accessTypes: ['Forsikringer', 'Pensjon'],
+      grantedDate: '2024-01-15',
+      expiresDate: null,
+    });
+  }
+
+  if (hash % 5 === 0) {
+    givenTo.push({
+      id: 2,
+      name: 'Erik Olsen',
+      relationship: 'Regnskapsfører',
+      email: 'erik@regnskap.no',
+      accessLevel: 'read',
+      accessTypes: ['Forsikringer'],
+      grantedDate: '2024-06-01',
+      expiresDate: '2025-06-01',
+    });
+  }
+
+  // Delegations received FROM others
+  const receivedFrom = [];
+
+  if (hash % 4 === 0) {
+    receivedFrom.push({
+      id: 3,
+      name: 'Kari Nordmann',
+      relationship: 'Mor',
+      accessLevel: 'full',
+      accessTypes: ['Forsikringer', 'Pensjon'],
+      grantedDate: '2023-08-20',
+    });
+  }
+
+  return { givenTo, receivedFrom };
+}
+
+// ---------------------
+// ACCESS LEVEL HELPERS
+// ---------------------
+
+/**
+ * Get description for access level
+ * @param {string} level - Access level ID
+ * @returns {string} - Description
+ */
+export function getAccessLevelDescription(level) {
+  return ACCESS_LEVELS[level]?.description || level;
+}
+
+/**
+ * Get name for access level
+ * @param {string} level - Access level ID
+ * @returns {string} - Name
+ */
+export function getAccessLevelName(level) {
+  return ACCESS_LEVELS[level]?.name || level;
+}
+
+/**
+ * Check if delegation is expired
+ * @param {Object} delegation - Delegation object
+ * @returns {boolean} - True if expired
+ */
+export function isDelegationExpired(delegation) {
+  if (!delegation.expiresDate) return false;
+  return new Date(delegation.expiresDate) < new Date();
+}
+
+/**
+ * Filter out expired delegations
+ * @param {Array} delegations - List of delegations
+ * @returns {Array} - Active delegations
+ */
+export function filterActiveDelegations(delegations) {
+  return delegations.filter(d => !isDelegationExpired(d));
+}
+
+// ---------------------
+// DELEGATION ACTIONS
+// ---------------------
+
+/**
+ * Validate new delegation before creation
+ * @param {Object} delegation - New delegation data
+ * @returns {Object} - { valid: boolean, errors: [] }
+ */
+export function validateNewDelegation(delegation) {
+  const errors = [];
+
+  if (!delegation.name || delegation.name.trim().length < 2) {
+    errors.push('Navn må være minst 2 tegn');
+  }
+
+  if (!delegation.email || !delegation.email.includes('@')) {
+    errors.push('Ugyldig e-postadresse');
+  }
+
+  if (!delegation.relationship) {
+    errors.push('Relasjon må velges');
+  }
+
+  if (!delegation.accessLevel) {
+    errors.push('Tilgangsnivå må velges');
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+  };
+}
+
+/**
+ * Format date for display
+ * @param {string} dateString - ISO date string
+ * @returns {string} - Formatted date
+ */
+export function formatDelegationDate(dateString) {
+  if (!dateString) return 'Permanent';
+  
+  const date = new Date(dateString);
+  return date.toLocaleDateString('nb-NO', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
+// ---------------------
+// RELATIONSHIP TYPES
+// ---------------------
+
+export const RELATIONSHIP_TYPES = [
+  { id: 'spouse', label: 'Ektefelle/Samboer' },
+  { id: 'parent', label: 'Forelder' },
+  { id: 'child', label: 'Barn (over 18)' },
+  { id: 'sibling', label: 'Søsken' },
+  { id: 'accountant', label: 'Regnskapsfører' },
+  { id: 'lawyer', label: 'Advokat' },
+  { id: 'other', label: 'Annet' },
+];
+</file>
+
+<file path="frontend/src/services/insurance.js">
+// frontend/src/services/insurance.js
+// Insurance service
+// Responsibility: Generate and handle insurance data
+// In production: This would fetch data from backend API
+
+import { hashCode } from '../utils/hash';
+import { INSURANCE_TYPES, BUSINESS_INSURANCE_TYPES } from '../constants/mockData';
+
+// ---------------------
+// PRIVATE INSURANCES
+// ---------------------
+
+/**
+ * Generate insurances for private customer
+ * @param {string} userId - User ID
+ * @returns {Array} - List of insurances
+ */
+export function generateUserInsurances(userId) {
+  if (!userId) return [];
+
+  const hash = hashCode(userId);
+  const numInsurances = (hash % 4) + 1;
+  const insurances = [];
+
+  for (let i = 0; i < numInsurances; i++) {
+    const typeIndex = (hash + i * 7) % INSURANCE_TYPES.length;
+    const insuranceType = INSURANCE_TYPES[typeIndex];
+
+    const year = 2024 + (hash % 2);
+    const month = ((hash + i) % 12) + 1;
+    const policyNum = ((hash * (i + 1)) % 90000) + 10000;
+
+    insurances.push({
+      id: i + 1,
+      type: insuranceType.type,
+      icon: insuranceType.icon,
+      policyNumber: `${insuranceType.prefix}-${year}-${policyNum}`,
+      status: 'Aktiv',
+      validUntil: `${year + 1}-${String(month).padStart(2, '0')}-01`,
+      premium: `${((hash + i * 1000) % 5000) + 500} kr/mnd`,
+      category: insuranceType.category,
+    });
+  }
+
+  return insurances;
+}
+
+// ---------------------
+// BUSINESS INSURANCES
+// ---------------------
+
+/**
+ * Generate insurances for business customer
+ * @param {string} companyId - Company ID
+ * @returns {Array} - List of insurances
+ */
+export function generateBusinessInsurances(companyId) {
+  if (!companyId) return [];
+
+  const hash = hashCode(companyId);
+  const numInsurances = (hash % 4) + 2;
+  const insurances = [];
+
+  for (let i = 0; i < numInsurances; i++) {
+    const typeIndex = (hash + i * 5) % BUSINESS_INSURANCE_TYPES.length;
+    const insuranceType = BUSINESS_INSURANCE_TYPES[typeIndex];
+
+    const year = 2024;
+    const month = ((hash + i) % 12) + 1;
+    const policyNum = ((hash * (i + 1)) % 90000) + 10000;
+
+    insurances.push({
+      id: i + 1,
+      type: insuranceType.type,
+      icon: insuranceType.icon,
+      policyNumber: `${insuranceType.prefix}-${year}-${policyNum}`,
+      status: 'Aktiv',
+      validUntil: `${year + 1}-${String(month).padStart(2, '0')}-01`,
+      premium: `${((hash + i * 2000) % 15000) + 2000} kr/mnd`,
+      category: insuranceType.category,
+    });
+  }
+
+  return insurances;
+}
+
+// ---------------------
+// FILTERING AND UTILITIES
+// ---------------------
+
+/**
+ * Filter insurances based on RBAC permissions
+ * @param {Array} insurances - List of insurances
+ * @param {Array} permissions - Permissions (e.g., ['ting', 'person'])
+ * @returns {Array} - Filtered insurances
+ */
+export function filterInsurancesByPermissions(insurances, permissions) {
+  if (!insurances || !permissions) return [];
+  return insurances.filter(ins => permissions.includes(ins.category));
+}
+
+/**
+ * Group insurances by category
+ * @param {Array} insurances - List of insurances
+ * @returns {Object} - Grouped insurances { ting: [], person: [] }
+ */
+export function groupInsurancesByCategory(insurances) {
+  if (!insurances) return {};
+
+  return insurances.reduce((groups, insurance) => {
+    const category = insurance.category || 'other';
+    if (!groups[category]) {
+      groups[category] = [];
+    }
+    groups[category].push(insurance);
+    return groups;
+  }, {});
+}
+
+/**
+ * Calculate total annual premium
+ * @param {Array} insurances - List of insurances
+ * @returns {number} - Total annual premium
+ */
+export function calculateTotalAnnualPremium(insurances) {
+  if (!insurances) return 0;
+
+  return insurances.reduce((total, insurance) => {
+    const monthlyMatch = insurance.premium.match(/(\d+)\s*kr\/mnd/);
+    if (monthlyMatch) {
+      return total + (parseInt(monthlyMatch[1], 10) * 12);
+    }
+    return total;
+  }, 0);
+}
+
+/**
+ * Get status badge info
+ * @param {string} status - Insurance status
+ * @returns {Object} - { color, label }
+ */
+export function getStatusBadge(status) {
+  const statusMap = {
+    'Aktiv': { color: 'success', label: 'Aktiv' },
+    'Utløpt': { color: 'danger', label: 'Utløpt' },
+    'Venter': { color: 'warning', label: 'Venter' },
+    'Kansellert': { color: 'gray', label: 'Kansellert' },
+  };
+
+  return statusMap[status] || { color: 'gray', label: status };
+}
+</file>
+
+<file path="frontend/src/services/profile.js">
+// frontend/src/services/profile.js
+// User profile service
+// Responsibility: Generate and handle user profiles
+// In production: This would fetch data from backend API
+
+import { hashCode } from '../utils/hash';
+import { STREET_NAMES, CITIES, LAST_NAMES } from '../constants/mockData';
+
+// ---------------------
+// PROFILE GENERATION
+// ---------------------
+
+/**
+ * Extract first name from user data
+ * @param {Object} user - Auth0 user object
+ * @returns {string} - First name
+ */
+export function getFirstName(user) {
+  if (!user) return 'bruker';
+
+  // Try name field first (if not email)
+  if (user.name && !user.name.includes('@')) {
+    return user.name.split(' ')[0];
+  }
+
+  // Try given_name from OIDC claims
+  if (user.given_name) {
+    return user.given_name;
+  }
+
+  // Fall back to email prefix
+  if (user.email) {
+    const emailName = user.email.split('@')[0];
+    return emailName.charAt(0).toUpperCase() + emailName.slice(1);
+  }
+
+  return 'bruker';
+}
+
+/**
+ * Generate last name based on hash
+ * @param {number} hash - Hash value
+ * @returns {string} - Last name
+ */
+function generateLastName(hash) {
+  return LAST_NAMES[hash % LAST_NAMES.length];
+}
+
+/**
+ * Generate complete user profile based on Auth0 data
+ * @param {Object} user - Auth0 user object
+ * @returns {Object|null} - User profile or null
+ */
+export function generateUserProfile(user) {
+  if (!user) return null;
+
+  const hash = hashCode(user.sub || user.email || 'default');
+
+  // Generate consistent birthdate (age 25-65)
+  const birthYear = 1960 + (hash % 40);
+  const birthMonth = (hash % 12) + 1;
+  const birthDay = (hash % 28) + 1;
+
+  // Generate phone number
+  const phoneNumber = `+47 ${400 + (hash % 100)} ${(hash % 90) + 10} ${(hash * 3 % 90) + 10}${(hash * 7 % 10)}`;
+
+  // Generate address
+  const streetIndex = hash % STREET_NAMES.length;
+  const streetNumber = (hash % 150) + 1;
+  const cityIndex = (hash * 3) % CITIES.length;
+  const cityData = CITIES[cityIndex];
+
+  // Customer number and registration date
+  const customerNumber = `KNR-${1000000 + (hash % 9000000)}`;
+  const memberSinceYear = 2015 + (hash % 10);
+
+  const lastName = generateLastName(hash);
+  const firstName = getFirstName(user);
+
+  return {
+    // Personal info
+    firstName,
+    lastName,
+    fullName: user.name || `${firstName} ${lastName}`,
+    birthDate: `${birthDay.toString().padStart(2, '0')}.${birthMonth.toString().padStart(2, '0')}.${birthYear}`,
+
+    // Contact info
+    email: user.email,
+    phone: phoneNumber,
+
+    // Address
+    address: {
+      street: `${STREET_NAMES[streetIndex]} ${streetNumber}`,
+      postalCode: cityData.postalCode,
+      city: cityData.city,
+      country: 'Norge',
+    },
+
+    // Customer info
+    customerNumber,
+    memberSince: `${memberSinceYear}`,
+    customerType: hash % 3 === 0 ? 'Premium' : 'Standard',
+
+    // Account info
+    emailVerified: user.email_verified || false,
+    picture: user.picture || null,
+    userId: user.sub,
+
+    // Preferences
+    communicationPreferences: {
+      email: true,
+      sms: hash % 2 === 0,
+      post: hash % 4 === 0,
+    },
+  };
+}
+
+/**
+ * Get simplified display info for user
+ * @param {Object} user - Auth0 user object
+ * @returns {Object|null} - Simplified user info
+ */
+export function getUserDisplayInfo(user) {
+  if (!user) return null;
+
+  const profile = generateUserProfile(user);
+
+  return {
+    firstName: profile.firstName,
+    fullName: profile.fullName,
+    email: user.email,
+    emailVerified: user.email_verified || false,
+    picture: user.picture || null,
+    userId: user.sub,
+    createdAt: user.updated_at || new Date().toISOString(),
+  };
+}
+
+/**
+ * Format address to single line
+ * @param {Object} address - Address object
+ * @returns {string} - Formatted address
+ */
+export function formatAddress(address) {
+  if (!address) return '';
+  return `${address.street}, ${address.postalCode} ${address.city}`;
+}
+</file>
+
+<file path="frontend/src/utils/hash.js">
+// frontend/src/utils/hash.js
+// Hash utility for consistent mock data generation
+// Used to generate deterministic values based on user ID
+// In production, this would be unnecessary as data comes from backend
+
+/**
+ * Simple hash function to generate consistent numbers from a string
+ * @param {string} str - Input string (typically user ID)
+ * @returns {number} - Positive integer hash value
+ */
+export function hashCode(str) {
+  if (!str) return 0;
+  
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash);
+}
+
+/**
+ * Pick a value from an array based on hash
+ * @param {string} seed - Seed for hash
+ * @param {Array} array - Array to pick from
+ * @param {number} offset - Optional offset for variation
+ * @returns {*} - Element from array
+ */
+export function pickFromArray(seed, array, offset = 0) {
+  const hash = hashCode(seed);
+  const index = (hash + offset) % array.length;
+  return array[index];
+}
+
+/**
+ * Generate a number within a range based on hash
+ * @param {string} seed - Seed for hash
+ * @param {number} min - Minimum value
+ * @param {number} max - Maximum value
+ * @param {number} offset - Optional offset for variation
+ * @returns {number} - Number between min and max
+ */
+export function hashInRange(seed, min, max, offset = 0) {
+  const hash = hashCode(seed);
+  return min + ((hash + offset) % (max - min + 1));
+}
+</file>
+
+<file path="frontend/src/utils/index.js">
+// frontend/src/utils/index.js
+// Barrel export for utilities
+
+export { hashCode, pickFromArray, hashInRange } from './hash';
+</file>
+
+<file path="frontend/.gitignore">
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+# generated native folders
+/ios
+/android
+</file>
+
+<file path="frontend/app.json">
+{
+  "expo": {
+    "name": "frontend",
+    "slug": "frontend",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-web-browser"
+    ]
+  }
+}
+</file>
+
+<file path="frontend/index.js">
+import { registerRootComponent } from 'expo';
+
+import App from './App';
+
+// registerRootComponent calls AppRegistry.registerComponent('main', () => App);
+// It also ensures that whether you load the app in Expo Go or in a native build,
+// the environment is set up appropriately
+registerRootComponent(App);
+</file>
+
+<file path="kubernetes/deployment.yaml">
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ciam-demo-backend
+  labels:
+    app: ciam-demo-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ciam-demo-backend
+  template:
+    metadata:
+      labels:
+        app: ciam-demo-backend
+    spec:
+      containers:
+        - name: ciam-demo-backend
+          image: ciam-demo-backend:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
+              valueFrom:
+                secretKeyRef:
+                  name: ciam-demo-secrets
+                  key: auth0-issuer-uri
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /public
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /public
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 30
+</file>
+
+<file path="kubernetes/secrets-template.yaml">
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ciam-demo-secrets
+type: Opaque
+stringData:
+  auth0-issuer-uri: "https://YOUR-AUTH0-DOMAIN/"
+</file>
+
+<file path="kubernetes/service.yaml">
+apiVersion: v1
+kind: Service
+metadata:
+  name: ciam-demo-backend-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: ciam-demo-backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+</file>
+
+<file path=".gitignore">
+# Kotlin/Java/Gradle
+backend-kotlin/build/
+backend-kotlin/.gradle/
+*.class
+*.jar
+*.war
+
+# Python
+backend-python/venv/
+__pycache__/
+*.pyc
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Miljøvariabler (viktig for sikkerhet!)
+.env
+*.env.local
+
+# Node (for fremtidig frontend)
+node_modules/
+</file>
+
+<file path="frontend/src/components/Button.js">
+// frontend/src/components/Button.js
+
+import { Pressable, Text, StyleSheet, useWindowDimensions } from 'react-native';
+import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES } from '../styles/theme';
+
+export function Button({ title, onPress, variant = 'primary', disabled = false }) {
+  const { width } = useWindowDimensions();
+  const isDesktop = width > 768;
+
+  const buttonStyle = [
+    styles.base,
+    styles[variant],
+    disabled && styles.disabled,
+    isDesktop && styles.desktop,
+  ];
+
+  return (
+    <Pressable style={buttonStyle} onPress={onPress} disabled={disabled}>
+      <Text style={styles.text}>{title}</Text>
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  base: {
+    paddingVertical: SPACING.lg,
+    paddingHorizontal: SPACING.xxl,
+    borderRadius: BORDER_RADIUS.lg,
+    alignItems: 'center',
+    width: '100%',
+  },
+  desktop: {
+    maxWidth: 320,
+    alignSelf: 'center',
+  },
+  primary: {
+    backgroundColor: COLORS.primary,
+  },
+  success: {
+    backgroundColor: COLORS.success,
+  },
+  danger: {
+    backgroundColor: COLORS.danger,
+  },
+  disabled: {
+    opacity: 0.6,
+  },
+  text: {
+    color: COLORS.white,
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
+  },
+});
+</file>
+
+<file path="frontend/src/components/Card.js">
+// frontend/src/components/Card.js
+// Reusable card component with consistent styling
+
+import { View, Text, StyleSheet } from 'react-native';
+import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../styles/theme';
+
+/**
+ * Card container component
+ * @param {string} title - Optional card title
+ * @param {string} description - Optional description below title
+ * @param {React.ReactNode} children - Card content
+ * @param {Object} style - Optional additional styles
+ */
+export function Card({ title, description, children, style }) {
+  return (
+    <View style={[styles.card, style]}>
+      {title && <Text style={styles.title}>{title}</Text>}
+      {description && <Text style={styles.description}>{description}</Text>}
+      {children}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: COLORS.white,
+    borderRadius: BORDER_RADIUS.lg,
+    padding: SPACING.lg,
+    marginBottom: SPACING.lg,
+    ...SHADOWS.md,
+  },
+  title: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
+    color: COLORS.gray900,
+    marginBottom: SPACING.sm,
+  },
+  description: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray500,
+    marginBottom: SPACING.lg,
+  },
+});
+</file>
+
+<file path="frontend/src/components/InsuranceCard.js">
+// frontend/src/components/InsuranceCard.js
+// Card component for displaying insurance information
+
+import { View, Text, StyleSheet } from 'react-native';
+import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../styles/theme';
+
+/**
+ * Card displaying insurance details
+ * @param {Object} insurance - Insurance data object
+ * @param {string} insurance.type - Insurance type name
+ * @param {string} insurance.icon - Emoji icon
+ * @param {string} insurance.status - Status (e.g., 'Aktiv')
+ * @param {string} insurance.policyNumber - Policy number
+ * @param {string} insurance.validUntil - Expiration date
+ * @param {string} insurance.premium - Monthly premium
+ */
+export function InsuranceCard({ insurance }) {
+  const isActive = insurance.status === 'Aktiv';
+
+  return (
+    <View style={styles.card}>
+      <View style={styles.header}>
+        <View style={styles.titleRow}>
+          <Text style={styles.icon}>{insurance.icon || '📋'}</Text>
+          <Text style={styles.type}>{insurance.type}</Text>
+        </View>
+        <View style={[styles.badge, isActive && styles.badgeActive]}>
+          <Text style={[styles.badgeText, isActive && styles.badgeTextActive]}>
+            {insurance.status}
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.details}>
+        <DetailItem label="Polisenummer" value={insurance.policyNumber} />
+        <DetailItem label="Gyldig til" value={insurance.validUntil} />
+        {insurance.premium && (
+          <DetailItem label="Premie" value={insurance.premium} />
+        )}
+      </View>
+    </View>
+  );
+}
+
+/**
+ * Internal detail item component
+ */
+function DetailItem({ label, value }) {
+  return (
+    <View style={styles.detailRow}>
+      <Text style={styles.detailLabel}>{label}</Text>
+      <Text style={styles.detailValue}>{value}</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: COLORS.white,
+    borderRadius: BORDER_RADIUS.lg,
+    padding: SPACING.lg,
+    marginBottom: SPACING.md,
+    ...SHADOWS.md,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.md,
+    paddingBottom: SPACING.md,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.gray100,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  icon: {
+    fontSize: 24,
+    marginRight: SPACING.sm,
+  },
+  type: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
+    color: COLORS.gray900,
+  },
+  badge: {
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.xs,
+    borderRadius: BORDER_RADIUS.full,
+    backgroundColor: COLORS.gray200,
+  },
+  badgeActive: {
+    backgroundColor: COLORS.successBg,
+  },
+  badgeText: {
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '500',
+    color: COLORS.gray600,
+  },
+  badgeTextActive: {
+    color: COLORS.success,
+  },
+  details: {
+    gap: SPACING.sm,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  detailLabel: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray500,
+  },
+  detailValue: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '500',
+    color: COLORS.gray900,
+  },
+});
+</file>
+
+<file path="frontend/src/components/ProfileSwitcher.js">
+// frontend/src/components/ProfileSwitcher.js
+// Modal for switching between user profiles and delegations
+
+import { View, Text, StyleSheet, Modal, Pressable, ScrollView } from 'react-native';
+import { InfoBox } from './InfoBox';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../styles/theme';
+
+/**
+ * Profile switcher modal
+ * Allows switching between own profile and delegated profiles
+ */
+export function ProfileSwitcher({
+  visible,
+  profiles,
+  activeProfileId,
+  onSelectProfile,
+  onClose,
+}) {
+  return (
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <View style={styles.overlay}>
+        <View style={styles.content}>
+          <Header onClose={onClose} />
+
+          <Text style={styles.description}>
+            Velg hvilken profil du vil se og administrere forsikringer for.
+          </Text>
+
+          <ScrollView style={styles.profileList}>
+            {profiles.map((profile) => (
+              <ProfileItem
+                key={profile.id}
+                profile={profile}
+                isActive={activeProfileId === profile.id}
+                onSelect={() => onSelectProfile(profile)}
+              />
+            ))}
+          </ScrollView>
+
+          <InfoBox title="💡 Om profilbytte">
+            Når du bytter profil, ser du forsikringene til den valgte
+            personen eller bedriften. Du handler på deres vegne.
+          </InfoBox>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+/**
+ * Modal header with close button
+ */
+function Header({ onClose }) {
+  return (
+    <View style={styles.header}>
+      <Text style={styles.title}>Bytt profil</Text>
+      <Pressable onPress={onClose} style={styles.closeButton}>
+        <Text style={styles.closeButtonText}>✕</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+/**
+ * Individual profile item
+ */
+function ProfileItem({ profile, isActive, onSelect }) {
+  return (
+    <Pressable
+      style={[styles.profileItem, isActive && styles.profileItemActive]}
+      onPress={onSelect}
+    >
+      <Text style={styles.profileIcon}>{profile.icon}</Text>
+      <View style={styles.profileInfo}>
+        <Text style={styles.profileName}>{profile.name}</Text>
+        <Text style={styles.profileSubtitle}>{profile.subtitle}</Text>
+      </View>
+      {isActive && (
+        <View style={styles.activeBadge}>
+          <Text style={styles.activeBadgeText}>Aktiv</Text>
+        </View>
+      )}
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: COLORS.overlay,
+    justifyContent: 'flex-end',
+  },
+  content: {
+    backgroundColor: COLORS.white,
+    borderTopLeftRadius: BORDER_RADIUS.xl,
+    borderTopRightRadius: BORDER_RADIUS.xl,
+    padding: SPACING.xl,
+    maxHeight: '80%',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.md,
+  },
+  title: {
+    fontSize: FONT_SIZES.xl,
+    fontWeight: 'bold',
+    color: COLORS.gray900,
+  },
+  closeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: COLORS.gray100,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    fontSize: 16,
+    color: COLORS.gray500,
+  },
+  description: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray500,
+    marginBottom: SPACING.lg,
+  },
+  profileList: {
+    maxHeight: 300,
+  },
+  profileItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: SPACING.md,
+    backgroundColor: COLORS.gray50,
+    borderRadius: BORDER_RADIUS.lg,
+    marginBottom: SPACING.sm,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  profileItemActive: {
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.primaryBg,
+  },
+  profileIcon: {
+    fontSize: 32,
+    marginRight: SPACING.md,
+  },
+  profileInfo: {
+    flex: 1,
+  },
+  profileName: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
+    color: COLORS.gray900,
+  },
+  profileSubtitle: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray500,
+    marginTop: 2,
+  },
+  activeBadge: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: SPACING.xs,
+    borderRadius: BORDER_RADIUS.full,
+  },
+  activeBadgeText: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.white,
+    fontWeight: '600',
+  },
+});
+</file>
+
+<file path="frontend/src/components/StepUpModal.js">
+// frontend/src/components/StepUpModal.js
+// Modal for step-up authentication flow
+// Demonstrates additional verification for sensitive actions
+
+import { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Modal, Pressable, TextInput } from 'react-native';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../styles/theme';
+import { useCountdown } from '../hooks/useCountdown';
+
+const VALID_DEMO_CODE = '123456';
+const CODE_LENGTH = 6;
+const COUNTDOWN_SECONDS = 30;
+
+/**
+ * Modal for step-up authentication
+ * @param {boolean} visible - Modal visibility
+ * @param {Object} action - Action requiring step-up
+ * @param {Function} onConfirm - Callback when verified
+ * @param {Function} onCancel - Callback when cancelled
+ */
+export function StepUpModal({ visible, action, onConfirm, onCancel }) {
+  const [code, setCode] = useState('');
+  const [codeSent, setCodeSent] = useState(false);
+  const { secondsLeft, isExpired, restart, reset } = useCountdown(COUNTDOWN_SECONDS);
+
+  // Reset state when modal opens/closes
+  useEffect(() => {
+    if (visible) {
+      setCode('');
+      setCodeSent(false);
+      reset();
+    }
+  }, [visible, reset]);
+
+  const handleSendCode = () => {
+    setCodeSent(true);
+    restart();
+  };
+
+  const handleVerify = () => {
+    // In production, this would verify with backend
+    // For demo, accept "123456" or any 6-digit code
+    if (code === VALID_DEMO_CODE || code.length === CODE_LENGTH) {
+      onConfirm();
+    }
+  };
+
+  const isCodeValid = code.length === CODE_LENGTH;
+
+  return (
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={onCancel}
+    >
+      <View style={styles.overlay}>
+        <View style={styles.content}>
+          <Text style={styles.icon}>🔐</Text>
+          <Text style={styles.title}>Bekreft handling</Text>
+
+          <View style={styles.actionBox}>
+            <Text style={styles.actionIcon}>{action?.icon}</Text>
+            <Text style={styles.actionName}>{action?.name}</Text>
+          </View>
+
+          <Text style={styles.description}>
+            Denne handlingen krever ekstra bekreftelse for din sikkerhet.
+            {'\n\n'}
+            Dette kalles <Text style={styles.bold}>Step-up Authentication</Text> –
+            sensitive handlinger krever sterkere autentisering enn vanlig navigering.
+          </Text>
+
+          {!codeSent ? (
+            <SendCodeSection onSendCode={handleSendCode} />
+          ) : (
+            <VerifyCodeSection
+              code={code}
+              onChangeCode={setCode}
+              secondsLeft={secondsLeft}
+              isExpired={isExpired}
+            />
+          )}
+
+          <View style={styles.buttons}>
+            <Pressable style={styles.cancelButton} onPress={onCancel}>
+              <Text style={styles.cancelButtonText}>Avbryt</Text>
+            </Pressable>
+            {codeSent && (
+              <Pressable
+                style={[styles.confirmButton, !isCodeValid && styles.buttonDisabled]}
+                onPress={handleVerify}
+                disabled={!isCodeValid}
+              >
+                <Text style={styles.confirmButtonText}>Bekreft</Text>
+              </Pressable>
+            )}
+          </View>
+
+          <View style={styles.infoBox}>
+            <Text style={styles.infoTitle}>Hvorfor kreves dette?</Text>
+            <Text style={styles.infoText}>
+              • Beskytter mot uautoriserte endringer{'\n'}
+              • Vanlig i bank og forsikring{'\n'}
+              • Gjensidige bruker BankID for slike handlinger
+            </Text>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+/**
+ * Section for sending verification code
+ */
+function SendCodeSection({ onSendCode }) {
+  return (
+    <View style={styles.sendCodeSection}>
+      <Text style={styles.sendCodeText}>
+        Vi sender en engangskode til din registrerte e-post/telefon.
+      </Text>
+      <Pressable style={styles.sendCodeButton} onPress={onSendCode}>
+        <Text style={styles.sendCodeButtonText}>Send kode</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+/**
+ * Section for entering and verifying code
+ */
+function VerifyCodeSection({ code, onChangeCode, secondsLeft, isExpired }) {
+  return (
+    <View style={styles.verifySection}>
+      <Text style={styles.codeLabel}>Skriv inn 6-sifret kode:</Text>
+      <TextInput
+        style={styles.codeInput}
+        value={code}
+        onChangeText={onChangeCode}
+        keyboardType="number-pad"
+        maxLength={CODE_LENGTH}
+        placeholder="000000"
+        placeholderTextColor={COLORS.gray400}
+      />
+      <Text style={styles.timer}>
+        {isExpired
+          ? 'Koden er utløpt'
+          : `Koden utløper om ${secondsLeft} sekunder`}
+      </Text>
+      <Text style={styles.demoHint}>
+        Demo: Bruk kode "123456"
+      </Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: COLORS.overlay,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SPACING.xl,
+  },
+  content: {
+    backgroundColor: COLORS.white,
+    borderRadius: BORDER_RADIUS.xl,
+    padding: SPACING.xl,
+    width: '100%',
+    maxWidth: 400,
+    alignItems: 'center',
+  },
+  icon: {
+    fontSize: 48,
+    marginBottom: SPACING.md,
+  },
+  title: {
+    fontSize: FONT_SIZES.xl,
+    fontWeight: 'bold',
+    color: COLORS.gray900,
+    marginBottom: SPACING.lg,
+  },
+  actionBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.primaryBg,
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.lg,
+    borderRadius: BORDER_RADIUS.md,
+    marginBottom: SPACING.lg,
+  },
+  actionIcon: {
+    fontSize: 24,
+    marginRight: SPACING.sm,
+  },
+  actionName: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
+    color: COLORS.primary,
+  },
+  description: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray600,
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: SPACING.lg,
+  },
+  bold: {
+    fontWeight: '600',
+    color: COLORS.gray900,
+  },
+  sendCodeSection: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  sendCodeText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray500,
+    textAlign: 'center',
+    marginBottom: SPACING.md,
+  },
+  sendCodeButton: {
+    backgroundColor: COLORS.primary,
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.xxl,
+    borderRadius: BORDER_RADIUS.md,
+  },
+  sendCodeButtonText: {
+    color: COLORS.white,
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
+  },
+  verifySection: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  codeLabel: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray700,
+    marginBottom: SPACING.sm,
+  },
+  codeInput: {
+    backgroundColor: COLORS.gray50,
+    borderWidth: 2,
+    borderColor: COLORS.gray200,
+    borderRadius: BORDER_RADIUS.md,
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.lg,
+    fontSize: FONT_SIZES.xxl,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    letterSpacing: 8,
+    width: 200,
+    color: COLORS.gray900,
+  },
+  timer: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.gray500,
+    marginTop: SPACING.sm,
+  },
+  demoHint: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.success,
+    marginTop: SPACING.sm,
+    fontStyle: 'italic',
+  },
+  buttons: {
+    flexDirection: 'row',
+    gap: SPACING.md,
+    marginTop: SPACING.xl,
+    width: '100%',
+  },
+  cancelButton: {
+    flex: 1,
+    padding: SPACING.md,
+    backgroundColor: COLORS.gray100,
+    borderRadius: BORDER_RADIUS.md,
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '600',
+    color: COLORS.gray700,
+  },
+  confirmButton: {
+    flex: 1,
+    padding: SPACING.md,
+    backgroundColor: COLORS.success,
+    borderRadius: BORDER_RADIUS.md,
+    alignItems: 'center',
+  },
+  buttonDisabled: {
+    opacity: 0.5,
+  },
+  confirmButtonText: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '600',
+    color: COLORS.white,
+  },
+  infoBox: {
+    marginTop: SPACING.lg,
+    padding: SPACING.md,
+    backgroundColor: COLORS.gray50,
+    borderRadius: BORDER_RADIUS.md,
+    width: '100%',
+  },
+  infoTitle: {
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '600',
+    color: COLORS.gray700,
+    marginBottom: SPACING.xs,
+  },
+  infoText: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.gray500,
+    lineHeight: 16,
+  },
+});
+</file>
+
+<file path="frontend/src/constants/config.js">
+// frontend/src/constants/config.js
+// Application configuration constants
+
+// Auth0 Configuration
+export const AUTH0_CONFIG = {
+  domain: 'dev-feccaeq8qwpicehq.eu.auth0.com',
+  clientId: 'Mp1DLIhUPWbTELgiO0C1GiuGnD3rdv2M',
+  audience: 'https://ciam-demo-api',
+};
+
+// API Configuration
+export const API_CONFIG = {
+  baseUrl: 'https://ciam-demo-dap-cdbcc5debgfgbaf5.westeurope-01.azurewebsites.net',
+};
+
+export const API_BASE_URL = API_CONFIG.baseUrl;
+</file>
+
+<file path="frontend/src/contexts/AuthContext.js">
+// frontend/src/contexts/AuthContext.js
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import * as AuthSession from 'expo-auth-session';
+import * as WebBrowser from 'expo-web-browser';
+import { AUTH0_CONFIG } from '../constants/config';
+
+WebBrowser.maybeCompleteAuthSession();
+
+const redirectUri = AuthSession.makeRedirectUri();
+
+const AuthContext = createContext(null);
+
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [accessToken, setAccessToken] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Warm up browser for faster auth
+  useEffect(() => {
+    WebBrowser.warmUpAsync();
+    return () => {
+      WebBrowser.coolDownAsync();
+    };
+  }, []);
+
+  const discovery = AuthSession.useAutoDiscovery(`https://${AUTH0_CONFIG.domain}`);
+
+  const [request, response, promptAsync] = AuthSession.useAuthRequest(
+    {
+      clientId: AUTH0_CONFIG.clientId,
+      redirectUri,
+      responseType: 'code',
+      scopes: ['openid', 'profile', 'email'],
+      prompt: 'login',
+      extraParams: { audience: AUTH0_CONFIG.audience },
+    },
+    discovery
+  );
+
+  useEffect(() => {
+    if (response?.type === 'success') {
+      exchangeCodeForToken(response.params.code);
+    } else if (response?.type === 'error') {
+      setError(response.error?.message || 'Authentication failed');
+      setIsLoading(false);
+    }
+  }, [response]);
+
+  const exchangeCodeForToken = async (code) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const tokenResponse = await AuthSession.exchangeCodeAsync(
+        {
+          clientId: AUTH0_CONFIG.clientId,
+          code,
+          redirectUri,
+          extraParams: { code_verifier: request?.codeVerifier },
+        },
+        discovery
+      );
+
+      setAccessToken(tokenResponse.accessToken);
+
+      const userResponse = await fetch(
+        `https://${AUTH0_CONFIG.domain}/userinfo`,
+        { headers: { Authorization: `Bearer ${tokenResponse.accessToken}` } }
+      );
+
+      if (!userResponse.ok) throw new Error('Failed to fetch user info');
+
+      const userData = await userResponse.json();
+      setUser(userData);
+    } catch (err) {
+      console.error('Login failed:', err);
+      setError(err.message || 'Login failed');
+      setUser(null);
+      setAccessToken(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const login = useCallback(() => {
+    setError(null);
+    // showInRecents keeps the browser in task switcher when you switch apps
+    promptAsync({ showInRecents: true });
+  }, [promptAsync]);
+
+  const logout = useCallback(() => {
+    setUser(null);
+    setAccessToken(null);
+    setError(null);
+  }, []);
+
+  const value = {
+    user,
+    accessToken,
+    isLoading,
+    error,
+    isAuthenticated: Boolean(user && accessToken),
+    login,
+    logout,
+    isReady: Boolean(request),
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
+  return context;
+}
+
+export default AuthContext;
+</file>
+
+<file path="frontend/src/screens/ApiTestScreen.js">
+// frontend/src/screens/ApiTestScreen.js
+// Screen for testing authenticated API calls
+
+import { View, Text, StyleSheet } from 'react-native';
+import { Card, Button, DetailRow, ApiResultBox, ScreenContainer } from '../components';
+import { useApiTest } from '../hooks';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../styles/theme';
+
+/**
+ * API Test screen for authenticated users
+ */
+export function ApiTestScreen({ accessToken }) {
+  const { result, isLoading, callPublic, callProtected } = useApiTest(accessToken);
+
+  return (
+    <ScreenContainer title="🔬 API Test">
+      <Card
+        title="Test API-tilgang"
+        description="Nå som du er autentisert, har du tilgang til beskyttede endepunkter."
+      >
+        <View style={styles.buttonRow}>
+          <View style={styles.buttonWrapper}>
+            <Button
+              title="/public"
+              variant="success"
+              onPress={callPublic}
+              disabled={isLoading}
+            />
+          </View>
+          <View style={styles.buttonWrapper}>
+            <Button
+              title="/protected"
+              variant="primary"
+              onPress={callProtected}
+              disabled={isLoading}
+            />
+          </View>
+        </View>
+      </Card>
+
+      <ApiResultBox result={result} />
+
+      <Card title="Token Status">
+        <DetailRow label="Tilgangstoken" value="✓ Aktiv" valueColor={COLORS.success} />
+        <DetailRow label="Type" value="Bearer (JWT)" />
+        <DetailRow label="Utsteder" value="Auth0" noBorder />
+      </Card>
+
+      <Card title="Sammenligning">
+        <ComparisonTable />
+      </Card>
+    </ScreenContainer>
+  );
+}
+
+function ComparisonTable() {
+  return (
+    <View style={styles.comparisonTable}>
+      <View style={styles.comparisonHeader}>
+        <Text style={[styles.comparisonCell, styles.headerCell]}>Endpoint</Text>
+        <Text style={[styles.comparisonCell, styles.headerCell]}>Før login</Text>
+        <Text style={[styles.comparisonCell, styles.headerCell]}>Etter login</Text>
+      </View>
+      <ComparisonRow
+        endpoint="/public"
+        before={{ text: '✓ OK', color: COLORS.success }}
+        after={{ text: '✓ OK', color: COLORS.success }}
+      />
+      <ComparisonRow
+        endpoint="/protected"
+        before={{ text: '✗ 401', color: COLORS.danger }}
+        after={{ text: '✓ OK', color: COLORS.success }}
+      />
+    </View>
+  );
+}
+
+function ComparisonRow({ endpoint, before, after }) {
+  return (
+    <View style={styles.comparisonRow}>
+      <Text style={styles.comparisonCell}>{endpoint}</Text>
+      <Text style={[styles.comparisonCell, { color: before.color }]}>{before.text}</Text>
+      <Text style={[styles.comparisonCell, { color: after.color }]}>{after.text}</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  buttonRow: {
+    flexDirection: 'row',
+    gap: SPACING.md,
+  },
+  buttonWrapper: {
+    flex: 1,
+  },
+  comparisonTable: {
+    borderRadius: BORDER_RADIUS.sm,
+    overflow: 'hidden',
+  },
+  comparisonHeader: {
+    flexDirection: 'row',
+    backgroundColor: COLORS.gray100,
+  },
+  comparisonRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.gray100,
+  },
+  comparisonCell: {
+    flex: 1,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.sm,
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray700,
+  },
+  headerCell: {
+    fontWeight: '600',
+    color: COLORS.gray900,
+  },
+});
+</file>
+
+<file path="frontend/src/screens/ConsentScreen.js">
+// frontend/src/screens/ConsentScreen.js
+// GDPR consent collection screen shown after first login
+
+import { useState } from 'react';
+import { View, Text, StyleSheet, Switch } from 'react-native';
+import { Button, Card, InfoBox, ScreenContainer } from '../components';
+import { COLORS, SPACING, FONT_SIZES } from '../styles/theme';
+
+/**
+ * Consent screen component
+ */
+export function ConsentScreen({ user, onAccept }) {
+  const [consents, setConsents] = useState({
+    necessary: true,
+    analytics: false,
+    marketing: false,
+    thirdParty: false,
+  });
+
+  const handleToggle = (key) => {
+    if (key === 'necessary') return;
+    setConsents((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handleAcceptAll = () => {
+    setConsents({
+      necessary: true,
+      analytics: true,
+      marketing: true,
+      thirdParty: true,
+    });
+  };
+
+  const handleAcceptSelected = () => {
+    onAccept(consents);
+  };
+
+  return (
+    <ScreenContainer>
+      <View style={styles.header}>
+        <Text style={styles.logo}>🔐</Text>
+        <Text style={styles.title}>Personvern og samtykke</Text>
+        <Text style={styles.subtitle}>Velkommen, {user?.name || user?.email}!</Text>
+        <Text style={styles.description}>
+          For å gi deg best mulig opplevelse trenger vi ditt samtykke.
+          Du kan endre disse valgene når som helst i profilen din.
+        </Text>
+      </View>
+
+      <ConsentCard
+        title="📋 Nødvendige cookies"
+        description="Disse er nødvendige for at tjenesten skal fungere, inkludert innlogging og sikkerhet. Kan ikke deaktiveres."
+        label="Nødvendige"
+        value={consents.necessary}
+        disabled={true}
+      />
+
+      <ConsentCard
+        title="📊 Analysecookies"
+        description="Hjelper oss å forstå hvordan du bruker tjenesten, slik at vi kan forbedre den. Data er anonymisert."
+        label="Tillat analyse"
+        value={consents.analytics}
+        onToggle={() => handleToggle('analytics')}
+      />
+
+      <ConsentCard
+        title="📧 Markedsføring"
+        description="Lar oss sende deg relevante tilbud og informasjon om våre produkter via e-post og SMS."
+        label="Tillat markedsføring"
+        value={consents.marketing}
+        onToggle={() => handleToggle('marketing')}
+      />
+
+      <ConsentCard
+        title="🤝 Tredjeparter"
+        description="Deling av data med våre partnere for å gi deg bedre tilbud på forsikring og relaterte tjenester."
+        label="Tillat deling"
+        value={consents.thirdParty}
+        onToggle={() => handleToggle('thirdParty')}
+      />
+
+      <InfoBox>
+        Ved å fortsette godtar du våre vilkår for bruk og personvernerklæring.
+        Du kan når som helst trekke tilbake samtykke i profilinnstillingene.
+        Les mer om dine rettigheter under GDPR.
+      </InfoBox>
+
+      <View style={styles.buttonContainer}>
+        <Button title="Godta alle" variant="primary" onPress={handleAcceptAll} />
+        <View style={styles.buttonSpacer} />
+        <Button
+          title="Godta valgte og fortsett"
+          variant="success"
+          onPress={handleAcceptSelected}
+        />
+      </View>
+    </ScreenContainer>
+  );
+}
+
+function ConsentCard({ title, description, label, value, onToggle, disabled = false }) {
+  return (
+    <Card title={title}>
+      <Text style={styles.consentDescription}>{description}</Text>
+      <View style={styles.switchRow}>
+        <Text style={styles.switchLabel}>{label}</Text>
+        <Switch
+          value={value}
+          onValueChange={onToggle}
+          disabled={disabled}
+          trackColor={{ false: COLORS.gray200, true: COLORS.success }}
+          thumbColor={COLORS.white}
+        />
+      </View>
+    </Card>
+  );
+}
+
+const styles = StyleSheet.create({
+  header: {
+    alignItems: 'center',
+    marginBottom: SPACING.xl,
+  },
+  logo: {
+    fontSize: 48,
+    marginBottom: SPACING.md,
+  },
+  title: {
+    fontSize: FONT_SIZES.xxl,
+    fontWeight: 'bold',
+    color: COLORS.gray900,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: FONT_SIZES.md,
+    color: COLORS.primary,
+    marginTop: SPACING.sm,
+  },
+  description: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray500,
+    textAlign: 'center',
+    marginTop: SPACING.md,
+    lineHeight: 20,
+  },
+  consentDescription: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray500,
+    marginBottom: SPACING.md,
+    lineHeight: 20,
+  },
+  switchRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: SPACING.sm,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.gray100,
+  },
+  switchLabel: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: '500',
+    color: COLORS.gray900,
+  },
+  buttonContainer: {
+    marginTop: SPACING.xl,
+    gap: SPACING.md,
+  },
+  buttonSpacer: {
+    height: SPACING.sm,
+  },
+});
+</file>
+
+<file path="frontend/src/screens/DelegationScreen.js">
+// frontend/src/screens/DelegationScreen.js
+// Screen for managing delegated access (fullmakt)
+
+import { useState } from 'react';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { Card, InfoBox, StepUpModal, ScreenContainer } from '../components';
+import { generateUserDelegations, SENSITIVE_ACTIONS } from '../services/userData';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../styles/theme';
+
+/**
+ * Delegation screen component
+ */
+export function DelegationScreen({ user }) {
+  const [stepUpVisible, setStepUpVisible] = useState(false);
+  const [selectedAction, setSelectedAction] = useState(null);
+  const [completedActions, setCompletedActions] = useState([]);
+
+  const delegations = generateUserDelegations(user?.sub);
+
+  const handleActionPress = (action) => {
+    if (action.requiresStepUp) {
+      setSelectedAction(action);
+      setStepUpVisible(true);
+    } else {
+      setCompletedActions([...completedActions, action.id]);
+    }
+  };
+
+  const handleStepUpConfirm = () => {
+    setCompletedActions([...completedActions, selectedAction.id]);
+    setStepUpVisible(false);
+    setSelectedAction(null);
+  };
+
+  const handleStepUpCancel = () => {
+    setStepUpVisible(false);
+    setSelectedAction(null);
+  };
+
+  return (
+    <ScreenContainer
+      title="🤝 Fullmakter"
+      subtitle="Administrer hvem som har tilgang til dine forsikringer"
+    >
+      <Card title="Hva er fullmakt?">
+        <Text style={styles.explanationText}>
+          En fullmakt lar deg gi andre personer tilgang til å se eller administrere
+          dine forsikringer på dine vegne. Dette er nyttig for:
+        </Text>
+        <Text style={styles.useCaseText}>
+          • <Text style={styles.bold}>Familie:</Text> Ektefelle eller barn kan hjelpe hverandre{'\n'}
+          • <Text style={styles.bold}>Regnskapsfører:</Text> Kan se bedriftens forsikringer{'\n'}
+          • <Text style={styles.bold}>Verge:</Text> Kan håndtere forsikringer for andre
+        </Text>
+      </Card>
+
+      <Card title="📤 Fullmakter du har gitt">
+        {delegations.givenTo.length > 0 ? (
+          delegations.givenTo.map((delegation) => (
+            <DelegationItem key={delegation.id} delegation={delegation} type="given" />
+          ))
+        ) : (
+          <Text style={styles.emptyText}>Du har ikke gitt fullmakt til noen.</Text>
+        )}
+
+        <Pressable
+          style={styles.addButton}
+          onPress={() => handleActionPress(SENSITIVE_ACTIONS.find((a) => a.id === 'add_delegation'))}
+        >
+          <Text style={styles.addButtonText}>+ Gi fullmakt til noen</Text>
+        </Pressable>
+      </Card>
+
+      <Card title="📥 Fullmakter du har mottatt">
+        {delegations.receivedFrom.length > 0 ? (
+          delegations.receivedFrom.map((delegation) => (
+            <DelegationItem key={delegation.id} delegation={delegation} type="received" />
+          ))
+        ) : (
+          <Text style={styles.emptyText}>Du har ikke mottatt fullmakt fra noen.</Text>
+        )}
+      </Card>
+
+      <Card title="🔐 Step-up Authentication Demo">
+        <Text style={styles.stepUpExplanation}>
+          Noen handlinger krever ekstra bekreftelse. Prøv å klikke på handlingene
+          nedenfor for å se hvordan Step-up Authentication fungerer.
+        </Text>
+
+        <View style={styles.actionsList}>
+          {SENSITIVE_ACTIONS.map((action) => (
+            <ActionItem
+              key={action.id}
+              action={action}
+              isCompleted={completedActions.includes(action.id)}
+              onPress={() => handleActionPress(action)}
+            />
+          ))}
+        </View>
+
+        <Legend />
+      </Card>
+
+      <InfoBox title="💡 Slik gjør Gjensidige det" variant="primary">
+        Gjensidige bruker BankID for step-up authentication:{'\n\n'}
+        • Se forsikringer → Vanlig innlogging{'\n'}
+        • Signere avtaler → Krever BankID{'\n'}
+        • Endre kontaktinfo → Krever BankID{'\n'}
+        • Gi fullmakt → Krever BankID{'\n\n'}
+        I denne demoen simulerer vi dette med en engangskode.
+      </InfoBox>
+
+      <StepUpModal
+        visible={stepUpVisible}
+        action={selectedAction}
+        onConfirm={handleStepUpConfirm}
+        onCancel={handleStepUpCancel}
+      />
+    </ScreenContainer>
+  );
+}
+
+function DelegationItem({ delegation, type }) {
+  const isGiven = type === 'given';
+  const initials = delegation.name.split(' ').map((n) => n[0]).join('');
+
+  return (
+    <View style={styles.delegationItem}>
+      <View style={styles.delegationHeader}>
+        <View style={[styles.avatarSmall, !isGiven && styles.avatarReceived]}>
+          <Text style={styles.avatarSmallText}>{initials}</Text>
+        </View>
+        <View style={styles.delegationInfo}>
+          <Text style={styles.delegationName}>{delegation.name}</Text>
+          <Text style={styles.delegationRelation}>{delegation.relationship}</Text>
+        </View>
+        {isGiven && (
+          <View style={[styles.accessBadge, delegation.accessLevel === 'full' && styles.accessBadgeFull]}>
+            <Text style={styles.accessBadgeText}>
+              {delegation.accessLevel === 'full' ? 'Full' : 'Lese'}
+            </Text>
+          </View>
+        )}
+      </View>
+
+      {isGiven ? (
+        <>
+          <View style={styles.delegationDetails}>
+            <Text style={styles.delegationDetailLabel}>Tilgang til:</Text>
+            <Text style={styles.delegationDetailValue}>{delegation.accessTypes.join(', ')}</Text>
+          </View>
+          <View style={styles.delegationDetails}>
+            <Text style={styles.delegationDetailLabel}>Gyldig fra:</Text>
+            <Text style={styles.delegationDetailValue}>
+              {delegation.grantedDate}
+              {delegation.expiresDate ? ` til ${delegation.expiresDate}` : ' (permanent)'}
+            </Text>
+          </View>
+          <Pressable style={styles.revokeButton}>
+            <Text style={styles.revokeButtonText}>Trekk tilbake</Text>
+          </Pressable>
+        </>
+      ) : (
+        <>
+          <Text style={styles.receivedNote}>
+            Du kan se og administrere {delegation.name}s {delegation.accessTypes.join(' og ').toLowerCase()}
+          </Text>
+          <Pressable style={styles.switchProfileButton}>
+            <Text style={styles.switchProfileButtonText}>Bytt til denne profilen →</Text>
+          </Pressable>
+        </>
+      )}
+    </View>
+  );
+}
+
+function ActionItem({ action, isCompleted, onPress }) {
+  return (
+    <Pressable
+      style={[styles.actionItem, isCompleted && styles.actionItemCompleted]}
+      onPress={onPress}
+    >
+      <Text style={styles.actionIcon}>{action.icon}</Text>
+      <View style={styles.actionInfo}>
+        <Text style={styles.actionName}>{action.name}</Text>
+        <Text style={styles.actionDescription}>{action.description}</Text>
+      </View>
+      <View style={[
+        styles.stepUpIndicator,
+        action.requiresStepUp ? styles.stepUpRequired : styles.stepUpNotRequired,
+      ]}>
+        <Text style={styles.stepUpIndicatorText}>
+          {action.requiresStepUp ? '🔒' : '✓'}
+        </Text>
+      </View>
+    </Pressable>
+  );
+}
+
+function Legend() {
+  return (
+    <View style={styles.legend}>
+      <View style={styles.legendItem}>
+        <View style={[styles.legendDot, styles.stepUpRequired]} />
+        <Text style={styles.legendText}>Krever step-up</Text>
+      </View>
+      <View style={styles.legendItem}>
+        <View style={[styles.legendDot, styles.stepUpNotRequired]} />
+        <Text style={styles.legendText}>Vanlig tilgang</Text>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  explanationText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray600,
+    lineHeight: 20,
+    marginBottom: SPACING.md,
+  },
+  useCaseText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray700,
+    lineHeight: 22,
+  },
+  bold: {
+    fontWeight: '600',
+  },
+  delegationItem: {
+    backgroundColor: COLORS.gray50,
+    borderRadius: BORDER_RADIUS.md,
+    padding: SPACING.md,
+    marginBottom: SPACING.md,
+  },
+  delegationHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: SPACING.sm,
+  },
+  avatarSmall: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: SPACING.md,
+  },
+  avatarReceived: {
+    backgroundColor: COLORS.success,
+  },
+  avatarSmallText: {
+    color: COLORS.white,
+    fontWeight: 'bold',
+    fontSize: FONT_SIZES.sm,
+  },
+  delegationInfo: {
+    flex: 1,
+  },
+  delegationName: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
+    color: COLORS.gray900,
+  },
+  delegationRelation: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray500,
+  },
+  accessBadge: {
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: SPACING.xs,
+    backgroundColor: COLORS.gray200,
+    borderRadius: BORDER_RADIUS.full,
+  },
+  accessBadgeFull: {
+    backgroundColor: COLORS.successBg,
+  },
+  accessBadgeText: {
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '500',
+    color: COLORS.success,
+  },
+  delegationDetails: {
+    flexDirection: 'row',
+    marginTop: SPACING.xs,
+  },
+  delegationDetailLabel: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.gray500,
+    width: 80,
+  },
+  delegationDetailValue: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.gray700,
+    flex: 1,
+  },
+  revokeButton: {
+    marginTop: SPACING.md,
+    padding: SPACING.sm,
+    backgroundColor: COLORS.dangerBg,
+    borderRadius: BORDER_RADIUS.sm,
+    alignItems: 'center',
+  },
+  revokeButtonText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.danger,
+    fontWeight: '500',
+  },
+  emptyText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray500,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    paddingVertical: SPACING.lg,
+  },
+  addButton: {
+    marginTop: SPACING.md,
+    padding: SPACING.md,
+    backgroundColor: COLORS.primaryBg,
+    borderRadius: BORDER_RADIUS.md,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+    borderStyle: 'dashed',
+  },
+  addButtonText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.primary,
+    fontWeight: '600',
+  },
+  receivedNote: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray600,
+    marginTop: SPACING.sm,
+  },
+  switchProfileButton: {
+    marginTop: SPACING.md,
+    padding: SPACING.sm,
+    backgroundColor: COLORS.success,
+    borderRadius: BORDER_RADIUS.sm,
+    alignItems: 'center',
+  },
+  switchProfileButtonText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.white,
+    fontWeight: '500',
+  },
+  stepUpExplanation: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray600,
+    lineHeight: 20,
+    marginBottom: SPACING.lg,
+  },
+  actionsList: {
+    gap: SPACING.sm,
+  },
+  actionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: SPACING.md,
+    backgroundColor: COLORS.gray50,
+    borderRadius: BORDER_RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.gray200,
+  },
+  actionItemCompleted: {
+    backgroundColor: COLORS.successBg,
+    borderColor: COLORS.success,
+  },
+  actionIcon: {
+    fontSize: 24,
+    marginRight: SPACING.md,
+  },
+  actionInfo: {
+    flex: 1,
+  },
+  actionName: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '600',
+    color: COLORS.gray900,
+  },
+  actionDescription: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.gray500,
+  },
+  stepUpIndicator: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  stepUpRequired: {
+    backgroundColor: COLORS.warningBg,
+  },
+  stepUpNotRequired: {
+    backgroundColor: COLORS.successBg,
+  },
+  stepUpIndicatorText: {
+    fontSize: 14,
+  },
+  legend: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: SPACING.xl,
+    marginTop: SPACING.lg,
+    paddingTop: SPACING.md,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.gray200,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  legendDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: SPACING.xs,
+  },
+  legendText: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.gray500,
+  },
+});
+</file>
+
+<file path="frontend/src/screens/ProfileScreen.js">
+// frontend/src/screens/ProfileScreen.js
+// User profile screen with GDPR features
+
+import { useState } from 'react';
+import { View, Text, StyleSheet, Image, Modal, Pressable, Switch, ScrollView, Dimensions } from 'react-native';
+import { Card, Button, DetailRow, ScreenContainer } from '../components';
+import { generateUserProfile, generateUserInsurances } from '../services/userData';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS, SHADOWS } from '../styles/theme';
+
+/**
+ * Profile screen component
+ */
+export function ProfileScreen({ user, consents, onLogout, onDeleteAccount, onConsentChange }) {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showDataModal, setShowDataModal] = useState(false);
+
+  const profile = generateUserProfile(user);
+  const insurances = generateUserInsurances(user?.sub);
+
+  const handleConsentChange = (key) => {
+    if (onConsentChange) {
+      onConsentChange(key);
+    }
+  };
+
+  if (!profile) {
+    return (
+      <ScreenContainer>
+        <Text>Laster profil...</Text>
+      </ScreenContainer>
+    );
+  }
+
+  const handleDeleteAccount = () => {
+    setShowDeleteModal(false);
+    onDeleteAccount();
+  };
+
+  const getAllUserData = () => ({
+    profile,
+    insurances,
+    consents,
+    exportedAt: new Date().toISOString(),
+  });
+
+  return (
+    <ScreenContainer>
+      <ProfileHeader profile={profile} />
+
+      <Card title="👤 Personlig informasjon">
+        <DetailRow label="Fornavn" value={profile.firstName} />
+        <DetailRow label="Etternavn" value={profile.lastName} />
+        <DetailRow label="Fødselsdato" value={profile.birthDate} noBorder />
+      </Card>
+
+      <Card title="📞 Kontaktinformasjon">
+        <DetailRow label="E-post" value={profile.email} />
+        <DetailRow
+          label="E-post verifisert"
+          value={profile.emailVerified ? '✓ Ja' : '✗ Nei'}
+          valueColor={profile.emailVerified ? COLORS.success : COLORS.danger}
+        />
+        <DetailRow label="Telefon" value={profile.phone} noBorder />
+      </Card>
+
+      <Card title="🏠 Adresse">
+        <DetailRow label="Gate" value={profile.address.street} />
+        <DetailRow label="Postnummer" value={profile.address.postalCode} />
+        <DetailRow label="By" value={profile.address.city} />
+        <DetailRow label="Land" value={profile.address.country} noBorder />
+      </Card>
+
+      <Card title="📋 Mine samtykker">
+        <DetailRow
+          label="Nødvendige cookies"
+          value="✓ Alltid på"
+          valueColor={COLORS.success}
+        />
+        <ConsentToggle
+          label="Analysecookies"
+          value={consents?.analytics}
+          onToggle={() => handleConsentChange('analytics')}
+        />
+        <ConsentToggle
+          label="Markedsføring"
+          value={consents?.marketing}
+          onToggle={() => handleConsentChange('marketing')}
+        />
+        <ConsentToggle
+          label="Tredjepartsdeling"
+          value={consents?.thirdParty}
+          onToggle={() => handleConsentChange('thirdParty')}
+        />
+        <Text style={styles.consentHint}>
+          Trykk på bryterne for å endre dine samtykker
+        </Text>
+      </Card>
+
+      <Card title="🔐 Sikkerhet">
+        <DetailRow label="MFA aktivert" value="✓ Ja" valueColor={COLORS.success} />
+        <DetailRow label="Innloggingsmetode" value="Auth0 (OAuth 2.0)" />
+        <DetailRow label="Siste innlogging" value="Nå" noBorder />
+      </Card>
+
+      <Card title="🔒 Personvern (GDPR)">
+        <Text style={styles.gdprText}>
+          I henhold til GDPR har du rett til innsyn, retting, og sletting av dine data.
+        </Text>
+
+        <View style={styles.gdprButtons}>
+          <GdprButton
+            icon="📥"
+            text="Last ned mine data"
+            onPress={() => setShowDataModal(true)}
+          />
+          <GdprButton
+            icon="🗑️"
+            text="Slett min konto"
+            variant="danger"
+            onPress={() => setShowDeleteModal(true)}
+          />
+        </View>
+      </Card>
+
+      <Button title="Logg ut" variant="danger" onPress={onLogout} />
+
+      <Text style={styles.footerText}>
+        Bruker-ID: {profile.userId?.slice(0, 30)}...
+      </Text>
+
+      <DeleteAccountModal
+        visible={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteAccount}
+      />
+
+      <DataExportModal
+        visible={showDataModal}
+        onClose={() => setShowDataModal(false)}
+        data={getAllUserData()}
+      />
+    </ScreenContainer>
+  );
+}
+
+function ProfileHeader({ profile }) {
+  return (
+    <View style={styles.profileCard}>
+      {profile.picture ? (
+        <Image source={{ uri: profile.picture }} style={styles.avatarImage} />
+      ) : (
+        <View style={styles.avatarCircle}>
+          <Text style={styles.avatarText}>
+            {profile.firstName[0]}{profile.lastName[0]}
+          </Text>
+        </View>
+      )}
+      <Text style={styles.profileName}>{profile.fullName}</Text>
+      <Text style={styles.customerNumber}>{profile.customerNumber}</Text>
+
+      <View style={[
+        styles.customerBadge,
+        profile.customerType === 'Premium' && styles.premiumBadge,
+      ]}>
+        <Text style={[
+          styles.customerBadgeText,
+          profile.customerType === 'Premium' && styles.premiumBadgeText,
+        ]}>
+          {profile.customerType === 'Premium' ? '⭐ Premium-kunde' : 'Standard-kunde'}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+function ConsentToggle({ label, value, onToggle }) {
+  return (
+    <View style={styles.consentRow}>
+      <Text style={styles.consentLabel}>{label}</Text>
+      <Switch
+        value={value}
+        onValueChange={onToggle}
+        trackColor={{ false: COLORS.gray200, true: COLORS.success }}
+        thumbColor={COLORS.white}
+      />
+    </View>
+  );
+}
+
+function GdprButton({ icon, text, variant = 'default', onPress }) {
+  const isDanger = variant === 'danger';
+
+  return (
+    <Pressable
+      style={[styles.gdprButton, isDanger && styles.gdprButtonDanger]}
+      onPress={onPress}
+    >
+      <Text style={styles.gdprButtonIcon}>{icon}</Text>
+      <Text style={[styles.gdprButtonText, isDanger && styles.gdprButtonTextDanger]}>
+        {text}
+      </Text>
+    </Pressable>
+  );
+}
+
+function DeleteAccountModal({ visible, onClose, onConfirm }) {
+  return (
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={onClose}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>⚠️ Slett konto</Text>
+          <Text style={styles.modalText}>
+            Er du sikker på at du vil slette kontoen din? Dette vil:
+          </Text>
+          <Text style={styles.modalList}>
+            • Slette alle dine personopplysninger{'\n'}
+            • Fjerne alle dine forsikringsdata{'\n'}
+            • Avslutte alle aktive forsikringer{'\n'}
+            • Denne handlingen kan ikke angres
+          </Text>
+          <View style={styles.modalButtons}>
+            <Pressable style={styles.modalButtonCancel} onPress={onClose}>
+              <Text style={styles.modalButtonCancelText}>Avbryt</Text>
+            </Pressable>
+            <Pressable style={styles.modalButtonDelete} onPress={onConfirm}>
+              <Text style={styles.modalButtonDeleteText}>Ja, slett kontoen</Text>
+            </Pressable>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+function DataExportModal({ visible, onClose, data }) {
+  const screenHeight = Dimensions.get('window').height;
+  
+  return (
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={onClose}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContentLarge}>
+          <Text style={styles.modalTitle}>📥 Mine data</Text>
+          <Text style={styles.modalText}>
+            Her er alle data vi har lagret om deg (GDPR Art. 15):
+          </Text>
+          <ScrollView 
+            style={[styles.dataPreview, { maxHeight: screenHeight * 0.5 }]} 
+            nestedScrollEnabled={true}
+          >
+            <Text style={styles.dataText}>
+              {JSON.stringify(data, null, 2)}
+            </Text>
+          </ScrollView>
+          <Pressable style={styles.modalButtonClose} onPress={onClose}>
+            <Text style={styles.modalButtonCloseText}>Lukk</Text>
+          </Pressable>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+const styles = StyleSheet.create({
+  profileCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: BORDER_RADIUS.xl,
+    padding: SPACING.xxl,
+    alignItems: 'center',
+    marginBottom: SPACING.lg,
+    ...SHADOWS.md,
+  },
+  avatarImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: SPACING.lg,
+  },
+  avatarCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: SPACING.lg,
+  },
+  avatarText: {
+    fontSize: 36,
+    fontWeight: 'bold',
+    color: COLORS.white,
+  },
+  profileName: {
+    fontSize: FONT_SIZES.xl,
+    fontWeight: '600',
+    color: COLORS.gray900,
+  },
+  customerNumber: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray500,
+    marginTop: SPACING.xs,
+  },
+  customerBadge: {
+    marginTop: SPACING.md,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.sm,
+    backgroundColor: COLORS.gray100,
+    borderRadius: BORDER_RADIUS.full,
+  },
+  premiumBadge: {
+    backgroundColor: COLORS.warningBg,
+  },
+  customerBadgeText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray700,
+    fontWeight: '500',
+  },
+  premiumBadgeText: {
+    color: '#b45309',
+  },
+  consentRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: SPACING.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.gray100,
+  },
+  consentLabel: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray700,
+  },
+  consentHint: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.gray500,
+    fontStyle: 'italic',
+    marginTop: SPACING.md,
+    textAlign: 'center',
+  },
+  gdprText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray500,
+    lineHeight: 20,
+    marginBottom: SPACING.lg,
+  },
+  gdprButtons: {
+    gap: SPACING.md,
+  },
+  gdprButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: SPACING.md,
+    backgroundColor: COLORS.gray50,
+    borderRadius: BORDER_RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.gray200,
+  },
+  gdprButtonDanger: {
+    backgroundColor: COLORS.dangerBg,
+    borderColor: '#fecaca',
+  },
+  gdprButtonIcon: {
+    fontSize: 20,
+    marginRight: SPACING.md,
+  },
+  gdprButtonText: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '500',
+    color: COLORS.gray700,
+  },
+  gdprButtonTextDanger: {
+    color: COLORS.danger,
+  },
+  footerText: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.gray500,
+    textAlign: 'center',
+    marginTop: SPACING.lg,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: COLORS.overlay,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SPACING.md,
+  },
+  modalContent: {
+    backgroundColor: COLORS.white,
+    borderRadius: BORDER_RADIUS.xl,
+    padding: SPACING.xl,
+    width: '100%',
+    maxWidth: 400,
+  },
+  modalContentLarge: {
+    backgroundColor: COLORS.white,
+    borderRadius: BORDER_RADIUS.xl,
+    padding: SPACING.xl,
+    width: '95%',
+    maxWidth: 500,
+  },
+  modalTitle: {
+    fontSize: FONT_SIZES.xl,
+    fontWeight: 'bold',
+    color: COLORS.gray900,
+    marginBottom: SPACING.md,
+  },
+  modalText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray500,
+    marginBottom: SPACING.md,
+  },
+  modalList: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray700,
+    lineHeight: 24,
+    marginBottom: SPACING.xl,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: SPACING.md,
+  },
+  modalButtonCancel: {
+    flex: 1,
+    padding: SPACING.md,
+    backgroundColor: COLORS.gray100,
+    borderRadius: BORDER_RADIUS.md,
+    alignItems: 'center',
+  },
+  modalButtonCancelText: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '600',
+    color: COLORS.gray700,
+  },
+  modalButtonDelete: {
+    flex: 1,
+    padding: SPACING.md,
+    backgroundColor: COLORS.danger,
+    borderRadius: BORDER_RADIUS.md,
+    alignItems: 'center',
+  },
+  modalButtonDeleteText: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '600',
+    color: COLORS.white,
+  },
+  modalButtonClose: {
+    padding: SPACING.md,
+    backgroundColor: COLORS.primary,
+    borderRadius: BORDER_RADIUS.md,
+    alignItems: 'center',
+  },
+  modalButtonCloseText: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '600',
+    color: COLORS.white,
+  },
+  dataPreview: {
+    backgroundColor: COLORS.gray900,
+    borderRadius: BORDER_RADIUS.md,
+    padding: SPACING.md,
+    marginBottom: SPACING.lg,
+  },
+  dataText: {
+    fontSize: FONT_SIZES.xs,
+    fontFamily: 'monospace',
+    color: COLORS.successBg,
+    lineHeight: 18,
+  },
+});
+</file>
+
+<file path="frontend/src/services/index.js">
+// frontend/src/services/index.js
+// Barrel export for all services
+
+export { default as api } from './api';
+export * from './profile';
+export * from './insurance';
+export * from './delegation';
+export * from './business';
+export { getAvailableProfiles } from './userData';
+</file>
+
+<file path="frontend/src/components/BottomNav.js">
+// frontend/src/components/BottomNav.js
+// Bottom navigation with SafeArea support and responsive web layout
+
+import { View, Text, Pressable, StyleSheet, Platform, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES } from '../styles/theme';
+
+const NAV_ITEMS = [
+  { key: 'home', icon: '🏠', label: 'Hjem' },
+  { key: 'delegation', icon: '🤝', label: 'Fullmakt' },
+  { key: 'api', icon: '🔑', label: 'API' },
+  { key: 'security', icon: '🛡️', label: 'Sikkerhet' },
+  { key: 'profile', icon: '👤', label: 'Profil' },
+];
+
+export function BottomNav({ activeTab, onTabChange }) {
+  const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+
+  const isWeb = Platform.OS === 'web';
+  const isWideScreen = width > 768;
+
+  return (
+    <View style={[
+      styles.container, 
+      { paddingBottom: Math.max(insets.bottom, SPACING.sm) },
+      isWeb && isWideScreen && styles.containerWeb,
+    ]}>
+      <View style={[
+        styles.navContent,
+        isWeb && isWideScreen && styles.navContentWeb,
+      ]}>
+        {NAV_ITEMS.map((item) => (
+          <Pressable
+            key={item.key}
+            style={[
+              styles.item, 
+              activeTab === item.key && styles.itemActive,
+              isWeb && isWideScreen && styles.itemWeb,
+            ]}
+            onPress={() => onTabChange(item.key)}
+          >
+            <Text style={[styles.icon, isWeb && isWideScreen && styles.iconWeb]}>
+              {item.icon}
+            </Text>
+            <Text style={[
+              styles.label, 
+              activeTab === item.key && styles.labelActive,
+              isWeb && isWideScreen && styles.labelWeb,
+            ]}>
+              {item.label}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: COLORS.white,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.gray200,
+  },
+  containerWeb: {
+    backgroundColor: 'transparent',
+    borderTopWidth: 0,
+  },
+  navContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingTop: SPACING.sm,
+  },
+  navContentWeb: {
+    maxWidth: 900,
+    alignSelf: 'center',
+    width: '100%',
+    backgroundColor: COLORS.white,
+    borderRadius: BORDER_RADIUS.xl,
+    marginHorizontal: SPACING.xl,
+    marginBottom: SPACING.md,
+    paddingVertical: SPACING.sm,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  item: {
+    alignItems: 'center',
+    paddingVertical: SPACING.xs,
+    paddingHorizontal: SPACING.sm,
+  },
+  itemActive: {
+    backgroundColor: COLORS.primaryBg,
+    borderRadius: BORDER_RADIUS.lg,
+  },
+  itemWeb: {
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.lg,
+  },
+  icon: {
+    fontSize: 18,
+    marginBottom: 2,
+  },
+  iconWeb: {
+    fontSize: 22,
+    marginBottom: 4,
+  },
+  label: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.gray500,
+  },
+  labelActive: {
+    color: COLORS.primary,
+    fontWeight: '600',
+  },
+  labelWeb: {
+    fontSize: FONT_SIZES.sm,
+  },
+});
+</file>
+
+<file path="frontend/src/screens/HomeScreen.js">
+// frontend/src/screens/HomeScreen.js
+// Main dashboard screen showing user insurances and profile info
+
+import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
+import { Card, InsuranceCard, DetailRow, PermissionBadge, ScreenContainer } from '../components';
+import {
+  generateUserInsurances,
+  generateBusinessInsurances,
+  getFirstName,
+  getUserDisplayInfo,
+  generateCompanyProfile,
+  hasPermission,
+} from '../services/userData';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../styles/theme';
+
+/**
+ * Home screen component
+ */
+export function HomeScreen({ user, customerType, activeProfile, onOpenProfileSwitcher }) {
+  const isBusinessCustomer = customerType === 'business';
+  const isActingAsDelegate = activeProfile?.type === 'delegation';
+  const isActingAsBusiness = activeProfile?.type === 'business';
+
+  const userInfo = getUserDisplayInfo(user);
+  const companyProfile = isBusinessCustomer ? generateCompanyProfile(user?.sub) : null;
+
+  const insurances = isBusinessCustomer
+    ? generateBusinessInsurances(activeProfile?.id || user?.sub)
+    : generateUserInsurances(
+        activeProfile?.type === 'delegation' ? activeProfile.id : user?.sub
+      );
+
+  const displayName = isBusinessCustomer
+    ? companyProfile?.companyName
+    : isActingAsDelegate
+    ? activeProfile.name
+    : getFirstName(user);
+
+  const filteredInsurances =
+    isBusinessCustomer && activeProfile?.role
+      ? insurances.filter((ins) => hasPermission(activeProfile.role, ins.category))
+      : insurances;
+
+  return (
+    <ScreenContainer>
+      {(isActingAsDelegate || isActingAsBusiness) && (
+        <ActingBanner
+          profile={activeProfile}
+          isBusiness={isActingAsBusiness}
+          onPress={onOpenProfileSwitcher}
+        />
+      )}
+
+      <WelcomeCard
+        displayName={displayName}
+        userInfo={userInfo}
+        companyProfile={companyProfile}
+        isBusinessCustomer={isBusinessCustomer}
+        insuranceCount={filteredInsurances.length}
+        onPress={onOpenProfileSwitcher}
+      />
+
+      {isBusinessCustomer && companyProfile?.role && (
+        <RolePermissionsCard role={companyProfile.role} />
+      )}
+
+      <Text style={styles.sectionTitle}>
+        {isBusinessCustomer ? '📋 Bedriftsforsikringer' : '📋 Mine forsikringer'}
+      </Text>
+
+      {filteredInsurances.length > 0 ? (
+        filteredInsurances.map((insurance) => (
+          <InsuranceCard key={insurance.id} insurance={insurance} />
+        ))
+      ) : (
+        <EmptyInsurances isBusinessCustomer={isBusinessCustomer} />
+      )}
+
+      {isBusinessCustomer && companyProfile && (
+        <CompanyInfoCard companyProfile={companyProfile} />
+      )}
+
+      <HelpCard isBusinessCustomer={isBusinessCustomer} />
+    </ScreenContainer>
+  );
+}
+
+function ActingBanner({ profile, isBusiness, onPress }) {
+  return (
+    <Pressable style={styles.actingBanner} onPress={onPress}>
+      <Text style={styles.actingBannerIcon}>{isBusiness ? '🏢' : '👵'}</Text>
+      <View style={styles.actingBannerContent}>
+        <Text style={styles.actingBannerTitle}>
+          Handler på vegne av {profile.name}
+        </Text>
+        <Text style={styles.actingBannerSubtitle}>
+          {profile.subtitle} • Trykk for å bytte
+        </Text>
+      </View>
+      <Text style={styles.actingBannerArrow}>→</Text>
+    </Pressable>
+  );
+}
+
+function WelcomeCard({ displayName, userInfo, companyProfile, isBusinessCustomer, insuranceCount, onPress }) {
+  return (
+    <Pressable style={styles.welcomeCard} onPress={onPress}>
+      <View style={styles.welcomeHeader}>
+        <View style={styles.welcomeText}>
+          <Text style={styles.greeting}>
+            {isBusinessCustomer ? 'Velkommen,' : 'Velkommen tilbake,'}
+          </Text>
+          <Text style={styles.userName}>{displayName}!</Text>
+          {isBusinessCustomer && companyProfile?.role && (
+            <View style={styles.roleBadge}>
+              <Text style={styles.roleBadgeText}>{companyProfile.role.name}</Text>
+            </View>
+          )}
+        </View>
+        <Avatar
+          picture={userInfo?.picture}
+          displayName={displayName}
+          isBusinessCustomer={isBusinessCustomer}
+        />
+      </View>
+
+      <View style={styles.statsRow}>
+        <StatItem
+          value={insuranceCount}
+          label={isBusinessCustomer ? 'Bedriftsforsikringer' : 'Aktive forsikringer'}
+        />
+        <View style={styles.statDivider} />
+        <StatItem value={0} label="Åpne saker" />
+      </View>
+    </Pressable>
+  );
+}
+
+function Avatar({ picture, displayName, isBusinessCustomer }) {
+  return (
+    <View style={styles.avatarContainer}>
+      {picture ? (
+        <Image source={{ uri: picture }} style={styles.avatar} />
+      ) : (
+        <View style={[styles.avatarPlaceholder, isBusinessCustomer && styles.avatarBusiness]}>
+          <Text style={styles.avatarText}>
+            {isBusinessCustomer ? '🏢' : displayName?.[0] || '?'}
+          </Text>
+        </View>
+      )}
+      <View style={styles.switchIndicator}>
+        <Text style={styles.switchIndicatorText}>⇄</Text>
+      </View>
+    </View>
+  );
+}
+
+function StatItem({ value, label }) {
+  return (
+    <View style={styles.statItem}>
+      <Text style={styles.statNumber}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
+    </View>
+  );
+}
+
+function RolePermissionsCard({ role }) {
+  return (
+    <Card title="🔐 Din tilgang">
+      <Text style={styles.roleDescription}>{role.description}</Text>
+      <View style={styles.permissionList}>
+        <PermissionBadge label="Tingforsikringer" hasAccess={hasPermission(role, 'ting')} />
+        <PermissionBadge label="Personforsikringer" hasAccess={hasPermission(role, 'person')} />
+        <PermissionBadge label="Pensjon" hasAccess={hasPermission(role, 'pensjon')} />
+      </View>
+      <Text style={styles.rbacNote}>
+        💡 Dette er RBAC (Role-Based Access Control) i praksis
+      </Text>
+    </Card>
+  );
+}
+
+function EmptyInsurances({ isBusinessCustomer }) {
+  return (
+    <View style={styles.emptyState}>
+      <Text style={styles.emptyText}>
+        {isBusinessCustomer
+          ? 'Du har ikke tilgang til noen forsikringer med din rolle'
+          : 'Ingen forsikringer funnet'}
+      </Text>
+    </View>
+  );
+}
+
+function CompanyInfoCard({ companyProfile }) {
+  return (
+    <Card title="🏢 Bedriftsinformasjon">
+      <DetailRow label="Bedriftsnavn" value={companyProfile.companyName} />
+      <DetailRow label="Org.nummer" value={companyProfile.orgNumber} />
+      <DetailRow label="Antall ansatte" value={String(companyProfile.employeeCount)} />
+      <DetailRow label="Kunde siden" value={companyProfile.customerSince} noBorder />
+    </Card>
+  );
+}
+
+function HelpCard({ isBusinessCustomer }) {
+  return (
+    <View style={styles.helpCard}>
+      <Text style={styles.helpTitle}>Trenger du hjelp?</Text>
+      <Text style={styles.helpText}>
+        {isBusinessCustomer
+          ? 'Kontakt bedriftsavdelingen på 915 03100 eller e-post bedrift@gjensidige.no'
+          : 'Kontakt oss på telefon 915 03100 eller chat med oss i appen.'}
+      </Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  actingBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.warningBg,
+    borderRadius: BORDER_RADIUS.lg,
+    padding: SPACING.md,
+    marginBottom: SPACING.lg,
+    borderWidth: 1,
+    borderColor: COLORS.warning,
+  },
+  actingBannerIcon: {
+    fontSize: 24,
+    marginRight: SPACING.md,
+  },
+  actingBannerContent: {
+    flex: 1,
+  },
+  actingBannerTitle: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '600',
+    color: '#92400e',
+  },
+  actingBannerSubtitle: {
+    fontSize: FONT_SIZES.xs,
+    color: '#b45309',
+    marginTop: 2,
+  },
+  actingBannerArrow: {
+    fontSize: 18,
+    color: '#b45309',
+  },
+  welcomeCard: {
+    backgroundColor: COLORS.primary,
+    borderRadius: BORDER_RADIUS.xl,
+    padding: SPACING.xxl,
+    marginBottom: SPACING.xxl,
+  },
+  welcomeHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.lg,
+  },
+  welcomeText: {
+    flex: 1,
+  },
+  greeting: {
+    fontSize: FONT_SIZES.md,
+    color: COLORS.primaryLight,
+  },
+  userName: {
+    fontSize: FONT_SIZES.xxl,
+    fontWeight: 'bold',
+    color: COLORS.white,
+    marginTop: SPACING.xs,
+  },
+  roleBadge: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: SPACING.xs,
+    borderRadius: BORDER_RADIUS.full,
+    marginTop: SPACING.sm,
+    alignSelf: 'flex-start',
+  },
+  roleBadgeText: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.white,
+    fontWeight: '500',
+  },
+  avatarContainer: {
+    position: 'relative',
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 2,
+    borderColor: COLORS.white,
+  },
+  avatarPlaceholder: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: COLORS.white,
+  },
+  avatarBusiness: {
+    backgroundColor: 'rgba(255,255,255,0.3)',
+  },
+  avatarText: {
+    fontSize: 20,
+    color: COLORS.white,
+    fontWeight: 'bold',
+  },
+  switchIndicator: {
+    position: 'absolute',
+    bottom: -4,
+    right: -4,
+    backgroundColor: COLORS.white,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  switchIndicatorText: {
+    fontSize: 10,
+    color: COLORS.primary,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderRadius: BORDER_RADIUS.md,
+    padding: SPACING.md,
+  },
+  statItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  statDivider: {
+    width: 1,
+    backgroundColor: 'rgba(255,255,255,0.3)',
+  },
+  statNumber: {
+    fontSize: FONT_SIZES.xxl,
+    fontWeight: 'bold',
+    color: COLORS.white,
+  },
+  statLabel: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.primaryLight,
+    marginTop: SPACING.xs,
+  },
+  roleDescription: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray600,
+    marginBottom: SPACING.md,
+  },
+  permissionList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: SPACING.sm,
+  },
+  rbacNote: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.gray500,
+    fontStyle: 'italic',
+    marginTop: SPACING.md,
+    textAlign: 'center',
+  },
+  sectionTitle: {
+    fontSize: FONT_SIZES.lg,
+    fontWeight: '600',
+    color: COLORS.gray900,
+    marginBottom: SPACING.md,
+  },
+  emptyState: {
+    backgroundColor: COLORS.white,
+    borderRadius: BORDER_RADIUS.lg,
+    padding: SPACING.xxl,
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: FONT_SIZES.md,
+    color: COLORS.gray500,
+    textAlign: 'center',
+  },
+  helpCard: {
+    backgroundColor: COLORS.gray50,
+    borderRadius: BORDER_RADIUS.lg,
+    padding: SPACING.lg,
+    marginTop: SPACING.lg,
+    borderWidth: 1,
+    borderColor: COLORS.gray200,
+  },
+  helpTitle: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
+    color: COLORS.gray900,
+    marginBottom: SPACING.xs,
+  },
+  helpText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray500,
+    lineHeight: 20,
+  },
+});
+</file>
+
+<file path="frontend/src/screens/index.js">
+// frontend/src/screens/index.js
+// Barrel export for all screens
+
+export { LoginScreen } from './LoginScreen';
+export { HomeScreen } from './HomeScreen';
+export { ProfileScreen } from './ProfileScreen';
+export { ApiTestScreen } from './ApiTestScreen';
+export { ConsentScreen } from './ConsentScreen';
+export { DelegationScreen } from './DelegationScreen';
+export { SecurityInfoScreen } from './SecurityInfoScreen';
+</file>
+
+<file path="frontend/src/screens/LoginScreen.js">
+// frontend/src/screens/LoginScreen.js
+// Pre-authentication screen with customer type selection and API testing
+
+import { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, Platform, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Card, Button, InfoBox, ApiResultBox } from '../components';
+import { useApiTest } from '../hooks';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS, SHADOWS } from '../styles/theme';
+
+/**
+ * Login screen with customer type selection
+ */
+export function LoginScreen({ onLogin, loading, selectedCustomerType, onSelectCustomerType }) {
+  const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const { result, isLoading, callPublic, callProtected } = useApiTest(null);
+
+  const isWeb = Platform.OS === 'web';
+  const isWideScreen = width > 768;
+
+  return (
+    <ScrollView
+      contentContainerStyle={[
+        styles.container,
+        {
+          paddingTop: Math.max(insets.top + SPACING.lg, 60),
+          paddingBottom: Math.max(insets.bottom + SPACING.xl, 40),
+        },
+        isWeb && isWideScreen && styles.containerWeb,
+      ]}
+    >
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.logo}>🔐</Text>
+        <Text style={styles.title}>CIAM Demo</Text>
+        <Text style={styles.subtitle}>Customer Identity & Access Management</Text>
+      </View>
+
+      {/* Customer Type Selection */}
+      <Card title="Velg kundetype">
+        <Text style={styles.customerTypeDescription}>
+          Velg hvilken type kunde du vil simulere for å se forskjellig funksjonalitet.
+        </Text>
+
+        <CustomerTypeSelector
+          selectedType={selectedCustomerType}
+          onSelect={onSelectCustomerType}
+        />
+      </Card>
+
+      {/* Login Button */}
+      <View style={styles.loginSection}>
+        <Button
+          title={loading ? 'Laster...' : 'Logg inn med Auth0'}
+          onPress={onLogin}
+          disabled={loading}
+          variant="primary"
+        />
+      </View>
+
+      {/* API Test Section */}
+      <Card
+        title="🔬 Test API (før innlogging)"
+        description="Se forskjellen mellom offentlige og beskyttede endepunkter."
+      >
+        <View style={styles.buttonRow}>
+          <View style={styles.buttonWrapper}>
+            <Button
+              title="/public"
+              variant="success"
+              onPress={callPublic}
+              disabled={isLoading}
+            />
+          </View>
+          <View style={styles.buttonWrapper}>
+            <Button
+              title="/protected"
+              variant="primary"
+              onPress={callProtected}
+              disabled={isLoading}
+            />
+          </View>
+        </View>
+      </Card>
+
+      <ApiResultBox result={result} />
+
+      {/* Info about Gjensidige */}
+      <InfoBox title="💡 Om denne demoen" variant="primary">
+        Denne appen demonstrerer CIAM-konsepter relevante for Gjensidige:{'\n\n'}
+        • OAuth 2.0 med PKCE-flyt{'\n'}
+        • Multi-faktor autentisering (MFA){'\n'}
+        • Rollebasert tilgangskontroll (RBAC){'\n'}
+        • Delegert tilgang (fullmakt){'\n'}
+        • Step-up authentication{'\n'}
+        • GDPR-samsvar
+      </InfoBox>
+
+      {/* Features List */}
+      <Card title="✨ Funksjoner">
+        <FeatureItem icon="🔑" text="OAuth 2.0 med Auth0" />
+        <FeatureItem icon="📱" text="MFA med Google Authenticator" />
+        <FeatureItem icon="👥" text="Privat- og bedriftskunde" />
+        <FeatureItem icon="🤝" text="Delegert tilgang (fullmakt)" />
+        <FeatureItem icon="🔐" text="Step-up authentication" />
+        <FeatureItem icon="📋" text="GDPR samtykke-håndtering" />
+      </Card>
+    </ScrollView>
+  );
+}
+
+function CustomerTypeSelector({ selectedType, onSelect }) {
+  return (
+    <View style={styles.customerTypeGrid}>
+      <CustomerTypeOption
+        type="private"
+        icon="👤"
+        title="Privatkunde"
+        description="Personlige forsikringer"
+        isSelected={selectedType === 'private'}
+        onPress={() => onSelect('private')}
+      />
+      <CustomerTypeOption
+        type="business"
+        icon="🏢"
+        title="Bedriftskunde"
+        description="Bedriftsforsikringer med RBAC"
+        isSelected={selectedType === 'business'}
+        onPress={() => onSelect('business')}
+      />
+    </View>
+  );
+}
+
+function CustomerTypeOption({ icon, title, description, isSelected, onPress }) {
+  return (
+    <Pressable
+      style={[styles.customerTypeOption, isSelected && styles.customerTypeOptionSelected]}
+      onPress={onPress}
+    >
+      <Text style={styles.customerTypeIcon}>{icon}</Text>
+      <Text style={[styles.customerTypeTitle, isSelected && styles.customerTypeTitleSelected]}>
+        {title}
+      </Text>
+      <Text style={styles.customerTypeDesc}>{description}</Text>
+      {isSelected && (
+        <View style={styles.selectedBadge}>
+          <Text style={styles.selectedBadgeText}>✓</Text>
+        </View>
+      )}
+    </Pressable>
+  );
+}
+
+function FeatureItem({ icon, text }) {
+  return (
+    <View style={styles.featureItem}>
+      <Text style={styles.featureIcon}>{icon}</Text>
+      <Text style={styles.featureText}>{text}</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: SPACING.xl,
+    backgroundColor: COLORS.gray100,
+  },
+  containerWeb: {
+    maxWidth: 900,
+    alignSelf: 'center',
+    width: '100%',
+    paddingHorizontal: SPACING.xxl,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: SPACING.xxl,
+  },
+  logo: {
+    fontSize: 64,
+    marginBottom: SPACING.md,
+  },
+  title: {
+    fontSize: FONT_SIZES.xxxl,
+    fontWeight: 'bold',
+    color: COLORS.gray900,
+  },
+  subtitle: {
+    fontSize: FONT_SIZES.md,
+    color: COLORS.gray500,
+    marginTop: SPACING.xs,
+  },
+  customerTypeDescription: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray500,
+    marginBottom: SPACING.md,
+  },
+  customerTypeGrid: {
+    flexDirection: 'row',
+    gap: SPACING.md,
+  },
+  customerTypeOption: {
+    flex: 1,
+    padding: SPACING.lg,
+    backgroundColor: COLORS.gray50,
+    borderRadius: BORDER_RADIUS.lg,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+    position: 'relative',
+  },
+  customerTypeOptionSelected: {
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.primaryBg,
+  },
+  customerTypeIcon: {
+    fontSize: 32,
+    marginBottom: SPACING.sm,
+  },
+  customerTypeTitle: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
+    color: COLORS.gray900,
+  },
+  customerTypeTitleSelected: {
+    color: COLORS.primary,
+  },
+  customerTypeDesc: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.gray500,
+    textAlign: 'center',
+    marginTop: SPACING.xs,
+  },
+  selectedBadge: {
+    position: 'absolute',
+    top: SPACING.sm,
+    right: SPACING.sm,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  selectedBadgeText: {
+    color: COLORS.white,
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  loginSection: {
+    marginBottom: SPACING.lg,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: SPACING.md,
+  },
+  buttonWrapper: {
+    flex: 1,
+  },
+  featureItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: SPACING.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.gray100,
+  },
+  featureIcon: {
+    fontSize: 20,
+    marginRight: SPACING.md,
+    width: 30,
+  },
+  featureText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray700,
+    flex: 1,
+  },
+});
+</file>
+
+<file path="frontend/src/screens/SecurityInfoScreen.js">
+// frontend/src/screens/SecurityInfoScreen.js
+// Educational screen explaining security concepts
+
+import { View, Text, StyleSheet } from 'react-native';
+import { Card, InfoBox, ScreenContainer } from '../components';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../styles/theme';
+
+/**
+ * Security info screen
+ */
+export function SecurityInfoScreen() {
+  return (
+    <ScreenContainer
+      title="🔐 Sikkerhet i denne appen"
+      subtitle="Lær hvordan vi beskytter dine data"
+    >
+      <SecurityCard
+        title="🔑 OAuth 2.0 og OpenID Connect"
+        description="OAuth 2.0 er en standard for autorisasjon som lar deg logge inn uten å dele passordet ditt med appen. OpenID Connect legger til autentisering – hvem du er."
+        diagram="Du → Auth0 → Verifisering → Token → App"
+        benefits={[
+          'Passordet ditt sendes aldri til appen',
+          'Du kan bruke samme konto på flere tjenester',
+          'Enkelt å trekke tilbake tilgang',
+        ]}
+      />
+
+      <SecurityCard
+        title="🎫 JWT (JSON Web Tokens)"
+        description="En JWT er som et digitalt ID-kort. Den inneholder informasjon om deg og er signert slik at ingen kan forfalske den."
+        code={`{
+  "sub": "bruker-id",
+  "name": "Ola Nordmann",
+  "exp": 1234567890
+}`}
+        benefits={[
+          'Stateless – serveren trenger ikke lagre sesjoner',
+          'Signert med kryptografiske nøkler',
+          'Utløper automatisk (exp = expiration)',
+        ]}
+      />
+
+      <SecurityCard
+        title="🔐 MFA (Multi-Factor Authentication)"
+        description="MFA krever at du beviser identiteten din på flere måter – noe du vet (passord) og noe du har (telefon)."
+        diagram={`Faktor 1: Passord (noe du vet)
+Faktor 2: Engangskode (noe du har)`}
+        benefits={[
+          'Selv om passordet lekker, er kontoen trygg',
+          'TOTP-koder er tidsbaserte og utløper etter 30 sek',
+          'Google Authenticator lagrer hemmeligheten lokalt',
+        ]}
+      />
+
+      <SecurityCard
+        title="🔒 TLS/HTTPS og kryptering"
+        description="TLS (Transport Layer Security) krypterer all kommunikasjon mellom din enhet og serveren."
+        diagram={`Din enhet ←🔒→ Azure server
+(All trafikk er kryptert)`}
+        benefits={[
+          'Ingen kan avlytte kommunikasjonen',
+          'Sertifikater bekrefter serverens identitet',
+          'Diffie-Hellman utveksler nøkler sikkert',
+        ]}
+      />
+
+      <SecurityCard
+        title="🧂 Hashing og Salting"
+        description={'Passordet ditt lagres aldri i klartekst. Det "hashes" – en enveisfunksjon som ikke kan reverseres.'}
+        code={`Passord: "hemmelig123"
+Salt: "x7$kL9"
+Hash: "a4f2c8e1b3d5..."`}
+        benefits={[
+          'Selv Auth0 vet ikke passordet ditt',
+          'Salt gjør hvert hash unikt',
+          'Beskytter mot rainbow table-angrep',
+        ]}
+      />
+
+      <SecurityCard
+        title="🔑 Public/Private Key"
+        description="Asymmetrisk kryptering bruker to nøkler – en offentlig for kryptering/verifisering og en privat for dekryptering/signering."
+        diagram={`Auth0: Signerer JWT med privat nøkkel
+Backend: Verifiserer med offentlig nøkkel`}
+        benefits={[
+          'Privat nøkkel forlater aldri Auth0',
+          'Hvem som helst kan verifisere, bare Auth0 kan signere',
+          'RS256-algoritmen brukes for JWT',
+        ]}
+      />
+
+      <SecurityCard
+        title="🤝 Delegert tilgang (Fullmakt)"
+        description="Delegert tilgang lar en person handle på vegne av en annen. Vanlig i forsikring når familie hjelper hverandre."
+        diagram={`Mor (gir fullmakt) → Datter (mottar)
+Datter kan nå se mors forsikringer`}
+        benefits={[
+          'Familiemedlemmer kan hjelpe hverandre',
+          'Regnskapsførere kan se bedriftsforsikringer',
+          'Fullmakt kan trekkes tilbake når som helst',
+        ]}
+      />
+
+      <SecurityCard
+        title="🔐 Step-up Authentication"
+        description={'Noen handlinger krever sterkere autentisering enn vanlig navigering. Dette kalles "step-up" – du må bevise identiteten din på nytt for sensitive operasjoner.'}
+        diagram={`Vanlig: Se forsikringer ✓
+Step-up: Signere avtale → Krever BankID`}
+        benefits={[
+          'Beskytter mot uautoriserte endringer',
+          'Balanserer sikkerhet og brukervennlighet',
+          'Gjensidige bruker BankID for dette',
+        ]}
+      />
+
+      <SecurityCard
+        title="🔄 SSO (Single Sign-On)"
+        description="Med SSO logger du inn én gang og får tilgang til flere tjenester uten å logge inn på nytt."
+        diagram={`Login → Gjensidige.no
+      → Gjensidige App
+      → Min Pensjon
+(Samme sesjon for alle)`}
+        benefits={[
+          'Bedre brukeropplevelse',
+          'Færre passord å huske',
+          'Sentralisert tilgangskontroll',
+        ]}
+      />
+
+      <SecurityCard
+        title="🏦 BankID i Norge"
+        description="BankID er Norges nasjonale eID-løsning, brukt av banker, forsikringsselskaper og offentlige tjenester."
+        diagram={`BankID = Autentisering + Signering
+Sikkerhetsnivå: Høyt (juridisk bindende)`}
+        benefits={[
+          'Over 4,5 millioner brukere i Norge',
+          'Juridisk gyldig signatur',
+          'Gjensidige bruker BankID for login og signering',
+        ]}
+      />
+
+      <Card title="📜 GDPR og personvern">
+        <Text style={styles.conceptText}>
+          <Text style={styles.bold}>Dine rettigheter:</Text>
+        </Text>
+        <Text style={styles.benefitText}>
+          ✓ Rett til innsyn – se alle data vi har om deg{'\n'}
+          ✓ Rett til retting – korrigere feil informasjon{'\n'}
+          ✓ Rett til sletting – "retten til å bli glemt"{'\n'}
+          ✓ Rett til dataportabilitet – få ut dine data{'\n'}
+          ✓ Rett til å trekke samtykke – når som helst
+        </Text>
+      </Card>
+
+      <InfoBox>
+        Denne appen demonstrerer moderne sikkerhetspraksis for
+        Customer Identity and Access Management (CIAM).
+      </InfoBox>
+    </ScreenContainer>
+  );
+}
+
+function SecurityCard({ title, description, diagram, code, benefits }) {
+  return (
+    <Card title={title}>
+      <Text style={styles.conceptText}>
+        <Text style={styles.bold}>Hva er det?</Text>
+        {'\n'}
+        {description}
+      </Text>
+
+      {diagram && (
+        <View style={styles.diagram}>
+          <Text style={styles.diagramText}>{diagram}</Text>
+        </View>
+      )}
+
+      {code && (
+        <View style={styles.codeBlock}>
+          <Text style={styles.codeText}>{code}</Text>
+        </View>
+      )}
+
+      {benefits && (
+        <Text style={styles.benefitText}>
+          {benefits.map((b) => `✓ ${b}`).join('\n')}
+        </Text>
+      )}
+    </Card>
+  );
+}
+
+const styles = StyleSheet.create({
+  conceptText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.gray700,
+    lineHeight: 22,
+    marginBottom: SPACING.md,
+  },
+  bold: {
+    fontWeight: '600',
+    color: COLORS.gray900,
+  },
+  diagram: {
+    backgroundColor: COLORS.primaryBg,
+    borderRadius: BORDER_RADIUS.md,
+    padding: SPACING.md,
+    marginBottom: SPACING.md,
+  },
+  diagramText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.primary,
+    fontFamily: 'monospace',
+    textAlign: 'center',
+  },
+  codeBlock: {
+    backgroundColor: COLORS.gray900,
+    borderRadius: BORDER_RADIUS.md,
+    padding: SPACING.md,
+    marginBottom: SPACING.md,
+  },
+  codeText: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.successBg,
+    fontFamily: 'monospace',
+  },
+  benefitText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.success,
+    lineHeight: 22,
+  },
+});
+</file>
+
+<file path="frontend/src/styles/theme.js">
+// frontend/src/styles/theme.js
+// Mobile-first design system for CIAM Demo
+
+// ---------------------
+// COLOR PALETTE
+// ---------------------
+export const COLORS = {
+  // Primary brand colors
+  primary: '#2563eb',
+  primaryDark: '#1d4ed8',
+  primaryLight: '#93c5fd',
+  primaryBg: '#eff6ff',
+
+  // Semantic colors
+  success: '#16a34a',
+  successLight: '#22c55e',
+  successBg: '#dcfce7',
+
+  warning: '#d97706',
+  warningLight: '#f59e0b',
+  warningBg: '#fef3c7',
+
+  danger: '#dc2626',
+  dangerLight: '#ef4444',
+  dangerBg: '#fee2e2',
+
+  info: '#0891b2',
+  infoBg: '#cffafe',
+
+  // Neutral palette
+  white: '#ffffff',
+  black: '#000000',
+  gray50: '#f9fafb',
+  gray100: '#f3f4f6',
+  gray200: '#e5e7eb',
+  gray300: '#d1d5db',
+  gray400: '#9ca3af',
+  gray500: '#6b7280',
+  gray600: '#4b5563',
+  gray700: '#374151',
+  gray800: '#1f2937',
+  gray900: '#111827',
+
+  // Transparent overlays
+  overlay: 'rgba(0, 0, 0, 0.5)',
+  overlayLight: 'rgba(0, 0, 0, 0.3)',
+};
+
+// ---------------------
+// SPACING SCALE
+// ---------------------
+// Base unit: 4px (mobile-first)
+export const SPACING = {
+  xxs: 2,
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  xxl: 24,
+  xxxl: 32,
+  xxxxl: 40,
+  section: 48,
+};
+
+// ---------------------
+// TYPOGRAPHY
+// ---------------------
+export const FONT_SIZES = {
+  xs: 12,
+  sm: 14,
+  md: 16,
+  lg: 18,
+  xl: 20,
+  xxl: 24,
+  xxxl: 32,
+  display: 40,
+};
+
+export const FONT_WEIGHTS = {
+  regular: '400',
+  medium: '500',
+  semibold: '600',
+  bold: '700',
+};
+
+export const LINE_HEIGHTS = {
+  tight: 1.2,
+  normal: 1.5,
+  relaxed: 1.75,
+};
+
+// ---------------------
+// BORDER RADIUS
+// ---------------------
+export const BORDER_RADIUS = {
+  xs: 4,
+  sm: 8,
+  md: 10,
+  lg: 12,
+  xl: 16,
+  xxl: 20,
+  full: 9999,
+};
+
+// ---------------------
+// SHADOWS (Elevation)
+// ---------------------
+export const SHADOWS = {
+  none: {
+    shadowColor: 'transparent',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
+  },
+  sm: {
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  md: {
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  lg: {
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  xl: {
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+};
+
+// ---------------------
+// TOUCH TARGETS
+// ---------------------
+// Apple HIG: minimum 44pt, Material Design: minimum 48dp
+export const TOUCH_TARGETS = {
+  minimum: 44,
+  comfortable: 48,
+  large: 56,
+};
+
+// ---------------------
+// LAYOUT
+// ---------------------
+export const LAYOUT = {
+  screenPaddingHorizontal: SPACING.lg,
+  screenPaddingVertical: SPACING.xl,
+  cardPadding: SPACING.lg,
+  sectionGap: SPACING.xxl,
+  itemGap: SPACING.md,
+};
+
+// ---------------------
+// ANIMATION
+// ---------------------
+export const ANIMATION = {
+  fast: 150,
+  normal: 250,
+  slow: 350,
+};
+
+// ---------------------
+// COMMON STYLES
+// ---------------------
+// Reusable style objects to reduce duplication across components
+
+export const COMMON_STYLES = {
+  screenContainer: {
+    flex: 1,
+    backgroundColor: COLORS.gray100,
+  },
+
+  screenContent: {
+    flex: 1,
+    paddingHorizontal: LAYOUT.screenPaddingHorizontal,
+  },
+
+  card: {
+    backgroundColor: COLORS.white,
+    borderRadius: BORDER_RADIUS.lg,
+    padding: LAYOUT.cardPadding,
+    ...SHADOWS.md,
+  },
+
+  sectionTitle: {
+    fontSize: FONT_SIZES.lg,
+    fontWeight: FONT_WEIGHTS.semibold,
+    color: COLORS.gray900,
+    marginBottom: SPACING.md,
+  },
+
+  bodyText: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: FONT_WEIGHTS.regular,
+    color: COLORS.gray700,
+    lineHeight: FONT_SIZES.md * LINE_HEIGHTS.normal,
+  },
+
+  caption: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: FONT_WEIGHTS.regular,
+    color: COLORS.gray500,
+  },
+
+  centered: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  rowBetween: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  rowCenter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  divider: {
+    height: 1,
+    backgroundColor: COLORS.gray200,
+    marginVertical: SPACING.md,
+  },
+};
+</file>
+
+<file path="frontend/package.json">
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "expo": "~54.0.29",
+    "expo-auth-session": "~7.0.10",
+    "expo-crypto": "~15.0.8",
+    "expo-status-bar": "~3.0.9",
+    "expo-web-browser": "~15.0.10",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-safe-area-context": "~5.6.0",
+    "react-native-web": "^0.21.0"
+  },
+  "private": true
+}
+</file>
+
+<file path=".github/workflows/main_ciam-demo-dap.yml">
+name: Build and deploy JAR app to Azure Web App - ciam-demo-dap
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java version
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'microsoft'
+
+      - name: Build with Gradle
+        working-directory: ./backend-kotlin
+        run: ./gradlew build -x test
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-app
+          path: backend-kotlin/build/libs/*.jar
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      id-token: write
+      contents: read
+  
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: java-app
+      
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_E07DF7D35F1244B4A237BBFCBC0931CA }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_A42CAB002562450FB75CBC62349CF7A7 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_BF853D255E35483DA12F0FFDF3DCED0C }}
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'ciam-demo-dap'
+          slot-name: 'Production'
+          package: '*-SNAPSHOT.jar'
+</file>
+
+<file path="backend-kotlin/src/main/kotlin/no/gjensidige/ciam/SecurityConfig.kt">
+// backend-kotlin/src/main/kotlin/no/gjensidige/ciam/SecurityConfig.kt
+package no.gjensidige.ciam
+
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.web.SecurityFilterChain
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+
+@Configuration
+@EnableWebSecurity
+class SecurityConfig {
+
+    @Bean
+    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+        http
+            .cors { }
+            .csrf { it.disable() }
+            .authorizeHttpRequests { authorize ->
+                authorize
+                    .requestMatchers("/public").permitAll()
+                    .anyRequest().authenticated()
+            }
+            .oauth2ResourceServer { oauth2 ->
+                oauth2.jwt { }
+            }
+
+        return http.build()
+    }
+
+    @Bean
+    fun corsConfigurationSource(): CorsConfigurationSource {    // CORS (in backend)
+        val configuration = CorsConfiguration()
+        configuration.allowedOrigins = listOf(
+            "http://localhost:5500", 
+            "http://127.0.0.1:5500", 
+            "http://192.168.1.7:5500",
+            "http://localhost:8081",
+            "https://t7zby4w-dannyp19921-8081.exp.direct",
+            "exp://172.18.248.121:8081"
+        )
+        configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
+        configuration.allowedHeaders = listOf("*")
+        configuration.allowCredentials = true
+
+        val source = UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration("/**", configuration)
+        return source
+    }
+}
+</file>
+
+<file path="frontend/src/components/index.js">
+// frontend/src/components/index.js
+// Barrel export for all components
+
+// Core UI
+export { Button } from './Button';
+export { Card } from './Card';
+
+// Data display
+export { DetailRow } from './DetailRow';
+export { InsuranceCard } from './InsuranceCard';
+export { PermissionBadge } from './PermissionBadge';
+export { ApiResultBox } from './ApiResultBox';
+
+// Layout
+export { ScreenContainer } from './ScreenContainer';
+export { InfoBox } from './InfoBox';
+
+// Navigation
+export { BottomNav } from './BottomNav';
+
+// Modals
+export { StepUpModal } from './StepUpModal';
+export { ProfileSwitcher } from './ProfileSwitcher';
+</file>
+
+<file path="frontend/src/services/userData.js">
+// frontend/src/services/userData.js
+// User data aggregator
+// This file re-exports from specialized modules for backwards compatibility
+// New imports should use the specific modules directly
+
+// Re-export from profile.js
+export { 
+  getFirstName,
+  generateUserProfile, 
+  getUserDisplayInfo,
+  formatAddress,
+} from './profile';
+
+// Re-export from insurance.js
+export { 
+  generateUserInsurances,
+  generateBusinessInsurances,
+  filterInsurancesByPermissions,
+  groupInsurancesByCategory,
+  calculateTotalAnnualPremium,
+  getStatusBadge,
+} from './insurance';
+
+// Re-export from delegation.js
+export { 
+  generateUserDelegations, 
+  getAccessLevelDescription,
+  getAccessLevelName,
+  isDelegationExpired,
+  filterActiveDelegations,
+  validateNewDelegation,
+  formatDelegationDate,
+  RELATIONSHIP_TYPES,
+} from './delegation';
+
+// Re-export from business.js
+export { 
+  generateCompanyProfile,
+  formatOrgNumber,
+  hasPermission,
+  hasAllPermissions,
+  hasAnyPermission,
+  getBusinessRoles,
+  getRoleById,
+  getRoleAccessDescription,
+  PERMISSION_CATEGORIES,
+  getPermissionCategory,
+} from './business';
+
+// Re-export constants
+export { SENSITIVE_ACTIONS } from '../constants/mockData';
+
+// ---------------------
+// PROFILE SWITCHING
+// ---------------------
+// This function uses data from multiple modules and remains here
+
+import { hashCode } from '../utils/hash';
+import { generateUserProfile } from './profile';
+import { generateUserDelegations } from './delegation';
+import { generateCompanyProfile } from './business';
+import { COMPANY_NAMES, BUSINESS_ROLES } from '../constants/mockData';
+
+/**
+ * Get available profiles for profile switching
+ * Includes own profile + delegated profiles
+ * @param {string} userId - User ID
+ * @param {string} customerType - 'private' or 'business'
+ * @returns {Array} - List of profiles
+ */
+export function getAvailableProfiles(userId, customerType) {
+  if (!userId) return [];
+
+  const hash = hashCode(userId);
+  const profiles = [];
+
+  // Always add own profile first
+  const userProfile = generateUserProfile({ sub: userId, email: 'user@example.com' });
+  
+  profiles.push({
+    id: 'self',
+    type: 'self',
+    name: customerType === 'business' 
+      ? generateCompanyProfile(userId).companyName 
+      : userProfile.fullName,
+    subtitle: customerType === 'business' ? 'Din bedrift' : 'Din profil',
+    icon: customerType === 'business' ? '🏢' : '👤',
+  });
+
+  if (customerType === 'private') {
+    // Add family members from delegations
+    const delegations = generateUserDelegations(userId);
+    
+    delegations.receivedFrom.forEach(d => {
+      profiles.push({
+        id: `delegate-${d.id}`,
+        type: 'delegation',
+        name: d.name,
+        subtitle: `Fullmakt fra ${d.relationship.toLowerCase()}`,
+        icon: '👵',
+        delegationInfo: d,
+      });
+    });
+  } else {
+    // Add other companies user has access to
+    if (hash % 3 === 0) {
+      profiles.push({
+        id: 'company-2',
+        type: 'business',
+        name: COMPANY_NAMES[(hash + 2) % COMPANY_NAMES.length],
+        subtitle: 'Regnskapsfører-tilgang',
+        icon: '🏢',
+        role: BUSINESS_ROLES[2],
+      });
+    }
+  }
+
+  return profiles;
+}
+</file>
+
+<file path="README.md">
+# CIAM Demo
+
+A comprehensive Customer Identity and Access Management (CIAM) demonstration project built for the IAM Developer position at Gjensidige. This project showcases secure authentication, authorization, and modern CIAM patterns using enterprise-grade technologies.
+
+## Project Purpose
+
+This demo was built to demonstrate practical understanding of CIAM concepts relevant to the insurance industry, including:
+
+- Customer authentication with MFA
+- Delegated access (fullmakt) for family members
+- Role-based access control (RBAC) for business customers
+- Step-up authentication for sensitive operations
+- GDPR compliance features
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         CIAM Demo                               │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   ┌─────────────┐        ┌─────────────┐                       │
+│   │   Web App   │        │ Mobile App  │                       │
+│   │  (Browser)  │        │ (Expo Go)   │                       │
+│   └──────┬──────┘        └──────┬──────┘                       │
+│          │                      │                               │
+│          └──────────┬───────────┘                               │
+│                     │                                           │
+│          ┌──────────▼──────────┐                               │
+│          │  Customer Type      │                               │
+│          │  [Privat] [Bedrift] │                               │
+│          └──────────┬──────────┘                               │
+│                     ▼                                           │
+│          ┌─────────────────────┐                               │
+│          │       Auth0         │                               │
+│          │  + MFA (TOTP)       │                               │
+│          └──────────┬──────────┘                               │
+│                     ▼                                           │
+│          ┌─────────────────────┐                               │
+│          │  Azure App Service  │                               │
+│          │  (Spring Boot API)  │                               │
+│          │  JWT Validation     │                               │
+│          └─────────────────────┘                               │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Features Demonstrated
+
+### Authentication and Security
+
+| Feature | Description | Status |
+|---------|-------------|--------|
+| OAuth 2.0 + PKCE | Secure authorization flow | ✅ Implemented |
+| OpenID Connect | Identity layer on OAuth 2.0 | ✅ Implemented |
+| MFA (TOTP) | Google Authenticator integration | ✅ Implemented |
+| JWT Validation | Backend token verification | ✅ Implemented |
+| Step-up Authentication | Extra verification for sensitive actions | ✅ Demo |
+
+### Customer Types
+
+The application supports two customer types, mirroring Gjensidige's actual customer segmentation:
+
+| Type | Features |
+|------|----------|
+| Private Customer (Privat) | Personal insurances, family delegations |
+| Business Customer (Bedrift) | Business insurances, RBAC roles |
+
+### Delegated Access (Fullmakt)
+
+| Feature | Description |
+|---------|-------------|
+| Give delegation | Grant access to family members or accountants |
+| Receive delegation | View and manage others' insurances |
+| Profile switching | Switch between delegated profiles |
+| Revoke access | Remove delegations at any time |
+
+### Role-Based Access Control (RBAC) for Business Customers
+
+| Role | Property Insurance | Personal Insurance | Pension |
+|------|-------------------|-------------------|---------|
+| CEO (Daglig leder) | ✅ | ✅ | ✅ |
+| HR Manager | ❌ | ✅ | ✅ |
+| Accountant (Regnskapsfører) | ✅ | ❌ | ❌ |
+| CFO (Økonomisjef) | ✅ | ❌ | ✅ |
+
+### GDPR Compliance
+
+| Feature | Description |
+|---------|-------------|
+| Consent Management | Granular consent for cookies, analytics, marketing |
+| Right to Access | Download all personal data (Article 15) |
+| Right to Erasure | Delete account and data (Article 17) |
+| Consent Modification | Update preferences at any time |
+
+## Technologies
+
+### Backend
+- **Kotlin** with Spring Boot 3.4
+- **Spring Security** OAuth2 Resource Server
+- **Java 21** runtime
+
+### Frontend
+- **React Native / Expo** for cross-platform mobile
+- **React Context API** for state management
+- **Custom Hooks** for reusable logic
+- **Design System** with centralized theme
+
+### Authentication
+- **Auth0** (Identity-as-a-Service)
+- **OAuth 2.0 with PKCE** for secure mobile auth
+- **MFA/TOTP** (Google Authenticator)
+
+### Cloud and DevOps
+- **Azure App Service** for hosting
+- **GitHub Actions** for CI/CD
+- **Docker** containerization
+- **Kubernetes** manifests included
+
+## Frontend Architecture
+
+The frontend follows modern React patterns with clear separation of concerns:
+
+```
+frontend/src/
+│
+├── contexts/                    # Global state management
+│   ├── AuthContext.js          # OAuth/Auth0 authentication state
+│   ├── UserContext.js          # User profiles, customer type, delegations
+│   └── ConsentContext.js       # GDPR consent state
+│
+├── hooks/                       # Reusable logic
+│   ├── useApiTest.js           # API call logic with loading/error states
+│   ├── useCountdown.js         # Timer logic for OTP expiration
+│   └── index.js                # Barrel export
+│
+├── components/                  # Reusable UI components
+│   ├── ScreenContainer.js      # SafeArea wrapper with responsive layout
+│   ├── DetailRow.js            # Label-value display component
+│   ├── PermissionBadge.js      # RBAC permission indicator
+│   ├── InfoBox.js              # Informational boxes with variants
+│   ├── ApiResultBox.js         # API test result display
+│   ├── Card.js                 # Base card component
+│   ├── Button.js               # Themed button component
+│   ├── InsuranceCard.js        # Insurance display card
+│   ├── BottomNav.js            # Responsive bottom navigation
+│   ├── StepUpModal.js          # Step-up authentication modal
+│   ├── ProfileSwitcher.js      # Profile/delegation switcher
+│   └── index.js                # Barrel export
+│
+├── screens/                     # Screen components
+│   ├── LoginScreen.js          # Pre-auth with customer type selection
+│   ├── ConsentScreen.js        # GDPR consent collection
+│   ├── HomeScreen.js           # Main dashboard
+│   ├── ProfileScreen.js        # User profile with GDPR actions
+│   ├── DelegationScreen.js     # Delegation management + step-up demo
+│   ├── ApiTestScreen.js        # API testing interface
+│   ├── SecurityInfoScreen.js   # Security concepts education
+│   └── index.js                # Barrel export
+│
+├── services/                    # Business logic
+│   ├── api.js                  # API client
+│   └── userData.js             # Mock data generation
+│
+├── constants/                   # Configuration
+│   └── config.js               # Auth0, API endpoints
+│
+└── styles/                      # Design system
+    └── theme.js                # Colors, spacing, typography, shadows
+```
+
+### Design Principles Applied
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Separation of Concerns** | Contexts for state, hooks for logic, components for UI |
+| **DRY (Don't Repeat Yourself)** | Shared components like DetailRow, PermissionBadge |
+| **Mobile-first Design** | SafeAreaInsets, touch-friendly targets |
+| **Responsive Layout** | Platform detection, breakpoints for web |
+| **Design System** | Centralized theme with COLORS, SPACING, SHADOWS |
+| **Barrel Exports** | Clean imports via index.js files |
+
+### State Management
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    App Providers                        │
+├─────────────────────────────────────────────────────────┤
+│  SafeAreaProvider                                       │
+│    └── AuthProvider (user, tokens, login/logout)        │
+│          └── ConsentProvider (GDPR consents)            │
+│                └── UserProvider (profiles, delegations) │
+│                      └── App Content                    │
+└─────────────────────────────────────────────────────────┘
+```
+
+## Project Structure
+
+```
+ciam-demo/
+├── backend-kotlin/
+│   ├── src/main/kotlin/no/gjensidige/ciam/
+│   │   ├── CiamDemoApplication.kt
+│   │   ├── ApiController.kt
+│   │   └── SecurityConfig.kt
+│   ├── Dockerfile
+│   └── build.gradle.kts
+│
+├── frontend/
+│   ├── App.js                   # App entry with providers
+│   ├── src/
+│   │   ├── contexts/            # State management
+│   │   ├── hooks/               # Custom hooks
+│   │   ├── components/          # Reusable UI
+│   │   ├── screens/             # Screen components
+│   │   ├── services/            # API and data
+│   │   ├── constants/           # Configuration
+│   │   └── styles/              # Design system
+│   └── package.json
+│
+├── kubernetes/
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   └── secrets-template.yaml
+│
+└── .github/workflows/
+    └── main_ciam-demo-dap.yml
+```
+
+## Application Flow
+
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│ Login Screen │ ──▶ │    Auth0     │ ──▶ │   Consent    │
+│ (Type Select)│     │  (MFA/TOTP)  │     │   Screen     │
+└──────────────┘     └──────────────┘     └──────┬───────┘
+                                                  │
+                     ┌────────────────────────────┘
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│                    Main Application                     │
+├─────────┬─────────┬─────────┬───────────┬──────────────┤
+│  Home   │Fullmakt │   API   │ Sikkerhet │   Profil     │
+│Dashboard│  Demo   │  Test   │   Info    │  (GDPR)      │
+└─────────┴─────────┴─────────┴───────────┴──────────────┘
+```
+
+## Security Concepts Demonstrated
+
+| Concept | Implementation |
+|---------|----------------|
+| OAuth 2.0 + PKCE | Auth0 integration with secure code exchange |
+| JWT Tokens | Backend validation with RS256 signature verification |
+| MFA/TOTP | Google Authenticator required for every login |
+| Step-up Authentication | Additional OTP verification for sensitive operations |
+| RBAC | Role-based permissions for business customers |
+| Delegated Access | Acting on behalf of family members |
+| SSO | Explained in security education screen |
+| BankID | Explained as Norwegian eID solution |
+| GDPR | Consent management, data export, account deletion |
+
+## Gjensidige-Relevant Features
+
+This demo mirrors real CIAM patterns used by Gjensidige:
+
+| Gjensidige Feature | Demo Implementation |
+|--------------------|---------------------|
+| Privat / Bedrift login separation | Customer type selection before login |
+| BankID for step-up | Simulated with OTP verification |
+| Fullmakt for family | Delegation management screen |
+| Role-based business access | RBAC with 4 predefined roles |
+| Profile switching in app | ProfileSwitcher component |
+
+## API Endpoints
+
+| Endpoint | Authentication | Description |
+|----------|----------------|-------------|
+| GET /public | None | Returns public greeting |
+| GET /protected | JWT required | Returns user info from token claims |
+
+**Live API:** https://ciam-demo-dap-cdbcc5debgfgbaf5.westeurope-01.azurewebsites.net
+
+## Getting Started
+
+### Prerequisites
+- Node.js 18+
+- Java 21 (for backend development)
+- Expo Go app on mobile device
+- Auth0 account
+
+### Run Frontend
+```bash
+cd frontend
+npm install
+npx expo start --tunnel
+```
+
+Scan the QR code with Expo Go (Android) or Camera app (iOS).
+
+### Run Backend Locally
+```bash
+cd backend-kotlin
+./gradlew bootRun
+```
+
+## Production Considerations
+
+For a production implementation, the following enhancements would be recommended:
+
+| Area | Enhancement |
+|------|-------------|
+| Authentication | BankID integration for Norwegian users |
+| Data Persistence | Backend database for delegations and consents |
+| Security | Audit logging, rate limiting, DDoS protection |
+| Tokens | Refresh token rotation |
+| Monitoring | Application insights, error tracking |
+
+## Author
+
+Daniel Parker  
+Bachelor in Computer Science, University of Oslo
+
+## License
+
+This project is for demonstration purposes.
+</file>
+
+<file path="frontend/App.js">
+// frontend/App.js
+// CIAM Demo - Main Application
+// Responsibility: App orchestration, provider setup, and navigation
+
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+
+// Contexts
+import { AuthProvider, useAuth } from './src/contexts/AuthContext';
+import { UserProvider, useUser } from './src/contexts/UserContext';
+import { ConsentProvider, useConsent } from './src/contexts/ConsentContext';
+
+// Screens
+import {
+  LoginScreen,
+  HomeScreen,
+  ProfileScreen,
+  ApiTestScreen,
+  ConsentScreen,
+  SecurityInfoScreen,
+  DelegationScreen,
+} from './src/screens';
+
+// Components
+import { BottomNav, ProfileSwitcher } from './src/components';
+
+// Styles
+import { COLORS } from './src/styles/theme';
+
+// ---------------------
+// APP PROVIDERS
+// ---------------------
+
+function AppProviders({ children }) {
+  return (
+    <SafeAreaProvider>
+      <AuthProvider>
+        <ConsentProvider>
+          <AppWithAuth>{children}</AppWithAuth>
+        </ConsentProvider>
+      </AuthProvider>
+    </SafeAreaProvider>
+  );
+}
+
+function AppWithAuth({ children }) {
+  const { user } = useAuth();
+
+  return (
+    <UserProvider userId={user?.sub}>
+      {children}
+    </UserProvider>
+  );
+}
+
+// ---------------------
+// MAIN APP
+// ---------------------
+
+export default function App() {
+  return (
+    <AppProviders>
+      <AppContent />
+    </AppProviders>
+  );
+}
+
+// ---------------------
+// APP CONTENT
+// ---------------------
+
+function AppContent() {
+  const { user, accessToken, isLoading, login, logout, isReady } = useAuth();
+  const { hasConsented, acceptConsents, consents, toggleConsent, resetConsentState } = useConsent();
+  const {
+    customerType,
+    selectCustomerType,
+    activeProfile,
+    availableProfiles,
+    isProfileSwitcherVisible,
+    openProfileSwitcher,
+    closeProfileSwitcher,
+    switchProfile,
+    initializeDefaultProfile,
+    resetUserState,
+  } = useUser();
+
+  const [activeTab, setActiveTab] = React.useState('home');
+
+  React.useEffect(() => {
+    if (user && customerType && !activeProfile) {
+      initializeDefaultProfile(user.sub, customerType);
+    }
+  }, [user, customerType, activeProfile, initializeDefaultProfile]);
+
+  const handleLogout = async () => {
+    logout();
+    resetConsentState();
+    resetUserState();
+    setActiveTab('home');
+  };
+
+  const handleDeleteAccount = async () => {
+    await handleLogout();
+  };
+
+  // Not logged in
+  if (!user) {
+    return (
+      <LoginScreen
+        onLogin={login}
+        loading={isLoading || !isReady}
+        selectedCustomerType={customerType}
+        onSelectCustomerType={selectCustomerType}
+      />
+    );
+  }
+
+  // Logged in but not consented
+  if (!hasConsented) {
+    return <ConsentScreen user={user} onAccept={acceptConsents} />;
+  }
+
+  // Fully logged in and consented
+  return (
+    <View style={styles.container}>
+      <ScreenContent
+        activeTab={activeTab}
+        user={user}
+        accessToken={accessToken}
+        customerType={customerType}
+        activeProfile={activeProfile}
+        consents={consents}
+        onOpenProfileSwitcher={openProfileSwitcher}
+        onLogout={handleLogout}
+        onDeleteAccount={handleDeleteAccount}
+        onConsentChange={toggleConsent}
+      />
+
+      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+
+      <ProfileSwitcher
+        visible={isProfileSwitcherVisible}
+        profiles={availableProfiles}
+        activeProfileId={activeProfile?.id}
+        onSelectProfile={switchProfile}
+        onClose={closeProfileSwitcher}
+      />
+    </View>
+  );
+}
+
+// ---------------------
+// SCREEN CONTENT
+// ---------------------
+
+function ScreenContent({
+  activeTab,
+  user,
+  accessToken,
+  customerType,
+  activeProfile,
+  consents,
+  onOpenProfileSwitcher,
+  onLogout,
+  onDeleteAccount,
+  onConsentChange,
+}) {
+  switch (activeTab) {
+    case 'home':
+      return (
+        <HomeScreen
+          user={user}
+          customerType={customerType}
+          activeProfile={activeProfile}
+          onOpenProfileSwitcher={onOpenProfileSwitcher}
+        />
+      );
+    case 'delegation':
+      return <DelegationScreen user={user} />;
+    case 'api':
+      return <ApiTestScreen accessToken={accessToken} />;
+    case 'security':
+      return <SecurityInfoScreen />;
+    case 'profile':
+      return (
+        <ProfileScreen
+          user={user}
+          consents={consents}
+          customerType={customerType}
+          onLogout={onLogout}
+          onDeleteAccount={onDeleteAccount}
+          onConsentChange={onConsentChange}
+        />
+      );
+    default:
+      return null;
+  }
+}
+
+// ---------------------
+// STYLES
+// ---------------------
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.gray100,
+  },
+});
+</file>
+
+</files>

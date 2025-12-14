@@ -1,0 +1,40 @@
+# Node
+**/node_modules/**
+**/package-lock.json
+
+# Build outputs
+**/build/**
+**/dist/**
+**/.expo/**
+**/.gradle/**
+
+# IDE
+**/.vscode/**
+**/.idea/**
+
+# Git
+**/.git/**
+
+# Logs
+*.log
+
+# Media/binaries
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+
+# Android/iOS builds
+**/android/**
+**/ios/**
+
+# Gradle
+**/*.jar
+**/gradlew
+**/gradlew.bat
+
+# Misc
+**/.DS_Store
+**/Thumbs.db

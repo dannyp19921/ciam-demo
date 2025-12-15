@@ -285,6 +285,7 @@ This demo mirrors real CIAM patterns used by Gjensidige:
 
 | Endpoint | Authentication | Description |
 |----------|----------------|-------------|
+| GET / | None | Returns API documentation |
 | GET /public | None | Returns public greeting |
 | GET /protected | JWT required | Returns user info from token claims |
 

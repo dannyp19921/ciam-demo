@@ -1,3 +1,4 @@
+// backend-kotlin/src/main/kotlin/no/gjensidige/ciam/ApiController.kt  
 package no.gjensidige.ciam
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -7,6 +8,30 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class ApiController {
+
+    @GetMapping("/")
+    fun rootEndpoint(): Map<String, Any> {
+        return mapOf(
+            "name" to "CIAM Demo API",
+            "description" to "Customer Identity and Access Management demonstration API",
+            "version" to "1.0.0",
+            "endpoints" to mapOf(
+                "public" to mapOf(
+                    "url" to "/public",
+                    "method" to "GET",
+                    "auth" to "None",
+                    "description" to "Public endpoint - no authentication required"
+                ),
+                "protected" to mapOf(
+                    "url" to "/protected",
+                    "method" to "GET",
+                    "auth" to "JWT Bearer token",
+                    "description" to "Protected endpoint - requires valid Auth0 JWT"
+                )
+            ),
+            "documentation" to "https://github.com/dannyp19921/ciam-demo"
+        )
+    }
 
     @GetMapping("/public")
     fun publicEndpoint(): Map<String, String> {
